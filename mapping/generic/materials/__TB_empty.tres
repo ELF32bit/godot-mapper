@@ -1,0 +1,9 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://cwkiaqyuwet2f"]
+
+[ext_resource type="Shader" uid="uid://b0lpitov3ccng" path="res://mapping/generic/shaders/wireframe.gdshader" id="1_01dyi"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_01dyi")
+shader_parameter/wireframe_width_min = 10.0
+shader_parameter/wireframe_width_max = 20.0

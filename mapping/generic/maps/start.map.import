@@ -1,0 +1,17 @@
+[remap]
+
+importer="mapper.map.scene"
+type="PackedScene"
+uid="uid://14i67853ow6j"
+path="res://.godot/imported/start.map-b82343784a329c7d23c5ed8b413c4f0a.scn"
+
+[deps]
+
+source_file="res://mapping/generic/maps/start.map"
+dest_files=["res://.godot/imported/start.map-b82343784a329c7d23c5ed8b413c4f0a.scn"]
+
+[params]
+
+game=0
+wads=[]
+options={}
