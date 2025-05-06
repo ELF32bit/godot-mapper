@@ -22,3 +22,4 @@ enabled=PackedStringArray("res://addons/mapper/plugin.cfg")
 [rendering]
 
 renderer/rendering_method="mobile"
+occlusion_culling/use_occlusion_culling=true

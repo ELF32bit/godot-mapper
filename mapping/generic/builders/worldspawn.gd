@@ -22,16 +22,9 @@ static func build(map: MapperMap, entity: MapperEntity) -> Node:
 
 static func post_build_environment(map: MapperMap) -> void:
 	var sky := Sky.new()
-	sky.sky_material = ShaderMaterial.new()
-	#sky.sky_material.shader = preload("../shaders/sky-flowing.gdshader")
+	sky.sky_material = ProceduralSkyMaterial.new()
 	sky.process_mode = Sky.PROCESS_MODE_INCREMENTAL
 	sky.radiance_size = Sky.RADIANCE_SIZE_128
-
-	#sky.sky_material.set_shader_parameter("sky_texture", preload("../textures/panoramas/01.png"))
-	#sky.sky_material.set_shader_parameter("sun_enabled", true)
-	#sky.sky_material.set_shader_parameter("sun_rotation", Vector2(25.0, 120.0))
-	#sky.sky_material.set_shader_parameter("sun_threshold", 0.94)
-	#sky.sky_material.set_shader_parameter("sun_blend", 0.06)
 
 	var environment := Environment.new()
 	environment.background_mode = Environment.BG_SKY
