@@ -40,7 +40,12 @@ func _get_property(method: StringName, property: StringName, default: Variant) -
 	if value == null:
 		return default
 	var converted_property: Variant = factory.game_property_converter.call(method, value)
-	return converted_property if converted_property != null else default
+	if converted_property != null:
+		return converted_property
+	elif default != null:
+		if method == "convert_unit":
+			return factory.game_property_converter.call(method, str(default))
+	return default
 
 
 func _bind_property(type: StringName, property: StringName, node_property: StringName) -> void:
