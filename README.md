@@ -1,4 +1,4 @@
-# Quake mapping plugin for Godot 4.x
+# Quake mapping plugin for Godot 4
 ![image caption](screenshots/preview.png)
 
 Mapper plugin provides a way to manage game directories with map resources.<br>
