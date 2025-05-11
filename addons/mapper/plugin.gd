@@ -10,12 +10,12 @@ var mdl_scene_import_plugin: Variant = null
 
 
 func _enter_tree() -> void:
-	palette_import_plugin = preload("res://addons/mapper/importers/palette.gd").new()
-	wad_import_plugin = preload("res://addons/mapper/importers/wad.gd").new()
-	mdl_import_plugin = preload("res://addons/mapper/importers/mdl.gd").new()
-	map_import_plugin = preload("res://addons/mapper/importers/map.gd").new()
-	map_scene_import_plugin = preload("res://addons/mapper/importers/map-scene.gd").new()
-	mdl_scene_import_plugin = preload("res://addons/mapper/importers/mdl-scene.gd").new()
+	palette_import_plugin = preload("importers/palette.gd").new()
+	wad_import_plugin = preload("importers/wad.gd").new()
+	mdl_import_plugin = preload("importers/mdl.gd").new()
+	map_import_plugin = preload("importers/map.gd").new()
+	map_scene_import_plugin = preload("importers/map-scene.gd").new()
+	mdl_scene_import_plugin = preload("importers/mdl-scene.gd").new()
 
 	add_import_plugin(palette_import_plugin)
 	add_import_plugin(wad_import_plugin)
