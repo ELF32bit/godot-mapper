@@ -6,7 +6,7 @@ extends Resource
 @export var entities: Array[MapperEntityResource]
 
 
-func _init(name: String = "", source_file = "", entities: Array[MapperEntityResource] = []) -> void:
+func _init(name: String = "", source_file: String = "", entities: Array[MapperEntityResource] = []) -> void:
 	self.name = name
 	self.source_file = source_file
 	self.entities = entities
