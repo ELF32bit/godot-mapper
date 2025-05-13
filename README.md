@@ -1,5 +1,5 @@
 # Quake mapping plugin for Godot 4
-![image caption](screenshots/preview.png)
+![Preview](screenshots/preview.png)
 Mapper plugin provides a way to manage game directories with map resources.<br>
 Construct Godot scenes from maps using your own scripts and run them without the plugin.<br>
 Organize map resources into game expansions by specifying alternative game directories.<br>
@@ -124,8 +124,8 @@ MapperUtilities.add_to_navigation_region(entity_node, navigation_region)
 
 # func_detail entities will affect worldspawn navigation region
 for map_entity in map.classnames.get("func_detail", []):
-    map_entity.node_groups.append(navigation_group)
+	map_entity.node_groups.append(navigation_group)
 ```
 
 ## Examples
-Check out provided examples to get a hang on API. <br>
+Check out provided examples to get a hang on API.<br>
