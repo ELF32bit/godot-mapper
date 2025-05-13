@@ -1,6 +1,5 @@
 # Quake mapping plugin for Godot 4
 ![image caption](screenshots/preview.png)
-
 Mapper plugin provides a way to manage game directories with map resources.<br>
 Construct Godot scenes from maps using your own scripts and run them without the plugin.<br>
 Organize map resources into game expansions by specifying alternative game directories.<br>
@@ -10,7 +9,7 @@ Organize map resources into game expansions by specifying alternative game direc
 * Automatic loading of PBR textures, animated textures and shader material textures.
 * Effortless brush entity construction and animation using plugin functions.
 * Safe entity property parsing and binding, entity linking and grouping.
-* **Ability to scatter grass on textures and fill space with points!**
+* **Ability to scatter grass on textures and barycentric wireframes!**
 * Texture WAD and Palette support.
 * Basic MDL support.
 
@@ -25,24 +24,39 @@ Organize map resources into game expansions by specifying alternative game direc
 * game/wads for additional texture WADs.
 * game/mdls for animated models.
 
-### 2. Construct map entities using build scripts.
+### 2. Construct map entities with build scripts.
 Scripts inside builders directory are used to construct map entities.<br>
 Entity classname property determines which build script the plugin will execute.<br>
 Build scripts ending with underscore can be used to construct many similar entities.<br>
 For example, trigger_.gd will be executed for trigger_once and trigger_multiple entities.<br>
 
 #### MapperUtilities class provides smart build functions.
-```
+```GDScript
+# func_breakable.gd will create individual brushes for an explosion
 static func build(map: MapperMap, entity: MapperEntity) -> Node:
 	return MapperUtilities.create_brush_entity(entity, "StaticBody3D")
 ```
-
+```GDScript
+# func_detail.gd brushes will be merged into a single geometry
+static func build(map: MapperMap, entity: MapperEntity) -> Node:
+	return MapperUtilities.create_merged_brush_entity(entity, "StaticBody3D")
+```
+```GDScript
+# trigger_multiple.gd will create Area3D with a single merged collision shape
+static func build(map: MapperMap, entity: MapperEntity) -> Node:
+	return MapperUtilities.create_merged_brush_entity(entity, "Area3D", false, true, false)
+```
+```GDScript
+# func_decal.gd will create an improvised decal from a brush
+static func build(map: MapperMap, entity: MapperEntity) -> Node:
+	return MapperUtilities.create_decal_entity(entity)
+```
 Create entity node or nodes, set a script and bind entity properties.<br>
 Entity linking information is also avaliable, but linked entities might not be constructed yet.<br>
 Post build script named __post.gd can be executed after all entity nodes are constructed.<br>
 
 ### 3. Define map materials with additional metadata.
-Materials support the same naming pattern as build scripts with underscore.<br>
+Materials support the same naming pattern with underscore as build scripts.<br>
 Moreover, material named WOOD_.tres will also apply to WOOD1, WOOD2, etc.<br>
 Shader materials that use standard texture parameters will be assigned provided textures.<br>
 For example, albedo_texture or normal_texture uniforms inside a shader.<br>
@@ -53,12 +67,12 @@ For example, albedo_texture or normal_texture uniforms inside a shader.<br>
 * "gi_mode" will set MeshInstance3D gi_mode to the specified mode.
 * "ignore_occlusion" will disable occlusion culling for MeshInstance3D.
 * "collision_disabled" set to True will disable CollisionShape3D.
-* "collision_layer" will set CollisionObject3D layer to the specified layer,
-* "collision_mask" will set CollisionObject3D mask to the specified mask,
+* "collision_layer" will set CollisionObject3D layer to the specified layer.
+* "collision_mask" will set CollisionObject3D mask to the specified mask.
 * "occluder_disabled" set to True will disable OccluderInstance3D.
 * "occluder_mask" will set OccluderInstance3D mask to the specified mask.
 
-### 4. Animated textures and material slot alternative textures.
+### 4. Animated textures and material alternative textures.
 Generic textures are using complex naming pattern.<br>
 
 #### Animated texture with 3 frames, possibly followed by PBR suffix.
@@ -66,7 +80,7 @@ Generic textures are using complex naming pattern.<br>
 * texture-1_albedo.png
 * texture-2.png
 
-#### Material slot alternative textures, possibly followed by animated texture suffix.
+#### Material alternative textures, possibly followed by animated texture suffix.
 * texture+0.png
 * texture+1-0.png
 * texture+1-1_albedo.png
@@ -80,18 +94,23 @@ Custom loader can be implemented for your own assets.<br>
 ### 5. Bind entity properties to node properties.
 Simple entity properties can be bound to entity node properties.<br>
 Assignment of node properties happens after entity node is constructed.<br>
-```
+```GDScript
 entity.bind_int_property("hp", "health")
 ```
 Sometimes it's necessary to modify entity properties before assigning.<br>
-```
-entity_node.health = entity.get_int_property("hp", 0) / 2
+```GDScript
+entity_node.health = entity.get_int_property("hp", 0) * 10.0
 ```
 Complex entity properties like signals or node paths can also be bound.<br>
 For example, trigger might need to send a kill signal to another entity.<br>
+```GDScript
+# trigger entity will send generic signal upon activation
+entity.bind_signal_property("target", "targetname", "generic", "_on_generic_signal")
+entity.bind_signal_property("killtarget", "targetname", "generic", "queue_free")
 ```
-entity.bind_signal_property(...)
-entity.bind_node_path_property(...)
+```GDScript
+# path_corner entity will be storing an array of other path_corner targets
+entity.bind_node_path_array_property("target", "targetname", "targets", "path_corner")
 ```
 
 ### 6. Assign navigation regions.
