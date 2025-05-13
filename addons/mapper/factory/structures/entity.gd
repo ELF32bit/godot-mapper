@@ -43,7 +43,7 @@ func _get_property(method: StringName, property: StringName, default: Variant) -
 	if converted_property != null:
 		return converted_property
 	elif default != null:
-		if method == "convert_unit":
+		if method == "convert_unit" or (method == "convert_origin" and default is String):
 			return factory.game_property_converter.call(method, str(default))
 	return default
 

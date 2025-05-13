@@ -32,12 +32,12 @@ For example, trigger_.gd will be executed for trigger_once and trigger_multiple 
 
 #### MapperUtilities class provides smart build functions.
 ```GDScript
-# func_breakable.gd will create individual brushes for an explosion
+# func_detail.gd will create individual brushes 
 static func build(map: MapperMap, entity: MapperEntity) -> Node:
 	return MapperUtilities.create_brush_entity(entity, "StaticBody3D")
 ```
 ```GDScript
-# func_detail.gd brushes will be merged into a single geometry
+# worldspawn.gd brushes will be merged into a single geometry
 static func build(map: MapperMap, entity: MapperEntity) -> Node:
 	return MapperUtilities.create_merged_brush_entity(entity, "StaticBody3D")
 ```
@@ -116,6 +116,16 @@ entity.bind_node_path_array_property("target", "targetname", "targets", "path_co
 ### 6. Assign navigation regions.
 Various entities might affect navigation regions differently.<br>
 Use entity node groups to manage entity navigation groups.<br>
+```GDScript
+# worldspawn.gd
+var navigation_region := MapperUtilities.create_navigation_region(entity, entity_node)
+var navigation_group := navigation_region.navigation_mesh.geometry_source_group_name
+MapperUtilities.add_to_navigation_region(entity_node, navigation_region)
+
+# func_detail entities will affect worldspawn navigation region
+for map_entity in map.classnames.get("func_detail", []):
+    map_entity.node_groups.append(navigation_group)
+```
 
 ## Examples
 Check out provided examples to get a hang on API. <br>
