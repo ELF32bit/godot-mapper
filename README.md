@@ -4,6 +4,8 @@ Mapper plugin provides a way to manage game directories with map resources.<br>
 Construct Godot scenes from maps using your own scripts and run them without the plugin.<br>
 Organize map resources into game expansions by specifying alternative game directories.<br>
 
+#### [Available in Godot Asset Library](https://godotengine.org/asset-library/asset/4016)
+
 ## Features
 * Progressive loading of complex maps as scenes in a deterministic way.
 * Automatic loading of PBR textures, animated textures and shader material textures.
