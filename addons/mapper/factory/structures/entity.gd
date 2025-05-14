@@ -42,9 +42,6 @@ func _get_property(method: StringName, property: StringName, default: Variant) -
 	var converted_property: Variant = factory.game_property_converter.call(method, value)
 	if converted_property != null:
 		return converted_property
-	elif default != null:
-		if method == "convert_unit" or (method == "convert_origin" and default is String):
-			return factory.game_property_converter.call(method, str(default))
 	return default
 
 
@@ -76,7 +73,15 @@ func get_string_property(property: StringName, default: Variant = null) -> Varia
 	return _get_property("convert_string", property, default)
 
 
-func get_origin_property(property: StringName, default: Variant = null) -> Variant:
+func get_origin_property(property: StringName, default: Variant = null, convert_default: bool = true) -> Variant:
+	if convert_default:
+		var default_string: String = ""
+		if default is String or default is StringName:
+			default_string = str(default)
+		elif default is Vector3 or default is Vector3i:
+			default_string = "%s %s %s" % [default.x, default.y, default.z]
+		var converted_default: Variant = factory.game_property_converter.call("convert_origin", default_string)
+		return _get_property("convert_origin", property, converted_default)
 	return _get_property("convert_origin", property, default)
 
 
@@ -88,7 +93,13 @@ func get_angles_property(property: StringName, default: Variant = null) -> Varia
 	return _get_property("convert_angles", property, default)
 
 
-func get_unit_property(property: StringName, default: Variant = null) -> Variant:
+func get_unit_property(property: StringName, default: Variant = null, convert_default: bool = true) -> Variant:
+	if convert_default:
+		var default_string: String = ""
+		if typeof(default) in [TYPE_STRING, TYPE_STRING_NAME, TYPE_INT, TYPE_FLOAT]:
+			default_string = str(default)
+		var converted_default: Variant = factory.game_property_converter.call("convert_unit", default_string)
+		return _get_property("convert_unit", property, converted_default)
 	return _get_property("convert_unit", property, default)
 
 
