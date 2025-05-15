@@ -131,3 +131,6 @@ for map_entity in map.classnames.get("func_detail", []):
 
 ## Examples
 Check out provided examples to get a hang on API.<br>
+Adjust plugin configuration inside **importers/map-scene.gd** file.<br>
+
+#### [Additional tools for creating maps are are available here](https://github.com/ELF32bit/mapping-tools)
