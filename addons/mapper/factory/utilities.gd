@@ -539,7 +539,7 @@ static func create_reset_animation(animation_player: AnimationPlayer, animation_
 	animation_library.add_animation("RESET", reset_animation)
 
 
-static func animation_remove_repeating_keys(animation: Animation) -> void:
+static func remove_repeating_animation_keys(animation: Animation) -> void:
 	for track_index in range(animation.get_track_count()):
 		if animation.track_get_type(track_index) > Animation.TYPE_VALUE:
 			continue
