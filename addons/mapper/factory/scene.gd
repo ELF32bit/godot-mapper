@@ -1167,6 +1167,7 @@ func build_mdl(mdl: MapperMdlResource) -> PackedScene:
 					var key_value: bool = (animations[animation_name][frame] == animation_node)
 					animation.track_insert_key(track_index, key_time, key_value)
 
+			#MapperUtilities.remove_repeating_animation_keys(animation)
 			animation_library.add_animation(animation_name, animation)
 		MapperUtilities.create_reset_animation(animation_player, animation_library)
 
