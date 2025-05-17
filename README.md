@@ -129,6 +129,16 @@ for map_entity in map.classnames.get("func_detail", []):
 	map_entity.node_groups.append(navigation_group)
 ```
 
+### 7. Generate surface and volume distributions.
+Spread parameter will also filter out nearby points.
+```GDScript
+var grass_multimesh := preload("grass_multimesh.tres")
+var grass_transform_array := entity.generate_surface_distribution(
+    ["GRASS*", "__TB_empty"], 1.0, 0.25, 1.0, 2.0, 0.0, 45.0, false, true)
+var grass_multimesh_instance := MapperUtilities.create_multimesh_instance(
+    entity, entity_node, grass_multimesh, grass_transform_array)
+```
+
 ## Examples
 Check out provided examples to get a hang on API.<br>
 Adjust plugin configuration inside **importers/map-scene.gd** file.<br>
