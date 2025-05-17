@@ -60,7 +60,7 @@ func _get_option_visibility(path: String, option_name: StringName, options: Dict
 
 
 func _get_import_order() -> int:
-	return EditorImportPlugin.IMPORT_ORDER_SCENE + 3
+	return EditorImportPlugin.IMPORT_ORDER_SCENE + 50
 
 
 func _get_priority() -> float:
