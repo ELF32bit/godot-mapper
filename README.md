@@ -82,6 +82,11 @@ Generic textures are using complex naming pattern.<br>
 * texture-1_albedo.png
 * texture-2.png
 
+> Setting frame rate on generic animated textures is harder than it needs to be.<br>
+Game loader stores animated texture cache, unless **store_unique_animated_textures**.<br>
+Animated textures can be retrieved from that cache inside __post.gd script.<br>
+For now, it's expected for all such textures to have the same frame rate.<br>
+
 #### Material alternative textures, possibly followed by animated texture suffix.
 * texture+0.png
 * texture+1-0.png
