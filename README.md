@@ -147,5 +147,6 @@ var grass_multimesh_instance := MapperUtilities.create_multimesh_instance(
 ## Examples
 Check out provided examples to get a hang on API.<br>
 Adjust plugin configuration inside **importers/map-scene.gd** file.<br>
+Disable **editor/import/use_multiple_threads** for older versions of Godot.<br>
 
 #### [Additional tools for creating maps are are available here](https://github.com/ELF32bit/mapping-tools)

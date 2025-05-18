@@ -46,7 +46,7 @@ func _get_import_options(path: String, preset_index: int) -> Array[Dictionary]:
 		},
 		{
 			"name": "use_threads",
-			"default_value": true,
+			"default_value": false,
 		},
 	]
 
@@ -69,7 +69,7 @@ func _import(source_file: String, save_path: String, options: Dictionary, platfo
 	if ResourceLoader.exists(palette_path):
 		palette = load(palette_path) as MapperPaletteResource
 
-	var wad := MapperWadResource.load_from_file(source_file, palette, options.get("use_threads", true))
+	var wad := MapperWadResource.load_from_file(source_file, palette, options.get("use_threads", false))
 	if not wad:
 		return ERR_PARSE_ERROR
 

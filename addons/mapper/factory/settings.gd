@@ -55,7 +55,7 @@ const MAX_MATERIAL_TEXTURES: int = 1024
 
 var options: Dictionary
 
-@export var use_threads := true
+@export var use_threads := false
 @export var force_deterministic := true
 
 @export var basis := Basis(Vector3(0.0, 0.0, -1.0), Vector3(-1.0, 0.0, 0.0), Vector3(0.0, 1.0, 0.0)):

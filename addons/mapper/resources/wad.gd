@@ -8,7 +8,7 @@ func _init(textures: Dictionary = {}) -> void:
 	self.textures = textures
 
 
-static func load_from_file(path: String, palette: MapperPaletteResource = null, use_threads: bool = true) -> MapperWadResource:
+static func load_from_file(path: String, palette: MapperPaletteResource = null, use_threads: bool = false) -> MapperWadResource:
 	var file := FileAccess.open(path, FileAccess.READ)
 	if not file:
 		return null

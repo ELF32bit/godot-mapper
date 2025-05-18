@@ -209,7 +209,9 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 			for face in brush.faces:
 				var face_vertices := face.vertices
 				for index in range(face_vertices.size()):
-					face_vertices[index] = face_vertices[index].snappedf(grid_snap_step)
+					face_vertices[index].x = snappedf(face_vertices[index].x, grid_snap_step)
+					face_vertices[index].y = snappedf(face_vertices[index].y, grid_snap_step)
+					face_vertices[index].z = snappedf(face_vertices[index].z, grid_snap_step)
 
 		# creating brush vertex normals from plane normals
 		for face in brush.faces:

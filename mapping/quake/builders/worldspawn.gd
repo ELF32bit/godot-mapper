@@ -33,7 +33,7 @@ static func post_build_environment(map: MapperMap) -> void:
 	environment.sky = sky
 
 	environment.fog_enabled = true
-	environment.fog_mode = Environment.FOG_MODE_EXPONENTIAL
+	#environment.fog_mode = Environment.FOG_MODE_EXPONENTIAL
 	environment.fog_light_color = Color(0.518, 0.553, 0.608)
 	environment.fog_sky_affect = 0.0
 	environment.fog_density = 0.01

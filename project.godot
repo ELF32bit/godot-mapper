@@ -12,8 +12,7 @@ config_version=5
 
 config/name="Mapper Plugin"
 config/version="1.0"
-run/main_scene="uid://14i67853ow6j"
-config/features=PackedStringArray("4.4", "Mobile")
+config/features=PackedStringArray("4.2", "Mobile")
 
 [editor_plugins]
 
