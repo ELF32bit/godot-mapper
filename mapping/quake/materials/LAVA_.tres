@@ -12,4 +12,4 @@ shader_parameter/emission_energy_multiplier = 4.0
 metadata/liquid = 2
 metadata/mesh_disabled = true
 metadata/collision_disabled = true
-metadata/occluder_disabled = false
+metadata/occluder_disabled = true

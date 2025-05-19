@@ -46,15 +46,24 @@ static func build(map: MapperMap, entity: MapperEntity) -> Node:
 ```GDScript
 # trigger_multiple.gd will create Area3D with a single merged collision shape
 static func build(map: MapperMap, entity: MapperEntity) -> Node:
-	return MapperUtilities.create_merged_brush_entity(entity, "Area3D", false, true, false)
+	return MapperUtilities.create_merged_brush_entity(entity, "Area3D",
+		false, true, false)
 ```
 ```GDScript
 # func_decal.gd will create an improvised decal from a brush
 static func build(map: MapperMap, entity: MapperEntity) -> Node:
 	return MapperUtilities.create_decal_entity(entity)
 ```
-Create entity node or nodes, set a script and bind entity properties.<br>
+Create entity node or nodes, set a script with @export annotations and bind entity properties.<br>
 Entity linking information is also avaliable, but linked entities might not be constructed yet.<br>
+```GDScript
+# light_.gd
+var entity_target := map.get_first_entity_target(entity,
+	"target", "targetname", "info_null")
+if entity_target:
+	entity_target.get_origin_property("origin", null) # is available
+	entity_target.node # is missing
+```
 Post build script named __post.gd can be executed after all entity nodes are constructed.<br>
 
 ### 3. Define map materials with additional metadata.
@@ -87,7 +96,7 @@ for brush in entity.brushes:
 	if not brush.get_uniform_property("liquid", 0) > 0:
 		continue
 
-	var liquid_area := MapperFactory.create_brush(entity, brush, "Area3D")
+	var liquid_area := MapperUtilities.create_brush(entity, brush, "Area3D")
 	if not liquid_area:
 		continue
 
@@ -100,7 +109,7 @@ for brush in entity.brushes:
 		elif child is OccluderInstance3D:
 			child.visible = true
 
-	MapperFactory.add_global_child(entity, liquid_area, entity_node)
+	MapperUtilities.add_global_child(entity, liquid_area, entity_node)
 ```
 
 ### 4. Animated textures and material alternative textures.
@@ -148,6 +157,7 @@ entity.bind_signal_property("killtarget", "targetname", "generic", "queue_free")
 # path_corner entity will be storing an array of other path_corner targets
 entity.bind_node_path_array_property("target", "targetname", "targets", "path_corner")
 ```
+Common entity properties such as origin, angle, mangle are already bound.<br>
 
 ### 6. Assign navigation regions.
 Various entities might affect navigation regions differently.<br>
