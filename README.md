@@ -74,6 +74,35 @@ For example, albedo_texture or normal_texture uniforms inside a shader.<br>
 * "occluder_disabled" set to True will disable OccluderInstance3D.
 * "occluder_mask" will set OccluderInstance3D mask to the specified mask.
 
+Material metadata can be used to filter out special brushes.<br>
+```GDScript
+# WATER_.tres material
+metadata/liquid = 1
+metadata/mesh_disabled = true
+metadata/collision_disabled = true
+metadata/occluder_disabled = true
+
+# worldspawn.gd (created as the merged brush entity)
+for brush in entity.brushes:
+	if not brush.get_uniform_property("liquid", 0) > 0:
+		continue
+
+	var liquid_area := MapperFactory.create_brush(entity, brush, "Area3D")
+	if not liquid_area:
+		continue
+
+	# manually re-enabling disabled brush nodes
+	for child in liquid_area.get_children():
+		if child is MeshInstance3D:
+			child.visible = true	
+		elif child is CollisionShape3D:
+			child.disabled = false
+		elif child is OccluderInstance3D:
+			child.visible = true
+
+	MapperFactory.add_global_child(entity, liquid_area, entity_node)
+```
+
 ### 4. Animated textures and material alternative textures.
 Generic textures are using complex naming pattern.<br>
 
