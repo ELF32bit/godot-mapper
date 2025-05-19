@@ -1,0 +1,13 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://nik4l6un0me1"]
+
+[ext_resource type="Shader" path="res://mapping/quake/shaders/flow.gdshader" id="1_gf8yi"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_gf8yi")
+shader_parameter/flow_intensity = 0.15
+shader_parameter/flow_speed = 2.0
+metadata/liquid = 1
+metadata/mesh_disabled = true
+metadata/collision_disabled = true
+metadata/occluder_disabled = true

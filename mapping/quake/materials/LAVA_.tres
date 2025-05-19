@@ -1,0 +1,15 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://dm2gwc86mu1pa"]
+
+[ext_resource type="Shader" path="res://mapping/quake/shaders/flow.gdshader" id="1_dovq6"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_dovq6")
+shader_parameter/flow_intensity = 0.15
+shader_parameter/flow_speed = 2.0
+shader_parameter/emission_enabled = true
+shader_parameter/emission_energy_multiplier = 4.0
+metadata/liquid = 2
+metadata/mesh_disabled = true
+metadata/collision_disabled = true
+metadata/occluder_disabled = false

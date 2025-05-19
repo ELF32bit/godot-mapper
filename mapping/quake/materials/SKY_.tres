@@ -1,0 +1,9 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://dyoib1mljaawg"]
+
+[ext_resource type="Shader" path="res://mapping/quake/shaders/sky.gdshader" id="1_0gl3q"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_0gl3q")
+shader_parameter/emission_energy = 8.0
+metadata/mesh_disabled = false

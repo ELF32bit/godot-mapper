@@ -1,0 +1,6 @@
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://djh8aslfd4nik"]
+
+[resource]
+metallic_specular = 0.0
+metadata/mesh_disabled = true
+metadata/occluder_disabled = true
