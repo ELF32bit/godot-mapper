@@ -79,6 +79,7 @@ var options: Dictionary
 
 @export var store_base_materials := true
 @export var store_unique_animated_textures := false
+@export var animated_textures_frame_duration: float = 0.2
 @export var shader_texture_slots := SHADER_TEXTURE_SLOTS
 @export var texture_suffixes := TEXTURE_SUFFIXES
 

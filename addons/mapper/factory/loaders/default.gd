@@ -98,7 +98,7 @@ func load_animated_texture(texture: String, wads: Array) -> Texture2D:
 			animated_texture.one_shot = false
 			for frame in range(animated_texture.frames):
 				animated_texture.set_frame_texture(frame, frames[frame])
-				animated_texture.set_frame_duration(frame, 1.0)
+				animated_texture.set_frame_duration(frame, settings.animated_textures_frame_duration)
 			return animated_texture
 
 	return load_texture(texture, wads)
