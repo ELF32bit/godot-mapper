@@ -1,6 +1,8 @@
 class_name MapperMapResource
 extends Resource
 
+const MAX_FACES_PER_BRUSH: int = 128
+
 @export var name: String
 @export var source_file: String
 @export var entities: Array[MapperEntityResource]
@@ -14,11 +16,8 @@ func _init(name: String = "", source_file: String = "", entities: Array[MapperEn
 
 static func load_from_file(path: String) -> MapperMapResource:
 	var file := FileAccess.open(path, FileAccess.READ)
-
 	if not file:
 		return null
-
-	const MAX_FACES_PER_BRUSH: int = 128
 
 	var faces: Array[MapperFaceResource]
 	var entities: Array[MapperEntityResource]

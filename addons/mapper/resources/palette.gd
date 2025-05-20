@@ -37,7 +37,6 @@ static func create_from_byte_array(from: PackedByteArray) -> MapperPaletteResour
 
 static func load_from_file(path: String) -> MapperPaletteResource:
 	var file := FileAccess.open(path, FileAccess.READ)
-
 	if not file:
 		return null
 
