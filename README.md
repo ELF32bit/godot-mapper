@@ -165,12 +165,11 @@ Use entity node groups to manage entity navigation groups.<br>
 ```GDScript
 # worldspawn.gd
 var navigation_region := MapperUtilities.create_navigation_region(entity, entity_node)
-var navigation_group := navigation_region.navigation_mesh.geometry_source_group_name
 MapperUtilities.add_to_navigation_region(entity_node, navigation_region)
 
 # func_detail entities will affect worldspawn navigation region
 for map_entity in map.classnames.get("func_detail", []):
-	map_entity.node_groups.append(navigation_group)
+	MapperUtilities.add_entity_to_navigation_region(map_entity, navigation_region)
 ```
 
 ### 7. Generate surface and volume distributions.

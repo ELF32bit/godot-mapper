@@ -10,12 +10,11 @@ static func build(map: MapperMap, entity: MapperEntity) -> Node:
 
 	# creating worldspawn navigation region
 	var navigation_region := MapperUtilities.create_navigation_region(entity, static_body, true)
-	var navigation_group := navigation_region.navigation_mesh.geometry_source_group_name
 	MapperUtilities.add_to_navigation_region(static_body, navigation_region)
 
 	# adding map entities to worldspawn navigation region
 	for map_entity in map.classnames.get("func_detail", []):
-		map_entity.node_groups.append(navigation_group)
+		MapperUtilities.add_entity_to_navigation_region(map_entity, navigation_region)
 
 	return node
 

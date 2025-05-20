@@ -144,6 +144,11 @@ static func add_to_navigation_region(node: Node, navigation_region: NavigationRe
 		node.add_to_group(navigation_region.navmesh.geometry_source_group_name, true)
 
 
+static func add_entity_to_navigation_region(entity: MapperEntity, navigation_region: NavigationRegion3D) -> void:
+	if navigation_region and navigation_region.navmesh:
+		entity.node_groups.append(navigation_region.navmesh.geometry_source_group_name)
+
+
 static func create_voxel_gi(map: MapperMap, parent: Node, aabb: AABB, scale: float = 1.2, as_first_child: bool = true, automatic: bool = false) -> VoxelGI:
 	if not aabb.has_surface():
 		return null
