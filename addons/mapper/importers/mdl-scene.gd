@@ -67,6 +67,10 @@ func _get_priority() -> float:
 	return 1.0
 
 
+func _can_import_threaded() -> bool:
+	return false
+
+
 func _import(source_file: String, save_path: String, options: Dictionary, platform_variants: Array[String], gen_files: Array[String]) -> Error:
 	var palette_path: String = options.get("palette", "").strip_edges()
 	var palette: MapperPaletteResource = null

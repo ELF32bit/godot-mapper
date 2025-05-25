@@ -11,10 +11,10 @@ extends Resource
 @export var uv_valve: bool
 @export var rotation: float
 @export var scale: Vector2
-@export var parameters: PackedInt32Array
+@export var parameters: PackedInt64Array
 
 
-func _init(point1: Vector3 = Vector3.ZERO, point2: Vector3 = Vector3.ZERO, point3: Vector3 = Vector3.ZERO, material: String = "", u_axis: Vector3 = Vector3.ZERO, v_axis: Vector3 = Vector3.ZERO, uv_shift: Vector2 = Vector2.ZERO, uv_valve: bool = true, rotation: float = 0.0, scale: Vector2 = Vector2.ZERO, parameters: PackedInt32Array = PackedInt32Array()) -> void:
+func _init(point1: Vector3 = Vector3.ZERO, point2: Vector3 = Vector3.ZERO, point3: Vector3 = Vector3.ZERO, material: String = "", u_axis: Vector3 = Vector3.ZERO, v_axis: Vector3 = Vector3.ZERO, uv_shift: Vector2 = Vector2.ZERO, uv_valve: bool = true, rotation: float = 0.0, scale: Vector2 = Vector2.ZERO, parameters: PackedInt64Array = PackedInt64Array()) -> void:
 	self.point1 = point1
 	self.point2 = point2
 	self.point3 = point3
@@ -40,7 +40,7 @@ static func create_from_string(string: String) -> MapperFaceResource:
 	var uv_valve: bool
 	var rotation: float
 	var scale: Vector2
-	var parameters := PackedInt32Array()
+	var parameters := PackedInt64Array()
 
 	for index1 in [1, 6, 11]:
 		for index2 in range(index1, index1 + 3):
