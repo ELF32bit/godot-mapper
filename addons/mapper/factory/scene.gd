@@ -972,12 +972,10 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 								new_node_paths.append(node_path)
 					entity.node.set(node_property, new_node_paths)
 
-	var set_scene_tree_owner := func(node: Node, owner: Node, recursion: Callable) -> void:
-		for child in node.get_children():
-			if not child.owner or child.owner.scene_file_path.is_empty():
-				child.set_owner(owner)
-				if child.get_child_count() > 0:
-					recursion.call(child, owner, recursion)
+	var set_scene_tree_owner := func() -> void:
+		for node in scene_root.find_children("*", "", true, false):
+			if not node.owner or node.owner.scene_file_path.is_empty():
+				node.set_owner(scene_root)
 
 	var pack_scene_tree := func() -> void:
 		var error := packed_scene.pack(scene_root)
@@ -1029,7 +1027,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 	factory.call(generate_scene_tree, 17, "Generating scene tree")
 	factory.call(generate_scene_signals, 18, "Generating scene signals")
 	factory.call(generate_scene_node_paths, 19, "Generating scene node paths")
-	factory.call(set_scene_tree_owner.bind(scene_root, scene_root, set_scene_tree_owner), 20, "Preparing to pack scene tree")
+	factory.call(set_scene_tree_owner, 20, "Preparing to pack scene tree")
 	factory.call(pack_scene_tree, 21, "Packing scene tree")
 	if print_progress:
 		print("Finished building map %s in %.3fs" % [map.name, (build_time / 1000.0)])
