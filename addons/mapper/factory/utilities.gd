@@ -380,10 +380,12 @@ static func create_brush(entity: MapperEntity, brush: MapperBrush, node_class: S
 		for uniform_property in uniform_material_properties:
 			if not uniform_property in reserved_properies:
 				node.set_meta(uniform_property, brush.get_uniform_property(uniform_property))
-		if entity.factory.settings.brush_planes_metadata_property_enabled:
-			node.set_meta(entity.factory.settings.brush_planes_metadata_property, brush.get_planes(entity.factory.settings.skip_material_affects_collision))
-		if entity.factory.settings.brush_aabb_metadata_property_enabled:
-			node.set_meta(entity.factory.settings.brush_aabb_metadata_property, brush.aabb)
+		if entity.factory.settings.planes_metadata_property_enabled:
+			var planes: Array[Array] = []
+			planes.append(brush.get_planes(entity.factory.settings.skip_material_affects_collision))
+			node.set_meta(entity.factory.settings.planes_metadata_property, planes)
+		if entity.factory.settings.aabb_metadata_property_enabled:
+			node.set_meta(entity.factory.settings.aabb_metadata_property, brush.aabb)
 		return node
 	node.free()
 	return null
@@ -424,8 +426,14 @@ static func create_brush_entity(entity: MapperEntity, node_class: StringName = "
 		entity.node_properties.erase("position")
 		entity.node_properties.erase("rotation")
 		entity.node_properties.erase("scale")
-		if entity.factory.settings.brush_aabb_metadata_property_enabled:
-			node.set_meta(entity.factory.settings.brush_aabb_metadata_property, entity.aabb)
+		if entity.factory.settings.planes_metadata_property_enabled:
+			var planes: Array[Array] = []
+			for brush in entity.brushes:
+				if not brush.is_degenerate:
+					planes.append(brush.get_planes(entity.factory.settings.skip_material_affects_collision))
+			node.set_meta(entity.factory.settings.planes_metadata_property, planes)
+		if entity.factory.settings.aabb_metadata_property_enabled:
+			node.set_meta(entity.factory.settings.aabb_metadata_property, entity.aabb)
 		return node
 	node.free()
 	return null
@@ -483,8 +491,14 @@ static func create_merged_brush_entity(entity: MapperEntity, node_class: StringN
 		entity.node_properties.erase("position")
 		entity.node_properties.erase("rotation")
 		entity.node_properties.erase("scale")
-		if entity.factory.settings.brush_aabb_metadata_property_enabled:
-			node.set_meta(entity.factory.settings.brush_aabb_metadata_property, entity.aabb)
+		if entity.factory.settings.planes_metadata_property_enabled:
+			var planes: Array[Array] = []
+			for brush in entity.brushes:
+				if not brush.is_degenerate:
+					planes.append(brush.get_planes(entity.factory.settings.skip_material_affects_collision))
+			node.set_meta(entity.factory.settings.planes_metadata_property, planes)
+		if entity.factory.settings.aabb_metadata_property_enabled:
+			node.set_meta(entity.factory.settings.aabb_metadata_property, entity.aabb)
 		return node
 	node.free()
 	return null

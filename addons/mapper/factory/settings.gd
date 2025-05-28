@@ -128,10 +128,10 @@ var options: Dictionary
 	"occluder_mask": "occluder_mask",
 }
 
-@export var brush_aabb_metadata_property_enabled := true
-@export var brush_aabb_metadata_property: StringName = "aabb"
-@export var brush_planes_metadata_property_enabled := false
-@export var brush_planes_metadata_property: StringName = "planes"
+@export var aabb_metadata_property_enabled := false
+@export var aabb_metadata_property: StringName = "aabb"
+@export var planes_metadata_property_enabled := false
+@export var planes_metadata_property: StringName = "planes"
 
 @export var game_directory: String = "":
 	set(value):
