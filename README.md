@@ -5,6 +5,7 @@ Construct Godot scenes from maps using your own scripts and run them without the
 Organize map resources into game expansions by specifying alternative game directories.<br>
 
 #### [Available in Godot Asset Library](https://godotengine.org/asset-library/asset/4016)
+#### [Comprehensive Quake game profile for this plugin](https://github.com/ELF32bit/godot-mapper-quake)
 #### [Additional tools for creating maps are available here](https://github.com/ELF32bit/mapping-tools)
 
 ## Features
@@ -187,3 +188,4 @@ var grass_multimesh_instance := MapperUtilities.create_multimesh_instance(
 Check out provided examples to get a hang on API.<br>
 Adjust plugin configuration inside **importers/map-scene.gd** file.<br>
 Disable **editor/import/use_multiple_threads** for older versions of Godot.<br>
+Restart Godot if the import process freezes during the first launch.<br>
