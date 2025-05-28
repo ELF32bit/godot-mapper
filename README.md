@@ -63,7 +63,7 @@ Entity linking information is also avaliable, but linked entities might not be c
 var entity_target := map.get_first_entity_target(entity,
 	"target", "targetname", "info_null")
 if entity_target:
-	entity_target.get_origin_property("origin", null) # is available
+	entity_target.get_origin_property(null) # is available
 	entity_target.node # is missing
 ```
 Post build script named __post.gd can be executed after all entity nodes are constructed.<br>
