@@ -119,11 +119,11 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 								map_structure.groups[settings.group_entity_types[type_index]][id] = entity_structure
 
 			# binding common entity properties
-			entity_structure.bind_origin_property(settings.origin_property, "position")
+			entity_structure.bind_origin_property("position")
 			entity_structure.node_properties[StringName("rotation")] = forward_rotation_euler
-			entity_structure.bind_angle_property(settings.angle_property, "rotation")
-			entity_structure.bind_angles_property(settings.angles_property, "rotation")
-			entity_structure.bind_angles_property(settings.mangle_property, "rotation")
+			entity_structure.bind_angle_property("rotation")
+			entity_structure.bind_angles_property("rotation")
+			entity_structure.bind_mangle_property("rotation")
 
 			for brush in entity.brushes:
 				var brush_structure := MapperBrush.new()
@@ -176,8 +176,14 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 				break
 
 		if settings.skip_material_enabled:
-			if face.material_name.get_file().matchn(settings.skip_material):
+			var material_file := face.material_name.get_file()
+			if material_file.matchn(settings.skip_material):
 				face.skip = true
+			else:
+				for skip_material_alias in settings.skip_material_aliases:
+					if material_file.matchn(skip_material_alias):
+						face.skip = true
+						break
 
 	var generate_materials := func() -> void:
 		for face in face_structures:

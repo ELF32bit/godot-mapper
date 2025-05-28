@@ -76,4 +76,4 @@ static func load_from_file(path: String) -> MapperMapResource:
 			elif line_split.size() == 2:
 				entities[-1].properties[property] = line_split[1]
 
-	return MapperMapResource.new(path.get_file().trim_suffix("." + path.get_extension()), path, entities)
+	return MapperMapResource.new(path.get_file().get_basename(), path, entities)

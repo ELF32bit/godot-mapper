@@ -8,7 +8,7 @@ var concave_shape: ConcavePolygonShape3D
 var convex_shape: ConvexPolygonShape3D
 var shape: Shape3D
 var occluder: ArrayOccluder3D
-var center: Vector3
+var center: Vector3 # aabb center and not origin
 var aabb: AABB
 
 var node: Node # only valid after all build scripts executed
@@ -18,18 +18,21 @@ var signals: Array[Array] # gets filled automatically after binding
 var node_paths: Array[Array] # gets filled automatically after binding
 var parent: MapperEntity:
 	set(value):
-		var check := func(child: MapperEntity, parent: MapperEntity, recursion: Callable, depth: int = 0) -> bool:
-			depth += 1
-			if not parent:
-				return true
-			if parent == child:
-				push_warning("Error setting entity parent, circular reference detected.")
-				return false
-			if depth > factory.settings.MAX_ENTITY_PARENT_DEPTH:
+		var hierarchy := { self: true }
+		var current_parent: MapperEntity = value
+		var is_valid_parent := true
+		while current_parent:
+			if hierarchy.size() > factory.settings.MAX_ENTITY_PARENT_DEPTH:
 				push_warning("Error setting entity parent, hierarchy is too deep.")
-				return false
-			return recursion.call(child, parent.parent, recursion, depth)
-		if check.call(self, value, check):
+				is_valid_parent = false
+				break
+			elif current_parent in hierarchy:
+				push_warning("Error setting entity parent, circular reference detected.")
+				is_valid_parent = false
+				break
+			hierarchy[current_parent] = true
+			current_parent = current_parent.parent
+		if is_valid_parent:
 			parent = value
 
 var factory: MapperFactory
@@ -73,24 +76,20 @@ func get_string_property(property: StringName, default: Variant = null) -> Varia
 	return _get_property("convert_string", property, default)
 
 
-func get_origin_property(property: StringName, default: Variant = null, convert_default: bool = true) -> Variant:
-	if convert_default:
-		var default_string: String = ""
-		if default is String or default is StringName:
-			default_string = str(default)
-		elif default is Vector3 or default is Vector3i:
-			default_string = "%s %s %s" % [default.x, default.y, default.z]
-		var converted_default: Variant = factory.game_property_converter.call("convert_origin", default_string)
-		return _get_property("convert_origin", property, converted_default)
-	return _get_property("convert_origin", property, default)
+func get_origin_property(default: Variant = null) -> Variant:
+	return _get_property("convert_origin", factory.settings.origin_property, default)
 
 
-func get_angle_property(property: StringName, default: Variant = null) -> Variant:
-	return _get_property("convert_angle", property, default)
+func get_angle_property(default: Variant = null) -> Variant:
+	return _get_property("convert_angle", factory.settings.angle_property, default)
 
 
-func get_angles_property(property: StringName, default: Variant = null) -> Variant:
-	return _get_property("convert_angles", property, default)
+func get_angles_property(default: Variant = null) -> Variant:
+	return _get_property("convert_angles", factory.settings.angles_property, default)
+
+
+func get_mangle_property(default: Variant = null) -> Variant:
+	return _get_property("convert_angles", factory.settings.mangle_property, default)
 
 
 func get_unit_property(property: StringName, default: Variant = null, convert_default: bool = true) -> Variant:
@@ -155,16 +154,20 @@ func bind_string_property(property: StringName, node_property: StringName) -> vo
 	_bind_property("convert_string", property, node_property)
 
 
-func bind_origin_property(property: StringName, node_property: StringName) -> void:
-	_bind_property("convert_origin", property, node_property)
+func bind_origin_property(node_property: StringName) -> void:
+	_bind_property("convert_origin", factory.settings.origin_property, node_property)
 
 
-func bind_angle_property(property: StringName, node_property: StringName) -> void:
-	_bind_property("convert_angle", property, node_property)
+func bind_angle_property(node_property: StringName) -> void:
+	_bind_property("convert_angle", factory.settings.angle_property, node_property)
 
 
-func bind_angles_property(property: StringName, node_property: StringName) -> void:
-	_bind_property("convert_angles", property, node_property)
+func bind_angles_property(node_property: StringName) -> void:
+	_bind_property("convert_angles", factory.settings.angles_property, node_property)
+
+
+func bind_mangle_property(node_property: StringName) -> void:
+	_bind_property("convert_angles", factory.settings.mangle_property, node_property)
 
 
 func bind_unit_property(property: StringName, node_property: StringName) -> void:

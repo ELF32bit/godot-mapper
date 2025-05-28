@@ -50,7 +50,7 @@ const TEXTURE_SUFFIXES := {
 
 const MAX_ENTITY_GROUP_DEPTH: int = 128
 const MAX_ENTITY_TARGET_DEPTH: int = 1024
-const MAX_ENTITY_PARENT_DEPTH: int = 128
+const MAX_ENTITY_PARENT_DEPTH: int = 1024
 const MAX_MATERIAL_TEXTURES: int = 1024
 
 var options: Dictionary
@@ -101,6 +101,7 @@ var options: Dictionary
 
 @export var skip_material_enabled := true
 @export var skip_material: String = "skip"
+@export var skip_material_aliases := PackedStringArray([])
 @export var skip_material_affects_collision := true
 
 @export var world_entity_classname: String = "worldspawn"
