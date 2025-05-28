@@ -38,8 +38,14 @@ func load_material(material: String) -> Material:
 	return null
 
 
-func create_base_material() -> BaseMaterial3D:
-	return StandardMaterial3D.new()
+func load_base_material() -> BaseMaterial3D:
+	var material := StandardMaterial3D.new()
+
+	material.roughness = 1.0
+	material.metallic = 0.0
+	material.metallic_specular = 0.0
+
+	return material
 
 
 func load_texture(texture: String, wads: Array) -> Texture2D:

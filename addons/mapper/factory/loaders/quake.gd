@@ -33,7 +33,7 @@ func load_material(material: String) -> Material:
 	return null
 
 
-func create_base_material() -> BaseMaterial3D:
+func load_base_material() -> BaseMaterial3D:
 	var material := StandardMaterial3D.new()
 
 	material.diffuse_mode = BaseMaterial3D.DIFFUSE_LAMBERT

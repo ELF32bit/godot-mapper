@@ -450,7 +450,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 
 		for material in map_structure.materials:
 			var path := settings.game_materials_directory.path_join(material)
-			var base_material: BaseMaterial3D = game_loader.create_base_material()
+			var base_material: BaseMaterial3D = game_loader.load_base_material()
 			var override_material: Material = game_loader.load_material(path)
 
 			if override_material:
@@ -906,20 +906,20 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 			if not entity.node:
 				continue
 			for signal_parameters in entity.signals:
-				var target_destination_property: StringName = signal_parameters[0]
-				var target_source_property: StringName = signal_parameters[1]
+				var destination_property: StringName = signal_parameters[0]
+				var source_property: StringName = signal_parameters[1]
 				var signal_name: StringName = signal_parameters[2]
 				var method: StringName = signal_parameters[3]
 				var classname: String = signal_parameters[4]
 				var flags: int = signal_parameters[5]
 
-				map_structure.bind_target_source_property(target_source_property)
+				map_structure.bind_target_source_property(source_property)
 				if not entity.node.has_signal(signal_name):
 					continue
-				if not target_destination_property in entity.properties:
+				if not destination_property in entity.properties:
 					continue
 
-				for map_entity in map_structure.target_sources[target_source_property].get(entity.properties[target_destination_property], []):
+				for map_entity in map_structure.target_sources[source_property].get(entity.properties[destination_property], []):
 					if not map_entity.node:
 						continue
 					if not map_entity.node.has_method(method):
@@ -937,18 +937,18 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 			if not entity.node:
 				continue
 			for entity_node in entity.node_paths:
-				var target_destination_property: StringName = entity_node[0]
-				var target_source_property: StringName = entity_node[1]
+				var destination_property: StringName = entity_node[0]
+				var source_property: StringName = entity_node[1]
 				var node_property: StringName = entity_node[2]
 				var classname: StringName = entity_node[3]
 				var is_first_node: bool = entity_node[4]
 
-				map_structure.bind_target_source_property(target_source_property)
-				if not target_destination_property in entity.properties:
+				map_structure.bind_target_source_property(source_property)
+				if not destination_property in entity.properties:
 					continue
 
 				if is_first_node:
-					for map_entity in map_structure.target_sources[target_source_property].get(entity.properties[target_destination_property], []):
+					for map_entity in map_structure.target_sources[source_property].get(entity.properties[destination_property], []):
 						if not map_entity.node:
 							continue
 						if map_entity.properties.get(settings.classname_property, "").match(classname):
@@ -963,7 +963,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 					else:
 						continue
 
-					for map_entity in map_structure.target_sources[target_source_property].get(entity.properties[target_destination_property], []):
+					for map_entity in map_structure.target_sources[source_property].get(entity.properties[destination_property], []):
 						if not map_entity.node:
 							continue
 						if map_entity.properties.get(settings.classname_property, "").match(classname):
@@ -1052,7 +1052,7 @@ func build_mdl(mdl: MapperMdlResource) -> PackedScene:
 	var compressed_normals := MapperMdlResource.create_default_compressed_normals()
 
 	# creating simple mdl material with first texture
-	var material := game_loader.create_base_material()
+	var material := game_loader.load_base_material()
 	if mdl.textures.size():
 		material.albedo_texture = mdl.textures[0]
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED

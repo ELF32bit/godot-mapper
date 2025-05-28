@@ -114,40 +114,40 @@ func bind_group_target_source_property(group_entity: MapperEntity, group_type: S
 		group_target_sources[group_entity][property][entity_target_source].append(entity)
 
 
-func get_entity_targets(entity: MapperEntity, target_destination_property: StringName, target_source_property: StringName, classname: String = "*", group_type: StringName = "") -> Array[MapperEntity]:
+func get_entity_targets(entity: MapperEntity, destination_property: StringName, source_property: StringName, classname: String = "*", group_type: StringName = "") -> Array[MapperEntity]:
 	var targets: Array[MapperEntity] = []
-	if not target_destination_property in entity.properties:
+	if not destination_property in entity.properties:
 		return targets
 	if group_type.is_empty():
-		bind_target_source_property(target_source_property)
+		bind_target_source_property(source_property)
 		var classname_property := factory.settings.classname_property
-		var entity_target_destination: String = entity.properties[target_destination_property]
-		for map_entity in target_sources[target_source_property].get(entity_target_destination, []):
+		var entity_target_destination: String = entity.properties[destination_property]
+		for map_entity in target_sources[source_property].get(entity_target_destination, []):
 			# entities without classname, empty one, will not match here
 			if map_entity.properties.get(classname_property, "").match(classname):
 				targets.append(map_entity)
 	else:
 		var entity_group := get_entity_group(entity, group_type)
-		bind_group_target_source_property(entity_group, group_type, target_source_property)
-		var entity_target_destination: String = entity.properties[target_destination_property]
-		for entity_group_entity in group_target_sources.get(entity_group, {}).get(target_source_property, {}).get(entity_target_destination, []):
+		bind_group_target_source_property(entity_group, group_type, source_property)
+		var entity_target_destination: String = entity.properties[destination_property]
+		for entity_group_entity in group_target_sources.get(entity_group, {}).get(source_property, {}).get(entity_target_destination, []):
 			targets.append(entity_group_entity)
 	return targets
 
 
-func get_first_entity_target(entity: MapperEntity, target_destination_property: StringName, target_source_property: StringName, classname: String = "*", group_type: StringName = "") -> MapperEntity:
-	var targets := get_entity_targets(entity, target_destination_property, target_source_property, classname, group_type)
+func get_first_entity_target(entity: MapperEntity, destination_property: StringName, source_property: StringName, classname: String = "*", group_type: StringName = "") -> MapperEntity:
+	var targets := get_entity_targets(entity, destination_property, source_property, classname, group_type)
 	return targets[0] if targets.size() else null
 
 
-func get_first_entity_target_recursively(entity: MapperEntity, target_destination_property: StringName, target_source_property: StringName, classname: String = "*", group_type: StringName = "") -> Array[MapperEntity]:
+func get_first_entity_target_recursively(entity: MapperEntity, destination_property: StringName, source_property: StringName, classname: String = "*", group_type: StringName = "") -> Array[MapperEntity]:
 	var targets: Array[MapperEntity] = []
-	var target := get_first_entity_target(entity, target_destination_property, target_source_property, classname, group_type)
+	var target := get_first_entity_target(entity, destination_property, source_property, classname, group_type)
 	while target and targets.size() < factory.settings.MAX_ENTITY_TARGET_DEPTH:
 		if target in targets or target == entity:
 			targets.append(target)
 			break
 		else:
 			targets.append(target)
-		target = get_first_entity_target(target, target_destination_property, target_source_property, classname, group_type)
+		target = get_first_entity_target(target, destination_property, source_property, classname, group_type)
 	return targets
