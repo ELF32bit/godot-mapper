@@ -76,6 +76,11 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 	var entity_structures: Array[MapperEntity] = map_structure.entities
 	var smooth_entities: Array[MapperEntity] = []
 
+	var post_build_script: GDScript = null
+	if settings.post_build_script_enabled:
+		var path := settings.game_builders_directory.path_join(settings.post_build_script_name)
+		post_build_script = game_loader.load_script(path)
+
 	var generate_structures := func() -> void:
 		var world_entity_extra_brushes: Array[MapperBrush] = []
 		var forward_rotation := Quaternion(Vector3.FORWARD, settings.basis.x)
@@ -581,6 +586,15 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 						colors[index] = Color.GREEN
 					else:
 						colors[index] = Color.BLUE
+			elif settings.post_build_faces_colors_enabled:
+				var method := settings.post_build_faces_colors_method
+				if post_build_script and post_build_script.has_method(method):
+					var colors_size := colors.size()
+					post_build_script.call(method, face, colors)
+					if colors.size() != colors_size:
+						push_warning("Failed setting face colors, array is resized!")
+						colors.resize(colors_size)
+						colors.fill(Color.WHITE)
 
 			if settings.store_barycentric_coordinates and settings.use_advanced_barycentric_coordinates:
 				# slicing face into triangles and marking them
@@ -900,12 +914,8 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 					class_root.add_child(entity.node, settings.readable_node_names)
 
 		# executing post build script after generating scene tree
-		if settings.post_build_script_enabled:
-			var post_build_script: GDScript = null
-			var path := settings.game_builders_directory.path_join(settings.post_build_script_name)
-			post_build_script = game_loader.load_script(path)
-			if post_build_script:
-				post_build_script.call("build", map_structure)
+		if post_build_script and post_build_script.has_method("build"):
+			post_build_script.call("build", map_structure)
 
 	var generate_scene_signals := func() -> void:
 		for entity in entity_structures:

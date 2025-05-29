@@ -215,6 +215,8 @@ var options: Dictionary
 
 @export var post_build_script_enabled := true
 @export var post_build_script_name: StringName = "__post"
+@export var post_build_faces_colors_enabled := false # requires barycentric coordinates disabled
+@export var post_build_faces_colors_method: StringName = "__build_faces_colors"
 
 @export var warn_about_degenerate_brushes := true
 

@@ -3,7 +3,7 @@ shader_type spatial;
 uniform float wireframe_width_min = 10.0;
 uniform float wireframe_width_max = 20.0;
 
-float generate_precise_wireframe(vec4 vertex_color, float fragment_distance, float min_width, float max_width) {
+float barycentric_wireframe(vec4 vertex_color, float fragment_distance, float min_width, float max_width) {
 	vec3 wireframe_coordinates = vertex_color.rgb;
 	int wireframe_mode = int((1.0 - vertex_color.a) * 8.0);
 	vec3 wireframe_scale = fragment_distance / fwidth(wireframe_coordinates);
@@ -33,5 +33,5 @@ void vertex() {
 
 
 void fragment() {
-	ALBEDO = vec3(generate_precise_wireframe(COLOR, fragment_distance, wireframe_width_min, wireframe_width_max));
+	ALBEDO = vec3(barycentric_wireframe(COLOR, fragment_distance, wireframe_width_min, wireframe_width_max));
 }
