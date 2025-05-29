@@ -9,7 +9,7 @@ func _get_importer_name() -> String:
 
 
 func _get_visible_name() -> String:
-	return "Resource"
+	return "MapperResource"
 
 
 func _get_recognized_extensions() -> PackedStringArray:
@@ -64,7 +64,7 @@ func _get_priority() -> float:
 
 
 func _can_import_threaded() -> bool:
-	return false
+	return true
 
 
 func _import(source_file: String, save_path: String, options: Dictionary, platform_variants: Array[String], gen_files: Array[String]) -> Error:

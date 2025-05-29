@@ -9,7 +9,7 @@ func _get_importer_name() -> String:
 
 
 func _get_visible_name() -> String:
-	return "PackedScene"
+	return "MapperScene"
 
 
 func _get_recognized_extensions() -> PackedStringArray:
