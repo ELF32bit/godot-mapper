@@ -586,7 +586,14 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 						colors[index] = Color.GREEN
 					else:
 						colors[index] = Color.BLUE
-			elif settings.post_build_faces_colors_enabled:
+
+			var computed_colors := colors
+			if settings.store_barycentric_coordinates:
+				if settings.post_build_faces_colors_enabled:
+					computed_colors = colors.duplicate()
+
+			var is_post_colors := false
+			if settings.post_build_faces_colors_enabled:
 				var method := settings.post_build_faces_colors_method
 				if post_build_script and post_build_script.has_method(method):
 					var colors_size := colors.size()
@@ -595,8 +602,12 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 						push_warning("Failed setting face colors, array is resized!")
 						colors.resize(colors_size)
 						colors.fill(Color.WHITE)
+					is_post_colors = true
+					if settings.store_barycentric_coordinates:
+						if colors == computed_colors:
+							is_post_colors = false
 
-			if settings.store_barycentric_coordinates and settings.use_advanced_barycentric_coordinates:
+			if not is_post_colors and settings.store_barycentric_coordinates and settings.use_advanced_barycentric_coordinates:
 				# slicing face into triangles and marking them
 				for index in range(1, vertices.size() - 1):
 					var triangle_vertices: PackedVector3Array = []
