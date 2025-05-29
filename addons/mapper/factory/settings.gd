@@ -78,6 +78,7 @@ var options: Dictionary
 @export var max_populate_density: float = 4.0 # for a single axis
 
 @export var store_base_materials := true
+@export var base_materials_texture_filter := BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 @export var store_unique_animated_textures := false
 @export var animated_textures_frame_duration: float = 0.2
 @export var shader_texture_slots := SHADER_TEXTURE_SLOTS
@@ -101,19 +102,19 @@ var options: Dictionary
 
 @export var skip_material_enabled := true
 @export var skip_material: String = "skip"
-@export var skip_material_aliases := PackedStringArray([])
+@export var skip_material_aliases: PackedStringArray = []
 @export var skip_material_affects_collision := true
 
 @export var world_entity_classname: String = "worldspawn"
 @export var world_entity_wad_property_enabled := true
 @export var world_entity_wad_property: StringName = "wad"
 @export var world_entity_extra_brush_entities_enabled := true
-@export var world_entity_extra_brush_entities_classnames := PackedStringArray(["func_group"])
+@export var world_entity_extra_brush_entities_classnames: PackedStringArray = ["func_group"]
 
 @export var group_entity_enabled := true
 @export var group_entity_classname: String = "func_group"
 @export var group_entity_type_property: StringName = "_tb_type"
-@export var group_entity_types := PackedStringArray(["_tb_group", "_tb_layer"])
+@export var group_entity_types: PackedStringArray = ["_tb_group", "_tb_layer"]
 @export var group_entity_id_property: StringName = "_tb_id"
 
 @export var alternative_textures_metadata_property: StringName = "alternative_textures"
@@ -207,10 +208,10 @@ var options: Dictionary
 		else:
 			push_error("Invalid game mdls directory, must be relative path.")
 
-@export var game_material_extensions := PackedStringArray(["tres", "material", "res"])
-@export var game_texture_extensions := PackedStringArray(["png", "tga", "jpg", "jpeg"])
-@export var game_sound_extensions := PackedStringArray(["ogg", "wav", "mp3"])
-@export var game_script_extensions := PackedStringArray(["gd"])
+@export var game_material_extensions: PackedStringArray = ["tres", "material", "res"]
+@export var game_texture_extensions: PackedStringArray = ["png", "tga", "jpg", "jpeg"]
+@export var game_sound_extensions: PackedStringArray = ["ogg", "wav", "mp3"]
+@export var game_script_extensions: PackedStringArray = ["gd"]
 
 @export var post_build_script_enabled := true
 @export var post_build_script_name: StringName = "__post"

@@ -35,6 +35,7 @@ func load_material(material: String) -> Material:
 
 func load_base_material() -> BaseMaterial3D:
 	var material := StandardMaterial3D.new()
+	material.texture_filter = settings.base_materials_texture_filter
 
 	material.diffuse_mode = BaseMaterial3D.DIFFUSE_LAMBERT
 	material.specular_mode = BaseMaterial3D.SPECULAR_DISABLED

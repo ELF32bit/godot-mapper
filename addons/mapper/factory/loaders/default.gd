@@ -40,6 +40,7 @@ func load_material(material: String) -> Material:
 
 func load_base_material() -> BaseMaterial3D:
 	var material := StandardMaterial3D.new()
+	material.texture_filter = settings.base_materials_texture_filter
 
 	material.roughness = 1.0
 	material.metallic = 0.0
