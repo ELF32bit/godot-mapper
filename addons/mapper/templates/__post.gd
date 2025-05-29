@@ -4,5 +4,4 @@ static func build(map: MapperMap) -> void:
 
 @warning_ignore("unused_parameter")
 static func __build_faces_colors(face: MapperFace, colors: PackedColorArray) -> void:
-	# apply face parameters here
-	return
+	return # apply face parameters here
