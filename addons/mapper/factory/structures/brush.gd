@@ -83,7 +83,7 @@ func generate_surface_distribution(surfaces: PackedStringArray, density: float, 
 	var distribution := PackedFloat32Array([0.0])
 
 	# clamping input values and converting angles to radians
-	density = clampf(density, 0.0, pow(factory.settings.max_populate_density, 2.0))
+	density = clampf(density, 0.0, pow(factory.settings.max_distribution_density, 2.0))
 
 	min_floor_angle = deg_to_rad(clampf(min_floor_angle, 0.0, 180.0))
 	max_floor_angle = deg_to_rad(clampf(max_floor_angle, 0.0, 180.0))
@@ -217,7 +217,7 @@ func generate_volume_distribution(density: float, spread: float = 0.0, min_scale
 		return PackedVector3Array()
 
 	# clamping density and depth range values
-	density = clampf(density, 0.0, pow(factory.settings.max_populate_density, 3.0))
+	density = clampf(density, 0.0, pow(factory.settings.max_distribution_density, 3.0))
 
 	min_depth = clampf(min_depth, 0.0, 1.0)
 	max_depth = clampf(max_depth, 0.0, 1.0)
