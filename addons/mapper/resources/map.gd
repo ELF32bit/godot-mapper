@@ -47,9 +47,9 @@ static func load_from_file(path: String) -> MapperMapResource:
 		elif line.begins_with("}"):
 			if is_inside_brush:
 				if faces.size() > MAX_FACES_PER_BRUSH:
-					push_warning("Line %s: Brush has more than %s faces, not importing" % [line_number, MAX_FACES_PER_BRUSH])
+					push_warning("Line %s: Brush has more than %s faces, not importing." % [line_number, MAX_FACES_PER_BRUSH])
 				elif not faces.size():
-					push_warning("Line %s: Brush has no faces, not importing" % [line_number])
+					push_warning("Line %s: Brush has no faces, not importing." % [line_number])
 				else:
 					entities[-1].brushes.append(MapperBrushResource.new(faces))
 
