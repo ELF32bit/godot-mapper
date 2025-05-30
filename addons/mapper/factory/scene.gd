@@ -103,7 +103,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 			var is_world_entity_extra_brush_entity := false
 			if settings.classname_property in entity_structure.properties:
 				# creating map structure classnames dictionary
-				var entity_classname: String = entity_structure.properties[settings.classname_property]
+				var entity_classname: String = entity_structure.get_classname_property(null)
 				if not entity_classname in map_structure.classnames:
 					map_structure.classnames[entity_classname] = []
 				map_structure.classnames[entity_classname].append(entity_structure)
@@ -951,7 +951,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 						continue
 					if not map_entity.node.has_method(method):
 						continue
-					if not map_entity.properties.get(settings.classname_property, "").match(classname):
+					if not map_entity.get_classname_property("").match(classname):
 						continue
 
 					var callable := Callable(map_entity.node, method)
@@ -978,7 +978,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 					for map_entity in map_structure.target_sources[source_property].get(entity.properties[destination_property], []):
 						if not map_entity.node:
 							continue
-						if map_entity.properties.get(settings.classname_property, "").match(classname):
+						if map_entity.get_classname_property("").match(classname):
 							var node_path := entity.node.get_path_to(map_entity.node)
 							entity.node.set(node_property, node_path)
 							break
@@ -993,7 +993,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 					for map_entity in map_structure.target_sources[source_property].get(entity.properties[destination_property], []):
 						if not map_entity.node:
 							continue
-						if map_entity.properties.get(settings.classname_property, "").match(classname):
+						if map_entity.get_classname_property("").match(classname):
 							var node_path := entity.node.get_path_to(map_entity.node)
 							if not node_path in new_node_paths:
 								new_node_paths.append(node_path)

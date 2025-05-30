@@ -73,10 +73,9 @@ func get_entity_group_entities(entity: MapperEntity, group_type: StringName, cla
 	if not entity_group:
 		return entity_group_entities
 	bind_group_entities(entity_group, group_type)
-	var classname_property := factory.settings.classname_property
 	for group_entity in group_entities[entity_group]:
 		# entities without classname, empty one, will not match here
-		if group_entity.properties.get(classname_property, "").match(classname):
+		if group_entity.get_classname_property("").match(classname):
 			entity_group_entities.append(group_entity)
 	return entity_group_entities
 
@@ -120,11 +119,10 @@ func get_entity_targets(entity: MapperEntity, destination_property: StringName, 
 		return targets
 	if group_type.is_empty():
 		bind_target_source_property(source_property)
-		var classname_property := factory.settings.classname_property
 		var entity_target_destination: String = entity.properties[destination_property]
 		for map_entity in target_sources[source_property].get(entity_target_destination, []):
 			# entities without classname, empty one, will not match here
-			if map_entity.properties.get(classname_property, "").match(classname):
+			if map_entity.get_classname_property("").match(classname):
 				targets.append(map_entity)
 	else:
 		var entity_group := get_entity_group(entity, group_type)

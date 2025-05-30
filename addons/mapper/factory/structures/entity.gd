@@ -76,6 +76,14 @@ func get_string_property(property: StringName, default: Variant = null) -> Varia
 	return _get_property("convert_string", property, default)
 
 
+func get_classname_property(default: Variant = null) -> Variant:
+	var classname_property := factory.settings.classname_property
+	if classname_property in properties:
+		var classname: String = properties[classname_property]
+		return classname.strip_edges()
+	return default
+
+
 func get_origin_property(default: Variant = null) -> Variant:
 	return _get_property("convert_origin", factory.settings.origin_property, default)
 
