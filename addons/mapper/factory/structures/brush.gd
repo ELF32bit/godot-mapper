@@ -26,17 +26,26 @@ func has_point(point: Vector3) -> bool:
 	return true
 
 
-func get_point_depth(point: Vector3) -> float:
+func get_point_penetration(point: Vector3) -> Array[float]:
 	var min_distance: float = INF
 	var max_distance: float = -INF
 	for face in faces:
 		var distance_to_plane := face.plane.distance_to(point)
 		if distance_to_plane > factory.settings.epsilon:
-			return NAN
+			return []
 		distance_to_plane = absf(distance_to_plane)
 		min_distance = minf(distance_to_plane, min_distance)
 		max_distance = maxf(distance_to_plane, max_distance)
-	return min_distance / max_distance # can return NAN which is safe
+	return [min_distance, max_distance]
+
+
+func get_relative_point_penetration(point: Vector3) -> float:
+	var point_penetration := get_point_penetration(point)
+	if point_penetration.size():
+		var min_distance := point_penetration[0]
+		var max_distance := point_penetration[1]
+		return min_distance / max_distance # can return NAN which is safe
+	return NAN
 
 
 func get_planes(from_mesh: bool = true) -> Array[Plane]:
@@ -212,19 +221,19 @@ func generate_surface_distribution(surfaces: PackedStringArray, density: float, 
 	return transform_array
 
 
-func generate_volume_distribution(density: float, spread: float = 0.0, min_scale: float = 1.0, max_scale: float = 1.0, min_depth: float = 0.0, max_depth: float = 1.0, random_rotation: bool = true, world_space: bool = false, seed: int = 0) -> PackedVector3Array:
+func generate_volume_distribution(density: float, spread: float = 0.0, min_scale: float = 1.0, max_scale: float = 1.0, min_penetration: float = 0.0, max_penetration: float = INF, random_rotation: bool = true, world_space: bool = false, seed: int = 0) -> PackedVector3Array:
 	if not aabb.has_volume():
 		return PackedVector3Array()
 
 	# clamping density and depth range values
 	density = clampf(density, 0.0, pow(factory.settings.max_distribution_density, 3.0))
 
-	min_depth = clampf(min_depth, 0.0, 1.0)
-	max_depth = clampf(max_depth, 0.0, 1.0)
-	var actual_min_depth := minf(min_depth, max_depth)
-	var actual_max_depth := maxf(min_depth, max_depth)
-	min_depth = actual_min_depth
-	max_depth = actual_max_depth
+	min_penetration = clampf(min_penetration, 0.0, INF)
+	max_penetration = clampf(max_penetration, 0.0, INF)
+	var actual_min_penetration := minf(min_penetration, max_penetration)
+	var actual_max_penetration := maxf(min_penetration, max_penetration)
+	min_penetration = actual_min_penetration
+	max_penetration = actual_max_penetration
 
 	var actual_min_scale := minf(min_scale, max_scale)
 	var actual_max_scale := maxf(min_scale, max_scale)
@@ -234,7 +243,7 @@ func generate_volume_distribution(density: float, spread: float = 0.0, min_scale
 	var rotation_range := 2.0 * PI
 	var scale_range := max_scale - min_scale
 	var has_scale_range := (scale_range != 0.0)
-	var has_depth_range := bool(max_depth - min_depth != 1.0)
+	var has_penetration_range := bool(min_penetration != max_penetration)
 	var offset := -center * float(not world_space)
 
 	# creating random number generator with specified seed
@@ -251,11 +260,13 @@ func generate_volume_distribution(density: float, spread: float = 0.0, min_scale
 		var point := aabb.position + aabb.size * Vector3(r1, r2, r3)
 
 		var brush_has_point := false
-		if has_depth_range:
-			var point_depth := get_point_depth(point)
-			if not is_nan(point_depth):
-				if not (point_depth < min_depth or point_depth > max_depth):
-					brush_has_point = true
+		if has_penetration_range:
+			var point_penetration := get_point_penetration(point)
+			if point_penetration.size():
+				var min_point_penetration := point_penetration[0]
+				if min_point_penetration >= min_penetration:
+					if min_point_penetration <= max_penetration:
+						brush_has_point = true
 		else:
 			brush_has_point = has_point(point)
 

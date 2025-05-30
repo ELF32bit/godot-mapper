@@ -261,13 +261,13 @@ func generate_surface_distribution(surfaces: PackedStringArray, density: float, 
 	return transform_array
 
 
-func generate_volume_distribution(density: float, spread: float = 0.0, min_scale: float = 1.0, max_scale: float = 1.0, min_depth: float = 0.0, max_depth: float = 1.0, random_rotation: bool = true, world_space: bool = false, seed: int = 0) -> PackedVector3Array:
+func generate_volume_distribution(density: float, spread: float = 0.0, min_scale: float = 1.0, max_scale: float = 1.0, min_penetration: float = 0.0, max_penetration: float = INF, random_rotation: bool = true, world_space: bool = false, seed: int = 0) -> PackedVector3Array:
 	var transform_array := PackedVector3Array()
 	var mutex := Mutex.new()
 
 	var populate_brushes := func(thread_index: int) -> void:
 		var brush := brushes[thread_index]
-		var brush_transform_array := brush.generate_volume_distribution(density, 0.0, min_scale, max_scale, min_depth, max_depth, random_rotation, world_space, seed + thread_index)
+		var brush_transform_array := brush.generate_volume_distribution(density, 0.0, min_scale, max_scale, min_penetration, max_penetration, random_rotation, world_space, seed + thread_index)
 		if not world_space:
 			for index in range(3, brush_transform_array.size(), 4):
 				brush_transform_array[index] += brush.center - center
