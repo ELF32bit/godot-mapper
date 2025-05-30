@@ -78,7 +78,7 @@ static func change_node_type(node: Node, classname: StringName) -> Node:
 
 	var new_node := ClassDB.instantiate(classname)
 	for property in node.get_property_list():
-		if property.usage and PROPERTY_USAGE_DEFAULT:
+		if property.usage & PROPERTY_USAGE_DEFAULT != 0:
 			new_node.set(property.name, node.get(property.name))
 
 	node.replace_by(new_node, true)
