@@ -201,3 +201,4 @@ Check out provided examples to get a hang on API.<br>
 Adjust plugin configuration inside **importers/map-scene.gd** file.<br>
 Disable **editor/import/use_multiple_threads** for older versions of Godot.<br>
 Restart Godot if the import process freezes during the first launch.<br>
+Disable ```lightmap_unwrap``` setting if the freezes are consistent.<br>
