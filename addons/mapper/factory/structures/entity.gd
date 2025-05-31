@@ -38,18 +38,21 @@ var parent: MapperEntity:
 var factory: MapperFactory
 
 
-func _get_property(method: StringName, property: StringName, default: Variant) -> Variant:
+func get_property(method: StringName, property: StringName, default: Variant) -> Variant:
 	var value: Variant = properties.get(property, null)
 	if value == null:
 		return default
-	var converted_property: Variant = factory.game_property_converter.call(method, value)
+	var converted_property: Variant = null
+	var game_property_converter := factory.game_property_converter
+	if game_property_converter.has_method(method):
+		converted_property = game_property_converter.call(method, value)
 	if converted_property != null:
 		return converted_property
 	return default
 
 
-func _bind_property(type: StringName, property: StringName, node_property: StringName) -> void:
-	var value: Variant = _get_property(type, property, null)
+func bind_property(method: StringName, property: StringName, node_property: StringName) -> void:
+	var value: Variant = get_property(method, property, null)
 	if value != null:
 		node_properties[node_property] = value
 
@@ -73,7 +76,7 @@ func bind_node_path_array_property(property: StringName, target_source_property:
 
 
 func get_string_property(property: StringName, default: Variant = null) -> Variant:
-	return _get_property("convert_string", property, default)
+	return get_property("convert_string", property, default)
 
 
 func get_classname_property(default: Variant = null) -> Variant:
@@ -85,19 +88,19 @@ func get_classname_property(default: Variant = null) -> Variant:
 
 
 func get_origin_property(default: Variant = null) -> Variant:
-	return _get_property("convert_origin", factory.settings.origin_property, default)
+	return get_property("convert_origin", factory.settings.origin_property, default)
 
 
 func get_angle_property(default: Variant = null) -> Variant:
-	return _get_property("convert_angle", factory.settings.angle_property, default)
+	return get_property("convert_angle", factory.settings.angle_property, default)
 
 
 func get_angles_property(default: Variant = null) -> Variant:
-	return _get_property("convert_angles", factory.settings.angles_property, default)
+	return get_property("convert_angles", factory.settings.angles_property, default)
 
 
 func get_mangle_property(default: Variant = null) -> Variant:
-	return _get_property("convert_angles", factory.settings.mangle_property, default)
+	return get_property("convert_angles", factory.settings.mangle_property, default)
 
 
 func get_unit_property(property: StringName, default: Variant = null, convert_default: bool = true) -> Variant:
@@ -106,128 +109,128 @@ func get_unit_property(property: StringName, default: Variant = null, convert_de
 		if typeof(default) in [TYPE_STRING, TYPE_STRING_NAME, TYPE_INT, TYPE_FLOAT]:
 			default_string = str(default)
 		var converted_default: Variant = factory.game_property_converter.call("convert_unit", default_string)
-		return _get_property("convert_unit", property, converted_default)
-	return _get_property("convert_unit", property, default)
+		return get_property("convert_unit", property, converted_default)
+	return get_property("convert_unit", property, default)
 
 
 func get_axis_property(property: StringName, default: Variant = null) -> Variant:
-	return _get_property("convert_axis", property, default)
+	return get_property("convert_axis", property, default)
 
 
 func get_color_property(property: StringName, default: Variant = null) -> Variant:
-	return _get_property("convert_color", property, default)
+	return get_property("convert_color", property, default)
 
 
 func get_bool_property(property: StringName, default: Variant = null) -> Variant:
-	return _get_property("convert_bool", property, default)
+	return get_property("convert_bool", property, default)
 
 
 func get_int_property(property: StringName, default: Variant = null) -> Variant:
-	return _get_property("convert_int", property, default)
+	return get_property("convert_int", property, default)
 
 
 func get_vector2i_property(property: StringName, default: Variant = null) -> Variant:
-	return _get_property("convert_vector2i", property, default)
+	return get_property("convert_vector2i", property, default)
 
 
 func get_vector3i_property(property: StringName, default: Variant = null) -> Variant:
-	return _get_property("convert_vector3i", property, default)
+	return get_property("convert_vector3i", property, default)
 
 
 func get_float_property(property: StringName, default: Variant = null) -> Variant:
-	return _get_property("convert_float", property, default)
+	return get_property("convert_float", property, default)
 
 
 func get_vector2_property(property: StringName, default: Variant = null) -> Variant:
-	return _get_property("convert_vector2", property, default)
+	return get_property("convert_vector2", property, default)
 
 
 func get_vector3_property(property: StringName, default: Variant = null) -> Variant:
-	return _get_property("convert_vector3", property, default)
+	return get_property("convert_vector3", property, default)
 
 
 func get_sound_property(property: StringName, default: Variant = null) -> Variant:
-	return _get_property("convert_sound", property, default)
+	return get_property("convert_sound", property, default)
 
 
 func get_map_property(property: StringName, default: Variant = null) -> Variant:
-	return _get_property("convert_map", property, default)
+	return get_property("convert_map", property, default)
 
 
 func get_mdl_property(property: StringName, default: Variant = null) -> Variant:
-	return _get_property("convert_mdl", property, default)
+	return get_property("convert_mdl", property, default)
 
 
 func bind_string_property(property: StringName, node_property: StringName) -> void:
-	_bind_property("convert_string", property, node_property)
+	bind_property("convert_string", property, node_property)
 
 
 func bind_origin_property(node_property: StringName) -> void:
-	_bind_property("convert_origin", factory.settings.origin_property, node_property)
+	bind_property("convert_origin", factory.settings.origin_property, node_property)
 
 
 func bind_angle_property(node_property: StringName) -> void:
-	_bind_property("convert_angle", factory.settings.angle_property, node_property)
+	bind_property("convert_angle", factory.settings.angle_property, node_property)
 
 
 func bind_angles_property(node_property: StringName) -> void:
-	_bind_property("convert_angles", factory.settings.angles_property, node_property)
+	bind_property("convert_angles", factory.settings.angles_property, node_property)
 
 
 func bind_mangle_property(node_property: StringName) -> void:
-	_bind_property("convert_angles", factory.settings.mangle_property, node_property)
+	bind_property("convert_angles", factory.settings.mangle_property, node_property)
 
 
 func bind_unit_property(property: StringName, node_property: StringName) -> void:
-	_bind_property("convert_unit", property, node_property)
+	bind_property("convert_unit", property, node_property)
 
 
 func bind_axis_property(property: StringName, node_property: StringName) -> void:
-	_bind_property("convert_axis", property, node_property)
+	bind_property("convert_axis", property, node_property)
 
 
 func bind_color_property(property: StringName, node_property: StringName) -> void:
-	_bind_property("convert_color", property, node_property)
+	bind_property("convert_color", property, node_property)
 
 
 func bind_bool_property(property: StringName, node_property: StringName) -> void:
-	_bind_property("convert_bool", property, node_property)
+	bind_property("convert_bool", property, node_property)
 
 
 func bind_int_property(property: StringName, node_property: StringName) -> void:
-	_bind_property("convert_int", property, node_property)
+	bind_property("convert_int", property, node_property)
 
 
 func bind_vector2i_property(property: StringName, node_property: StringName) -> void:
-	_bind_property("convert_vector2i", property, node_property)
+	bind_property("convert_vector2i", property, node_property)
 
 
 func bind_vector3i_property(property: StringName, node_property: StringName) -> void:
-	_bind_property("convert_vector3i", property, node_property)
+	bind_property("convert_vector3i", property, node_property)
 
 
 func bind_float_property(property: StringName, node_property: StringName) -> void:
-	_bind_property("convert_float", property, node_property)
+	bind_property("convert_float", property, node_property)
 
 
 func bind_vector2_property(property: StringName, node_property: StringName) -> void:
-	_bind_property("convert_vector2", property, node_property)
+	bind_property("convert_vector2", property, node_property)
 
 
 func bind_vector3_property(property: StringName, node_property: StringName) -> void:
-	_bind_property("convert_vector3", property, node_property)
+	bind_property("convert_vector3", property, node_property)
 
 
 func bind_sound_property(property: StringName, node_property: StringName) -> void:
-	_bind_property("convert_sound", property, node_property)
+	bind_property("convert_sound", property, node_property)
 
 
 func bind_map_property(property: StringName, node_property: StringName) -> void:
-	_bind_property("convert_map", property, node_property)
+	bind_property("convert_map", property, node_property)
 
 
 func bind_mdl_property(property: StringName, node_property: StringName) -> void:
-	_bind_property("convert_mdl", property, node_property)
+	bind_property("convert_mdl", property, node_property)
 
 
 func is_smooth_shaded() -> bool:
