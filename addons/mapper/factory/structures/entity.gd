@@ -102,7 +102,7 @@ func get_angles_property(default: Variant = null) -> Variant:
 
 
 func get_mangle_property(default: Variant = null) -> Variant:
-	return get_property("convert_angles", factory.settings.mangle_property, default)
+	return get_property("convert_mangle", factory.settings.mangle_property, default)
 
 
 func get_unit_property(property: StringName, default: Variant = null, convert_default: bool = true) -> Variant:
@@ -115,8 +115,8 @@ func get_unit_property(property: StringName, default: Variant = null, convert_de
 	return get_property("convert_unit", property, default)
 
 
-func get_axis_property(property: StringName, default: Variant = null) -> Variant:
-	return get_property("convert_axis", property, default)
+func get_direction_property(property: StringName, default: Variant = null) -> Variant:
+	return get_property("convert_direction", property, default)
 
 
 func get_color_property(property: StringName, default: Variant = null) -> Variant:
@@ -180,15 +180,15 @@ func bind_angles_property(node_property: StringName) -> void:
 
 
 func bind_mangle_property(node_property: StringName) -> void:
-	bind_property("convert_angles", factory.settings.mangle_property, node_property)
+	bind_property("convert_mangle", factory.settings.mangle_property, node_property)
 
 
 func bind_unit_property(property: StringName, node_property: StringName) -> void:
 	bind_property("convert_unit", property, node_property)
 
 
-func bind_axis_property(property: StringName, node_property: StringName) -> void:
-	bind_property("convert_axis", property, node_property)
+func bind_direction_property(property: StringName, node_property: StringName) -> void:
+	bind_property("convert_direction", property, node_property)
 
 
 func bind_color_property(property: StringName, node_property: StringName) -> void:

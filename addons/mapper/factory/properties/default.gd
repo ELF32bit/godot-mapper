@@ -37,17 +37,18 @@ func convert_angles(line: String) -> Variant:
 	return (y * z * x * Quaternion(Vector3.FORWARD, settings.basis.x)).get_euler()
 
 
+func convert_mangle(line: String) -> Variant:
+	return convert_angles(line)
+
+
 func convert_unit(line: String) -> Variant:
 	if line.is_valid_float():
 		return line.to_float() * (1.0 / settings.unit_size)
 	return null
 
 
-func convert_axis(line: String) -> Variant:
-	var numbers := line.split_floats(" ", false)
-	if numbers.size() < 3:
-		return null
-	return (settings.basis * Vector3(numbers[0], numbers[1], numbers[2])).normalized()
+func convert_direction(line: String) -> Variant:
+	return convert_origin(line)
 
 
 func convert_color(line: String) -> Variant:
