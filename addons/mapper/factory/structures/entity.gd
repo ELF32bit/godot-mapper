@@ -46,6 +46,8 @@ func get_property(method: StringName, property: StringName, default: Variant) ->
 	var game_property_converter := factory.game_property_converter
 	if game_property_converter.has_method(method):
 		converted_property = game_property_converter.call(method, value)
+	else:
+		push_warning("Error converting property, method '%s' not found." % [method])
 	if converted_property != null:
 		return converted_property
 	return default
