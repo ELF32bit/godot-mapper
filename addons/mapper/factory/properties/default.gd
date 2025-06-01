@@ -16,8 +16,9 @@ func convert_origin(line: String) -> Variant:
 
 
 func convert_angle(line: String) -> Variant:
-	if line.is_valid_float():
-		var angle := line.to_float()
+	var line_strip := line.strip_edges()
+	if line_strip.is_valid_float():
+		var angle := line_strip.to_float()
 		var forward_rotation := Quaternion(Vector3.FORWARD, settings.basis.x)
 		if angle == -1:
 			return (Quaternion(settings.basis.x, settings.basis.z) * forward_rotation).get_euler()
@@ -42,8 +43,9 @@ func convert_mangle(line: String) -> Variant:
 
 
 func convert_unit(line: String) -> Variant:
-	if line.is_valid_float():
-		return line.to_float() * (1.0 / settings.unit_size)
+	var line_strip := line.strip_edges()
+	if line_strip.is_valid_float():
+		return line_strip.to_float() * (1.0 / settings.unit_size)
 	return null
 
 
@@ -66,16 +68,17 @@ func convert_bool(line: String) -> Variant:
 		return true
 	elif line_strip.matchn("false"):
 		return false
-	elif line.is_valid_int():
-		return bool(line.to_int())
-	elif line.is_valid_float():
-		return bool(line.to_float())
+	elif line_strip.is_valid_int():
+		return bool(line_strip.to_int())
+	elif line_strip.is_valid_float():
+		return bool(line_strip.to_float())
 	return null
 
 
 func convert_int(line: String) -> Variant:
-	if line.is_valid_int():
-		return line.to_int()
+	var line_strip := line.strip_edges()
+	if line_strip.is_valid_int():
+		return line_strip.to_int()
 	return null
 
 
@@ -94,8 +97,9 @@ func convert_vector3i(line: String) -> Variant:
 
 
 func convert_float(line: String) -> Variant:
-	if line.is_valid_float():
-		return line.to_float()
+	var line_strip := line.strip_edges()
+	if line_strip.is_valid_float():
+		return line_strip.to_float()
 	return null
 
 
