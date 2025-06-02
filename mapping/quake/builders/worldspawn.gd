@@ -9,7 +9,7 @@ static func build(map: MapperMap, entity: MapperEntity) -> Node:
 	MapperUtilities.add_global_child(static_body, node, map.settings)
 
 	# creating worldspawn navigation region
-	var navigation_region := MapperUtilities.create_navigation_region(entity, static_body, true)
+	var navigation_region := MapperUtilities.create_navigation_region(map, static_body, true)
 	MapperUtilities.add_to_navigation_region(static_body, navigation_region)
 
 	# adding map entities to worldspawn navigation region

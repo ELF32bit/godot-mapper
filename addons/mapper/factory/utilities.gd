@@ -117,12 +117,12 @@ static func add_global_child(child: Node, parent: Node, settings: MapperSettings
 	parent.add_child(child, settings.readable_node_names)
 
 
-static func create_navigation_region(entity: MapperEntity, parent: Node, automatic: bool = false) -> NavigationRegion3D:
+static func create_navigation_region(map: MapperMap, parent: Node, automatic: bool = false) -> NavigationRegion3D:
 	var navigation_region := NavigationRegion3D.new()
-	add_global_child(navigation_region, parent, entity.factory.settings)
+	parent.add_child(navigation_region, map.settings.readable_node_names)
 
 	var navigation_mesh := NavigationMesh.new()
-	var navigation_group_id := entity.factory.random_number_generator.randi()
+	var navigation_group_id := map.factory.random_number_generator.randi()
 	navigation_mesh.geometry_parsed_geometry_type = NavigationMesh.PARSED_GEOMETRY_BOTH
 	navigation_mesh.geometry_source_geometry_mode = NavigationMesh.SOURCE_GEOMETRY_GROUPS_EXPLICIT
 	navigation_mesh.geometry_source_group_name = "navigation-%s" % navigation_group_id
@@ -131,8 +131,8 @@ static func create_navigation_region(entity: MapperEntity, parent: Node, automat
 		navigation_region.navmesh = navigation_mesh
 		navigation_region.ready.connect(navigation_region.bake_navigation_mesh, CONNECT_PERSIST | CONNECT_DEFERRED)
 	else:
-		var map_source_file := entity.factory.game_loader.source_file
-		var map_data_directory := entity.factory.settings.game_directory.path_join(entity.factory.settings.game_map_data_directory)
+		var map_source_file := map.factory.game_loader.source_file
+		var map_data_directory := map.settings.game_directory.path_join(map.settings.game_map_data_directory)
 		var navigation_mesh_path := map_data_directory.path_join("%s-%s-%s.NavigationMesh.res" % [
 			map_source_file.get_file().get_basename(),
 			map_source_file.hash(),

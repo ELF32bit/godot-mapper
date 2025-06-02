@@ -178,7 +178,7 @@ Various entities might affect navigation regions differently.<br>
 Use entity node groups to manage entity navigation groups.<br>
 ```GDScript
 # worldspawn.gd
-var navigation_region := MapperUtilities.create_navigation_region(entity, entity_node)
+var navigation_region := MapperUtilities.create_navigation_region(map, entity_node)
 MapperUtilities.add_to_navigation_region(entity_node, navigation_region)
 
 # func_detail entities will affect worldspawn navigation region
