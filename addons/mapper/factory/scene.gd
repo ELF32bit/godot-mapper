@@ -317,19 +317,11 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 					continue
 
 				var face_center2 := face2.center
-				if not absf(face_center1.x - face_center2.x) < epsilon:
-					continue
-				if not absf(face_center1.y - face_center2.y) < epsilon:
-					continue
-				if not absf(face_center1.z - face_center2.z) < epsilon:
+				if not MapperUtilities.is_equal_approximately(face_center1, face_center2, epsilon):
 					continue
 
 				var plane_center2 := face2.plane.get_center()
-				if not absf(plane_center1.x - plane_center2.x) < epsilon:
-					continue
-				if not absf(plane_center1.y - plane_center2.y) < epsilon:
-					continue
-				if not absf(plane_center1.z - plane_center2.z) < epsilon:
+				if not MapperUtilities.is_equal_approximately(plane_center1, plane_center2, epsilon):
 					continue
 
 				var is_different_face := false
@@ -337,13 +329,9 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 				for vertex1 in face1_vertices:
 					var is_different_vertex := true
 					for vertex2 in face2_vertices:
-						if not absf(vertex1.x - vertex2.x) < epsilon:
-							continue
-						if not absf(vertex1.y - vertex2.y) < epsilon:
-							continue
-						if not absf(vertex1.z - vertex2.z) < epsilon:
-							continue
-						is_different_vertex = false
+						if MapperUtilities.is_equal_approximately(vertex1, vertex2, epsilon):
+							is_different_vertex = false
+							break
 					if is_different_vertex:
 						is_different_face = true
 						break
@@ -370,18 +358,11 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 
 				for index2 in range(vertices.size()):
 					var unique_vertex := vertices[index2]
-
-					if not absf(vertex.x - unique_vertex.x) < epsilon:
-						continue
-					if not absf(vertex.y - unique_vertex.y) < epsilon:
-						continue
-					if not absf(vertex.z - unique_vertex.z) < epsilon:
-						continue
-
-					indices[index2].append(index1)
-					faces[index2].append(face)
-					is_unique_vertex = false
-					break
+					if MapperUtilities.is_equal_approximately(vertex, unique_vertex, epsilon):
+						indices[index2].append(index1)
+						faces[index2].append(face)
+						is_unique_vertex = false
+						break
 
 				if is_unique_vertex:
 					vertices.append(vertex)

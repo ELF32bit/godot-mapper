@@ -26,13 +26,8 @@ var factory: MapperFactory
 func has_vertex(vertex: Vector3) -> bool:
 	var epsilon := factory.settings.epsilon
 	for face_vertex in vertices:
-		if not absf(vertex.x - face_vertex.x) < epsilon:
-			continue
-		if not absf(vertex.y - face_vertex.y) < epsilon:
-			continue
-		if not absf(vertex.z - face_vertex.z) < epsilon:
-			continue
-		return true
+		if MapperUtilities.is_equal_approximately(vertex, face_vertex, epsilon):
+			return true
 	return false
 
 

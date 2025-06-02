@@ -1,6 +1,16 @@
 class_name MapperUtilities
 
 
+static func is_equal_approximately(a: Vector3, b: Vector3, epsilon: float) -> bool:
+	if not absf(a.x - b.x) < epsilon:
+		return false
+	if not absf(a.y - b.y) < epsilon:
+		return false
+	if not absf(a.z - b.z) < epsilon:
+		return false
+	return true
+
+
 static func get_up_vector(settings: MapperSettings) -> Vector3:
 	return (settings.basis * Vector3(0.0, 0.0, 1.0)).normalized()
 
