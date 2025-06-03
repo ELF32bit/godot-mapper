@@ -58,6 +58,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 		push_error("Error building map %s, factory settings are missing." % [map.name])
 		return null
 	random_number_generator.seed = settings.random_number_generator_seed
+	var inverse_basis := settings.basis.inverse()
 
 	# creating scene root and map structures from resources
 	var packed_scene := PackedScene.new()
@@ -547,13 +548,13 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 			var uvs := PackedVector2Array()
 			uvs.resize(vertices.size())
 			if vertices.size() != face_vertices.size():
-				uvs[0] = face.get_uv(vertices[0] + brush.center, texture_size)
+				uvs[0] = face.get_uv(vertices[0] + brush.center, texture_size, inverse_basis)
 				for index in range(1, vertices.size() - 1):
-					uvs[index] = face.get_uv(face_vertices[index - 1], texture_size)
+					uvs[index] = face.get_uv(face_vertices[index - 1], texture_size, inverse_basis)
 				uvs[vertices.size() - 1] = uvs[1]
 			else:
 				for index in range(vertices.size()):
-					uvs[index] = face.get_uv(face_vertices[index], texture_size)
+					uvs[index] = face.get_uv(face_vertices[index], texture_size, inverse_basis)
 
 			var colors := PackedColorArray()
 			colors.resize(vertices.size())
