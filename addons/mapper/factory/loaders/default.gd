@@ -62,7 +62,7 @@ func load_base_material() -> BaseMaterial3D:
 	return material
 
 
-func load_texture(texture: String, wads: Array) -> Texture2D:
+func load_texture(texture: String, wads: Array[MapperWadResource] = []) -> Texture2D:
 	var wad_texture := texture.to_lower().get_file()
 	for wad in wads:
 		if wad_texture in wad.textures:
@@ -79,7 +79,7 @@ func load_texture(texture: String, wads: Array) -> Texture2D:
 	return null
 
 
-func load_animated_texture(texture: String, wads: Array) -> Texture2D:
+func load_animated_texture(texture: String, wads: Array[MapperWadResource] = []) -> Texture2D:
 	var reg_ex := RegEx.new()
 
 	# trying to get animation frame from texture name
@@ -136,7 +136,7 @@ func load_animated_texture(texture: String, wads: Array) -> Texture2D:
 	return load_texture(texture, wads)
 
 
-func load_animated_textures(texture: String, wads: Array) -> Dictionary:
+func load_animated_textures(texture: String, wads: Array[MapperWadResource] = []) -> Dictionary:
 	var textures: Array[Texture2D] = []
 
 	var reg_ex := RegEx.new()

@@ -1,8 +1,7 @@
 class_name MapperMaterial
-extends Resource
 
-@export var base: BaseMaterial3D
-@export var override: Material
+var base: BaseMaterial3D
+var override: Material
 
 
 func _init(base: BaseMaterial3D = null, override: Material = null):

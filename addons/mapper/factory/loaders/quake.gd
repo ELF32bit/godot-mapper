@@ -46,7 +46,7 @@ func load_base_material() -> BaseMaterial3D:
 	return material
 
 
-func load_animated_texture(texture: String, wads: Array) -> Texture2D:
+func load_animated_texture(texture: String, wads: Array[MapperWadResource] = []) -> Texture2D:
 	var filename := texture.get_file()
 	var directory := texture.trim_suffix(filename)
 
@@ -90,7 +90,7 @@ func load_animated_texture(texture: String, wads: Array) -> Texture2D:
 	return load_texture(texture, wads)
 
 
-func load_animated_textures(texture: String, wads: Array) -> Dictionary:
+func load_animated_textures(texture: String, wads: Array[MapperWadResource] = []) -> Dictionary:
 	var textures: Array[Texture2D] = []
 	var texture_index: int = -1
 
