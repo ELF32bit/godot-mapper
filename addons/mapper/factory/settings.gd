@@ -208,6 +208,7 @@ var options: Dictionary
 		else:
 			push_error("Invalid game mdls directory, must be relative path.")
 
+@export var game_resource_extensions: PackedStringArray = ["tres", "res"]
 @export var game_material_extensions: PackedStringArray = ["tres", "material", "res"]
 @export var game_texture_extensions: PackedStringArray = ["png", "tga", "jpg", "jpeg"]
 @export var game_sound_extensions: PackedStringArray = ["ogg", "wav", "mp3"]

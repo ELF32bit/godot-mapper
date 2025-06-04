@@ -134,10 +134,7 @@ Generic textures are using complex naming pattern.<br>
 * texture-1_albedo.png
 * texture-2.png
 
-> Setting frame rate on generic animated textures is harder than it needs to be.<br>
-Game loader stores animated texture cache, unless **store_unique_animated_textures**.<br>
-Animated textures can be retrieved from that cache inside __post.gd script.<br>
-For now, it's expected for all such textures to have the same frame rate.<br>
+> AnimatedTexture resource can be created alongside for more control.
 
 #### Material alternative textures, possibly followed by animated texture suffix.
 * texture+0.png
@@ -146,7 +143,7 @@ For now, it's expected for all such textures to have the same frame rate.<br>
 * texture+1-2.png
 * texture+2_albedo.png
 
-Quake textures with similar prefixes can also be loaded.<br>
+Quake textures with similar prefixes (+0, +1, +a, +b) can also be loaded.<br>
 Plugin supports multiple loading schemes for various resources.<br>
 Custom loader can be implemented for your own assets.<br>
 

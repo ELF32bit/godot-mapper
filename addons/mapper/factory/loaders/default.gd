@@ -21,6 +21,19 @@ func validate_material_name(material: String) -> String:
 	return directory + filename
 
 
+func load_resource(resource: String, type_hint: String = "") -> Resource:
+	for extension in settings.game_resource_extensions:
+		var file := resource + "." + extension
+		var path := settings.game_directory.path_join(file)
+		if ResourceLoader.exists(path, type_hint):
+			return load(path)
+		for alternative_game_directory in settings.alternative_game_directories:
+			var alternative_path := alternative_game_directory.path_join(file)
+			if ResourceLoader.exists(alternative_path, type_hint):
+				return load(alternative_path)
+	return null
+
+
 func load_material(material: String) -> Material:
 	material = validate_material_name(material)
 	if material.is_empty():
@@ -78,11 +91,12 @@ func load_animated_texture(texture: String, wads: Array) -> Texture2D:
 		var texture_frame := reg_ex.search(suffix).get_string().trim_prefix("-")
 		reg_ex.compile("_[A-Za-z]*$|$")
 		var other_suffix := reg_ex.search(suffix).get_string()
+		var texture_name := texture.trim_suffix(suffix)
 
 		var frames: Array[Texture2D] = []
 		while not frames.size() > AnimatedTexture.MAX_FRAMES:
 			var current_frame := str(frames.size()).pad_zeros(texture_frame.length())
-			var path := texture.trim_suffix(suffix) + "-" + current_frame + other_suffix
+			var path := texture_name + "-" + current_frame + other_suffix
 			var texture_resource := load_texture(path, wads)
 			if not texture_resource:
 				if frames.size() and current_frame < texture_frame:
@@ -106,6 +120,17 @@ func load_animated_texture(texture: String, wads: Array) -> Texture2D:
 			for frame in range(animated_texture.frames):
 				animated_texture.set_frame_texture(frame, frames[frame])
 				animated_texture.set_frame_duration(frame, settings.animated_textures_frame_duration)
+
+			var reference_texture := load_resource(texture_name, "AnimatedTexture")
+			if reference_texture and reference_texture is AnimatedTexture:
+				animated_texture.pause = reference_texture.pause
+				animated_texture.one_shot = reference_texture.one_shot
+				animated_texture.speed_scale = reference_texture.speed_scale
+				if animated_texture.frames == reference_texture.frames:
+					for frame in range(reference_texture.frames):
+						var duration: float = reference_texture.get_frame_duration(frame)
+						animated_texture.set_frame_duration(frame, duration)
+
 			return animated_texture
 
 	return load_texture(texture, wads)
@@ -129,10 +154,11 @@ func load_animated_textures(texture: String, wads: Array) -> Dictionary:
 			texture_frame = "-" + "0".pad_zeros(frame_pattern.get_string().length() - 1)
 		reg_ex.compile("_[A-Za-z]*$|$")
 		var other_suffix := texture_frame + reg_ex.search(suffix).get_string()
+		var texture_name := texture.trim_suffix(suffix)
 
 		while not textures.size() > settings.MAX_MATERIAL_TEXTURES:
 			var current_number := str(textures.size()).pad_zeros(texture_number.length())
-			var path := texture.trim_suffix(suffix) + "+" + current_number + other_suffix
+			var path := texture_name + "+" + current_number + other_suffix
 			var texture_resource := load_animated_texture(path, wads)
 			if not texture_resource:
 				if textures.size() and current_number < texture_number:
