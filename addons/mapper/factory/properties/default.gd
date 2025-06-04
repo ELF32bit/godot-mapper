@@ -126,4 +126,7 @@ func convert_map(line: String) -> Variant:
 
 
 func convert_mdl(line: String) -> Variant:
-	return game_loader.load_mdl_raw(settings.game_mdls_directory.path_join(line))
+	var mdl_palette: MapperPaletteResource = null
+	if settings.options.get("mdl_palette", null) is MapperPaletteResource:
+		mdl_palette = settings.options.get("mdl_palette", null)
+	return game_loader.load_mdl_raw(settings.game_mdls_directory.path_join(line), mdl_palette)

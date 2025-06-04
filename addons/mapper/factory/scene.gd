@@ -395,6 +395,9 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 					faces12.is_smooth_shaded = true
 
 	var load_world_entity_wads := func() -> void:
+		var wad_palette: MapperPaletteResource = null
+		if settings.options.get("wad_palette", null) is MapperPaletteResource:
+			wad_palette = settings.options.get("wad_palette", null)
 		for entity in map_structure.classnames.get(settings.world_entity_classname, []):
 			if entity.properties.has(settings.world_entity_wad_property):
 				for path in entity.properties.get(settings.world_entity_wad_property, "").split(";", false):
@@ -407,7 +410,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 					else:
 						continue
 
-					var wad := game_loader.load_wad_raw(wad_path)
+					var wad := game_loader.load_wad_raw(wad_path, wad_palette)
 					if wad:
 						map_structure.wads.append(wad)
 
@@ -1067,7 +1070,9 @@ func build_mdl(mdl: MapperMdlResource) -> PackedScene:
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	material.metallic_specular = 0.0
 
-	var mdl_frame_rate: float = settings.options.get("mdl_frame_rate", 10.0)
+	var mdl_frame_rate: float = 10.0
+	if settings.options.get("mdl_frame_duration", 0.1) is float:
+		mdl_frame_rate = 1.0 / settings.options.get("mdl_frame_duration", 0.1)
 	var animation_nodes: Array[Node3D] = []
 	var animations: Dictionary = {}
 
