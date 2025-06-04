@@ -20,7 +20,7 @@ Organize map resources into game expansions by specifying alternative game direc
 ## Usage
 ### 1. Create game directory with map resources.
 * game/builders for entity build scripts.
-* game/materials for map materials with additional metadata.
+* game/materials for override materials with additional metadata.
 * game/textures for textures with possible PBR or animation names.
 * game/sounds for loading sounds with any of the supported extensions.
 * game/maps for maps, also maps might embed each other in entity properties.
@@ -68,7 +68,7 @@ if entity_target:
 ```
 Post build script named __post.gd can be executed after all entity nodes are constructed.<br>
 
-### 3. Define map materials with additional metadata.
+### 3. Define map override materials with additional metadata.
 Materials support the same naming pattern with underscore as build scripts.<br>
 Moreover, material named WOOD_.tres will also apply to WOOD1, WOOD2, etc.<br>
 Shader materials that use standard texture parameters will be assigned provided textures.<br>
