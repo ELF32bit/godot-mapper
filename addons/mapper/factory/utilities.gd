@@ -226,7 +226,7 @@ static func create_multimesh_instance(entity: MapperEntity, parent: Node, multim
 	return multimesh_instance
 
 
-static func create_multimesh_mesh_instance(entity: MapperEntity, parent: Node, multimesh: MultiMesh, transform_array: PackedVector3Array) -> MeshInstance3D: # TODO: BUG: workaround for baking light on multimeshes
+static func create_multimesh_mesh_instance(entity: MapperEntity, parent: Node, multimesh: MultiMesh, transform_array: PackedVector3Array) -> MeshInstance3D: # BUG: workaround for baking light on multimeshes
 	var mesh_instance := MeshInstance3D.new()
 	mesh_instance.position = entity.center
 	add_global_child(mesh_instance, parent, entity.factory.settings)
@@ -291,7 +291,7 @@ static func create_multimesh_mesh_instance(entity: MapperEntity, parent: Node, m
 								array[index * 4 + 0] = tangent.x
 								array[index * 4 + 1] = tangent.y
 								array[index * 4 + 2] = tangent.z
-								# TODO: array[index * 4 + 3] tangent transform ???
+								# array[index * 4 + 3] tangent transform ???
 							array_mesh_arrays[array_index].append_array(array)
 					ArrayMesh.ARRAY_INDEX:
 						var max_index: int = 0
