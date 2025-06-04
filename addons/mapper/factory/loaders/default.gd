@@ -218,12 +218,12 @@ func load_wad(wad: String) -> MapperWadResource:
 	return null
 
 
-func load_wad_raw(wad: String, palette: MapperPaletteResource = null, use_cache: bool = true) -> MapperWadResource:
+func load_wad_raw(wad: String, palette: MapperPaletteResource = null) -> MapperWadResource:
 	if wad.get_extension().is_empty():
 		wad = wad.trim_suffix(".") + ".wad"
 	var path := settings.game_directory.path_join(wad)
-	if use_cache and wad_cache.has(path):
-		return wad_cache[path]
+	if wad_cache.has([path, palette]):
+		return wad_cache[[path, palette]]
 
 	var wad_resource := MapperWadResource.load_from_file(path, palette, settings.use_threads)
 	if not wad_resource:
@@ -234,9 +234,8 @@ func load_wad_raw(wad: String, palette: MapperPaletteResource = null, use_cache:
 				break
 	if not wad_resource:
 		return null
-	if use_cache:
-		wad_cache[path] = wad_resource
 
+	wad_cache[[path, palette]] = wad_resource
 	return wad_resource
 
 
@@ -297,12 +296,12 @@ func load_mdl(mdl: String) -> PackedScene:
 	return null
 
 
-func load_mdl_raw(mdl: String, palette: MapperPaletteResource = null, use_cache: bool = true) -> PackedScene:
+func load_mdl_raw(mdl: String, palette: MapperPaletteResource = null) -> PackedScene:
 	if mdl.get_extension().is_empty():
 		mdl = mdl.trim_suffix(".") + ".mdl"
 	var path := settings.game_directory.path_join(mdl)
-	if use_cache and mdl_cache.has(path):
-		return mdl_cache[path]
+	if mdl_cache.has([path, palette]):
+		return mdl_cache[[path, palette]]
 
 	var mdl_resource := MapperMdlResource.load_from_file(path, palette)
 	if not mdl_resource:
@@ -317,8 +316,7 @@ func load_mdl_raw(mdl: String, palette: MapperPaletteResource = null, use_cache:
 	var settings_copy := MapperSettings.new(settings.options)
 	var factory := MapperFactory.new(settings_copy)
 	var scene := factory.build_mdl(mdl_resource)
-	if use_cache:
-		mdl_cache[path] = scene
+	mdl_cache[[path, palette]] = scene
 
 	return scene
 
