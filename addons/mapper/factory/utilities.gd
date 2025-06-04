@@ -80,6 +80,16 @@ static func spread_transform_array(transform_array: PackedVector3Array, spread: 
 	return spread_transform_array
 
 
+static func get_transform_array_positions(transform_array: PackedVector3Array) -> PackedVector3Array:
+	if transform_array.size() % 4 != 0:
+		return PackedVector3Array()
+	var positions_array := PackedVector3Array()
+	positions_array.resize(transform_array.size() / 4)
+	for index in range(0, transform_array.size(), 4):
+		positions_array[index / 4] = transform_array[index + 3]
+	return positions_array
+
+
 static func change_node_type(node: Node, classname: StringName) -> Node:
 	if not ClassDB.is_parent_class(classname, "Node"):
 		return null
