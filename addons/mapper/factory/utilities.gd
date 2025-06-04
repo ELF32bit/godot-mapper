@@ -80,13 +80,15 @@ static func spread_transform_array(transform_array: PackedVector3Array, spread: 
 	return spread_transform_array
 
 
-static func get_transform_array_positions(transform_array: PackedVector3Array) -> PackedVector3Array:
+static func get_transform_array_positions(transform_array: PackedVector3Array, up_offset: float = 0.0) -> PackedVector3Array:
 	if transform_array.size() % 4 != 0:
 		return PackedVector3Array()
 	var positions_array := PackedVector3Array()
 	positions_array.resize(transform_array.size() / 4)
 	for index in range(0, transform_array.size(), 4):
-		positions_array[index / 4] = transform_array[index + 3]
+		var y_axis := transform_array[index + 1]
+		var offset_direction := y_axis.normalized() * up_offset
+		positions_array[index / 4] = transform_array[index + 3] + offset_direction
 	return positions_array
 
 
