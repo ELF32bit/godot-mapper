@@ -1,5 +1,7 @@
 class_name MapperMap
 
+var name: String
+var source_file: String
 var entities: Array[MapperEntity]
 var wads: Array[MapperWadResource]
 

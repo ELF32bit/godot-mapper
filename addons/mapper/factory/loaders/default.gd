@@ -2,7 +2,6 @@ class_name MapperLoader
 
 var settings: MapperSettings
 var custom_wads: Array[MapperWadResource]
-var source_file: String
 
 var animated_texture_cache: Dictionary
 var wad_cache: Dictionary
@@ -215,34 +214,59 @@ func load_wad(wad: String) -> MapperWadResource:
 		var alternative_path := alternative_game_directory.path_join(wad)
 		if ResourceLoader.exists(alternative_path, "MapperWadResource"):
 			return load(alternative_path)
+	return null
 
+
+func load_wad_raw(wad: String, palette: MapperPaletteResource = null) -> MapperWadResource:
+	if wad.get_extension().is_empty():
+		wad = wad.trim_suffix(".") + ".wad"
+	var path := settings.game_directory.path_join(wad)
 	if wad_cache.has(path):
 		return wad_cache[path]
-	var wad_resource := MapperWadResource.load_from_file(path, null, settings.use_threads)
+
+	var wad_resource := MapperWadResource.load_from_file(path, palette, settings.use_threads)
+	if not wad_resource:
+		for alternative_game_directory in settings.alternative_game_directories:
+			var alternative_path := alternative_game_directory.path_join(wad)
+			wad_resource = MapperWadResource.load_from_file(alternative_path, palette, settings.use_threads)
+			if wad_resource:
+				break
+	if not wad_resource:
+		return null
 	wad_cache[path] = wad_resource
 
 	return wad_resource
 
 
-func load_map(map: String, imported: bool = false) -> PackedScene:
+func load_map(map: String) -> PackedScene:
 	if map.get_extension().is_empty():
 		map = map.trim_suffix(".") + ".map"
 	var path := settings.game_directory.path_join(map)
 	# not checking for any cyclic references within maps at all
-	if path == source_file:
-		return null
-	if imported:
-		if ResourceLoader.exists(path, "PackedScene"):
-			return load(path)
-		for alternative_game_directory in settings.alternative_game_directories:
-			var alternative_path := alternative_game_directory.path_join(map)
-			if ResourceLoader.exists(alternative_path, "PackedScene"):
-				return load(alternative_path)
-		return null
+	if ResourceLoader.exists(path, "PackedScene"):
+		return load(path)
+	for alternative_game_directory in settings.alternative_game_directories:
+		var alternative_path := alternative_game_directory.path_join(map)
+		if ResourceLoader.exists(alternative_path, "PackedScene"):
+			return load(alternative_path)
+	return null
 
+
+func load_map_raw(map: String) -> PackedScene:
+	if map.get_extension().is_empty():
+		map = map.trim_suffix(".") + ".map"
+	var path := settings.game_directory.path_join(map)
+	# not checking for any cyclic references within maps at all
 	if map_cache.has(path):
 		return map_cache[path]
+
 	var map_resource := MapperMapResource.load_from_file(path)
+	if not map_resource:
+		for alternative_game_directory in settings.alternative_game_directories:
+			var alternative_path := alternative_game_directory.path_join(map)
+			map_resource = MapperMapResource.load_from_file(alternative_path)
+			if map_resource:
+				break
 	if not map_resource:
 		return null
 
@@ -257,25 +281,33 @@ func load_map(map: String, imported: bool = false) -> PackedScene:
 	return scene
 
 
-func load_mdl(mdl: String, imported: bool = false) -> PackedScene:
+func load_mdl(mdl: String) -> PackedScene:
 	if mdl.get_extension().is_empty():
 		mdl = mdl.trim_suffix(".") + ".mdl"
 	var path := settings.game_directory.path_join(mdl)
-	if imported:
-		if ResourceLoader.exists(path, "PackedScene"):
-			return load(path)
-		for alternative_game_directory in settings.alternative_game_directories:
-			var alternative_path := alternative_game_directory.path_join(mdl)
-			if ResourceLoader.exists(alternative_path, "PackedScene"):
-				return load(alternative_path)
-		return null
+	if ResourceLoader.exists(path, "PackedScene"):
+		return load(path)
+	for alternative_game_directory in settings.alternative_game_directories:
+		var alternative_path := alternative_game_directory.path_join(mdl)
+		if ResourceLoader.exists(alternative_path, "PackedScene"):
+			return load(alternative_path)
+	return null
 
+
+func load_mdl_raw(mdl: String, palette: MapperPaletteResource = null) -> PackedScene:
+	if mdl.get_extension().is_empty():
+		mdl = mdl.trim_suffix(".") + ".mdl"
+	var path := settings.game_directory.path_join(mdl)
 	if mdl_cache.has(path):
 		return mdl_cache[path]
-	var palette: Variant = settings.options.get("palette", null)
-	if not palette is MapperPaletteResource:
-		palette = null
+
 	var mdl_resource := MapperMdlResource.load_from_file(path, palette)
+	if not mdl_resource:
+		for alternative_game_directory in settings.alternative_game_directories:
+			var alternative_path := alternative_game_directory.path_join(mdl)
+			mdl_resource = MapperMdlResource.load_from_file(alternative_path, palette)
+			if mdl_resource:
+				break
 	if not mdl_resource:
 		return null
 

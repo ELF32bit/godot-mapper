@@ -141,11 +141,10 @@ static func create_navigation_region(map: MapperMap, parent: Node, automatic: bo
 		navigation_region.navmesh = navigation_mesh
 		navigation_region.ready.connect(navigation_region.bake_navigation_mesh, CONNECT_PERSIST | CONNECT_DEFERRED)
 	else:
-		var map_source_file := map.factory.game_loader.source_file
 		var map_data_directory := map.settings.game_directory.path_join(map.settings.game_map_data_directory)
 		var navigation_mesh_path := map_data_directory.path_join("%s-%s-%s.NavigationMesh.res" % [
-			map_source_file.get_file().get_basename(),
-			map_source_file.hash(),
+			map.source_file.get_file().get_basename(),
+			map.source_file.hash(),
 			navigation_group_id])
 		if ResourceSaver.save(navigation_mesh, navigation_mesh_path) == OK:
 			navigation_region.navmesh = ResourceLoader.load(navigation_mesh_path, "NavigationMesh")
@@ -178,11 +177,10 @@ static func create_voxel_gi(map: MapperMap, parent: Node, aabb: AABB, scale: flo
 	if automatic:
 		voxel_gi.ready.connect(voxel_gi.bake, CONNECT_PERSIST)
 	else:
-		var map_source_file := map.factory.game_loader.source_file
 		var map_data_directory := map.settings.game_directory.path_join(map.settings.game_map_data_directory)
 		var voxel_gi_data_path := map_data_directory.path_join("%s-%s-%s.VoxelGIData.res" % [
-			map_source_file.get_file().get_basename(),
-			map_source_file.hash(),
+			map.source_file.get_file().get_basename(),
+			map.source_file.hash(),
 			map.factory.random_number_generator.randi()])
 		if ResourceSaver.save(VoxelGIData.new(), voxel_gi_data_path) == OK:
 			voxel_gi.data = ResourceLoader.load(voxel_gi_data_path, "VoxelGIData")
@@ -192,11 +190,10 @@ static func create_voxel_gi(map: MapperMap, parent: Node, aabb: AABB, scale: flo
 static func create_lightmap_gi(map: MapperMap, parent: Node, as_first_child: bool = true) -> LightmapGI:
 	var lightmap_gi := LightmapGI.new()
 	parent.add_child(lightmap_gi, map.settings.readable_node_names)
-	var map_source_file := map.factory.game_loader.source_file
 	var map_data_directory := map.settings.game_directory.path_join(map.settings.game_map_data_directory)
 	var lightmap_gi_data_path := map_data_directory.path_join("%s-%s-%s.LightmapGIData.lmbake" % [
-		map_source_file.get_file().get_basename(),
-		map_source_file.hash(),
+		map.source_file.get_file().get_basename(),
+		map.source_file.hash(),
 		map.factory.random_number_generator.randi()])
 	if ResourceSaver.save(LightmapGIData.new(), lightmap_gi_data_path) == OK:
 		lightmap_gi.light_data = ResourceLoader.load(lightmap_gi_data_path, "LightmapGIData")

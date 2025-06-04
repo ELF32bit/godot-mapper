@@ -122,8 +122,8 @@ func convert_sound(line: String) -> Variant:
 
 
 func convert_map(line: String) -> Variant:
-	return game_loader.load_map(settings.game_maps_directory.path_join(line))
+	return game_loader.load_map_raw(settings.game_maps_directory.path_join(line))
 
 
 func convert_mdl(line: String) -> Variant:
-	return game_loader.load_mdl(settings.game_mdls_directory.path_join(line))
+	return game_loader.load_mdl_raw(settings.game_mdls_directory.path_join(line))

@@ -48,7 +48,6 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 			for index in range(elements):
 				action.call(index)
 
-	game_loader.source_file = map.source_file
 	game_loader.custom_wads.assign(wads)
 	random_number_generator.state = 0
 	progress = 0.0
@@ -66,6 +65,8 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 	scene_root.name = map.name
 
 	var map_structure := MapperMap.new()
+	map_structure.name = map.name
+	map_structure.source_file = map.source_file
 	map_structure.wads.append_array(wads)
 	map_structure.factory = self
 	map_structure.settings = settings
@@ -406,7 +407,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 					else:
 						continue
 
-					var wad := game_loader.load_wad(wad_path)
+					var wad := game_loader.load_wad_raw(wad_path)
 					if wad:
 						map_structure.wads.append(wad)
 
@@ -1042,7 +1043,6 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 		print("Finished building map %s in %.3fs" % [map.name, (build_time / 1000.0)])
 
 	# clearing out some leftover data
-	game_loader.source_file = ""
 	game_loader.custom_wads.clear()
 	game_loader.animated_texture_cache.clear()
 	game_loader.wad_cache.clear()
