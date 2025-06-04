@@ -49,6 +49,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 				action.call(index)
 
 	game_loader.custom_wads.assign(wads)
+	game_loader.random_number_generator.state = 0
 	random_number_generator.state = 0
 	progress = 0.0
 	build_time = 0
@@ -56,6 +57,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 	if not settings:
 		push_error("Error building map %s, factory settings are missing." % [map.name])
 		return null
+	game_loader.random_number_generator.seed = settings.random_number_generator_seed
 	random_number_generator.seed = settings.random_number_generator_seed
 	var inverse_basis := settings.basis.inverse()
 

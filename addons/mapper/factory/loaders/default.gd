@@ -2,6 +2,7 @@ class_name MapperLoader
 
 var settings: MapperSettings
 var custom_wads: Array[MapperWadResource]
+var random_number_generator := RandomNumberGenerator.new()
 
 var animated_texture_cache: Dictionary
 var wad_cache: Dictionary
@@ -274,7 +275,7 @@ func load_map_raw(map: String, use_cache: bool = true) -> PackedScene:
 	var settings_copy := MapperSettings.new(settings.options)
 	# changing seed on copied settings to make navigation groups unique to map
 	# instances of cached maps will have unusable overlapping navigation regions
-	settings_copy.random_number_generator_seed += map_cache.size() + 1
+	settings_copy.random_number_generator_seed = random_number_generator.randi()
 	var factory := MapperFactory.new(settings_copy)
 	var scene := factory.build_map(map_resource, custom_wads)
 	if use_cache:
