@@ -1,5 +1,7 @@
 shader_type spatial;
 
+uniform sampler2D albedo_texture: hint_default_white;
+
 uniform float wireframe_width_min = 10.0;
 uniform float wireframe_width_max = 20.0;
 
@@ -34,4 +36,5 @@ void vertex() {
 
 void fragment() {
 	ALBEDO = vec3(barycentric_wireframe(COLOR, fragment_distance, wireframe_width_min, wireframe_width_max));
+	ALBEDO *= texture(albedo_texture, UV).rgb;
 }
