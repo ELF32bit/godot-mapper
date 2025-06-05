@@ -36,9 +36,10 @@ For example, trigger_.gd will be executed for trigger_once and trigger_multiple 
 
 #### MapperUtilities class provides smart build functions.
 ```GDScript
-# func_detail.gd will create individual brushes 
+# func_detail.gd will create individual brushes
 static func build(map: MapperMap, entity: MapperEntity) -> Node:
-	return MapperUtilities.create_brush_entity(entity, "StaticBody3D")
+	var node := MapperUtilities.create_brush_entity(entity, "StaticBody3D")
+	return node if node else Marker3D.new()
 ```
 ```GDScript
 # worldspawn.gd brushes will be merged into a single geometry
@@ -117,7 +118,7 @@ for brush in entity.brushes:
 	# manually re-enabling disabled brush nodes
 	for child in liquid_area.get_children():
 		if child is MeshInstance3D:
-			child.visible = true	
+			child.visible = true
 		elif child is CollisionShape3D:
 			child.disabled = false
 		elif child is OccluderInstance3D:
