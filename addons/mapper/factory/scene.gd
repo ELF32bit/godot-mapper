@@ -397,9 +397,6 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 					faces12.is_smooth_shaded = true
 
 	var load_world_entity_wads := func() -> void:
-		var wad_palette: MapperPaletteResource = null
-		if settings.options.get("wad_palette", null) is MapperPaletteResource:
-			wad_palette = settings.options.get("wad_palette", null)
 		for entity in map_structure.classnames.get(settings.world_entity_classname, []):
 			if entity.properties.has(settings.world_entity_wad_property):
 				for path in entity.properties.get(settings.world_entity_wad_property, "").split(";", false):
@@ -412,7 +409,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 					else:
 						continue
 
-					var wad := game_loader.load_wad_raw(wad_path, wad_palette)
+					var wad := game_loader.load_wad_raw(wad_path, settings.world_entity_wads_palette)
 					if wad:
 						map_structure.wads.append(wad)
 
@@ -1072,9 +1069,6 @@ func build_mdl(mdl: MapperMdlResource) -> PackedScene:
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	material.metallic_specular = 0.0
 
-	var mdl_frame_rate: float = 10.0
-	if settings.options.get("mdl_frame_duration", 0.1) is float:
-		mdl_frame_rate = 1.0 / settings.options.get("mdl_frame_duration", 0.1)
 	var animation_nodes: Array[Node3D] = []
 	var animations: Dictionary = {}
 
@@ -1148,7 +1142,7 @@ func build_mdl(mdl: MapperMdlResource) -> PackedScene:
 			mesh_instance.name = frame_name
 		animation_nodes.append(mesh_instance)
 
-	var create_animations := func(frame_rate: float) -> void:
+	var create_animations := func() -> void:
 		var animation_player := AnimationPlayer.new()
 		scene_root.add_child(animation_player, true)
 		scene_root.move_child(animation_player, 0)
@@ -1169,7 +1163,7 @@ func build_mdl(mdl: MapperMdlResource) -> PackedScene:
 			var animation := Animation.new()
 			var first_frame: int = animation_frames[0]
 			var last_frame: int = animation_frames[-1]
-			animation.length = float(last_frame - first_frame) / frame_rate
+			animation.length = float(last_frame - first_frame) * settings.mdls_frame_duration
 
 			for animation_node in animation_nodes:
 				var track_index := animation.add_track(Animation.TYPE_VALUE)
@@ -1179,7 +1173,7 @@ func build_mdl(mdl: MapperMdlResource) -> PackedScene:
 				animation.track_set_imported(track_index, true)
 
 				for frame in animation_frames:
-					var key_time := float(frame - first_frame) / frame_rate
+					var key_time := float(frame - first_frame) * settings.mdls_frame_duration
 					var key_value: bool = (animations[animation_name][frame] == animation_node)
 					animation.track_insert_key(track_index, key_time, key_value)
 
@@ -1196,7 +1190,7 @@ func build_mdl(mdl: MapperMdlResource) -> PackedScene:
 				create_frame.call(group_frame, group_node)
 		else:
 			create_frame.call(frame, scene_root)
-	create_animations.call(mdl_frame_rate)
+	create_animations.call()
 
 	var error := packed_scene.pack(scene_root)
 	scene_root.free()

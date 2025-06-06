@@ -48,7 +48,7 @@ const TEXTURE_SUFFIXES := {
 	BaseMaterial3D.TEXTURE_ORM: "_orm"
 }
 
-const MAX_ENTITY_GROUP_DEPTH: int = 128
+const MAX_ENTITY_GROUP_DEPTH: int = 256
 const MAX_ENTITY_TARGET_DEPTH: int = 1024
 const MAX_ENTITY_PARENT_DEPTH: int = 1024
 const MAX_MATERIAL_TEXTURES: int = 1024
@@ -108,6 +108,7 @@ var options: Dictionary
 @export var world_entity_classname: String = "worldspawn"
 @export var world_entity_wad_property_enabled := true
 @export var world_entity_wad_property: StringName = "wad"
+@export var world_entity_wads_palette: MapperPaletteResource = null
 @export var world_entity_extra_brush_entities_enabled := true
 @export var world_entity_extra_brush_entities_classnames: PackedStringArray = ["func_group"]
 
@@ -209,6 +210,7 @@ var options: Dictionary
 			push_error("Invalid game mdls directory, must be relative path.")
 
 @export var game_resource_extensions: PackedStringArray = ["tres", "res"]
+@export var game_scene_extensions: PackedStringArray = ["tscn", "scn", "res"]
 @export var game_material_extensions: PackedStringArray = ["tres", "material", "res"]
 @export var game_texture_extensions: PackedStringArray = ["png", "tga", "jpg", "jpeg"]
 @export var game_sound_extensions: PackedStringArray = ["ogg", "wav", "mp3"]
@@ -220,6 +222,9 @@ var options: Dictionary
 @export var post_build_faces_colors_method: StringName = "__build_faces_colors"
 
 @export var warn_about_degenerate_brushes := true
+
+@export var mdls_frame_duration: float = 0.1
+@export var mdls_palette: MapperPaletteResource = null
 
 @export var game_property_converter: GDScript = DEFAULT_GAME_PROPERTY_CONVERTER
 @export var game_loader: GDScript = DEFAULT_GAME_LOADER

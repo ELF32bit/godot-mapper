@@ -321,6 +321,19 @@ func load_mdl_raw(mdl: String, palette: MapperPaletteResource = null) -> PackedS
 	return scene
 
 
+func load_scene(scene: String) -> PackedScene:
+	for extension in settings.game_scene_extensions:
+		var file := scene + "." + extension
+		var path := settings.game_directory.path_join(file)
+		if ResourceLoader.exists(path, "PackedScene"):
+			return load(path)
+		for alternative_game_directory in settings.alternative_game_directories:
+			var alternative_path := alternative_game_directory.path_join(file)
+			if ResourceLoader.exists(alternative_path, "PackedScene"):
+				return load(alternative_path)
+	return null
+
+
 func generate_matching_paths(path: String) -> PackedStringArray:
 	var filename := path.get_file()
 	var directory := path.trim_suffix(filename)

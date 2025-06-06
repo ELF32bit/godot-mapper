@@ -38,8 +38,7 @@ For example, trigger_.gd will be executed for trigger_once and trigger_multiple 
 ```GDScript
 # func_breakable.gd will create individual brushes
 static func build(map: MapperMap, entity: MapperEntity) -> Node:
-	var node := MapperUtilities.create_brush_entity(entity, "Node3D", "RigidBody3D")
-	return node if node else Marker3D.new()
+	return MapperUtilities.create_brush_entity(entity, "Node3D", "RigidBody3D")
 ```
 ```GDScript
 # worldspawn.gd brushes will be merged into a single geometry
