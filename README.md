@@ -124,7 +124,7 @@ for brush in entity.brushes:
 		elif child is OccluderInstance3D:
 			child.visible = true
 
-	MapperUtilities.add_global_child(entity, liquid_area, entity_node)
+	MapperUtilities.add_global_child(liquid_area, entity_node, map.settings)
 ```
 
 ### 4. Animated textures and material alternative textures.
