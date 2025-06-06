@@ -36,9 +36,9 @@ For example, trigger_.gd will be executed for trigger_once and trigger_multiple 
 
 #### MapperUtilities class provides smart build functions.
 ```GDScript
-# func_detail.gd will create individual brushes
+# func_breakable.gd will create individual brushes
 static func build(map: MapperMap, entity: MapperEntity) -> Node:
-	var node := MapperUtilities.create_brush_entity(entity, "StaticBody3D")
+	var node := MapperUtilities.create_brush_entity(entity, "Node3D", "RigidBody3D")
 	return node if node else Marker3D.new()
 ```
 ```GDScript
