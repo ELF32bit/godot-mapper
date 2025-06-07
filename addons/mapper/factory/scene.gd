@@ -398,8 +398,8 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 
 	var load_world_entity_wads := func() -> void:
 		for entity in map_structure.classnames.get(settings.world_entity_classname, []):
-			if entity.properties.has(settings.world_entity_wad_property):
-				for path in entity.properties.get(settings.world_entity_wad_property, "").split(";", false):
+			if entity.properties.has(settings.world_entity_wads_property):
+				for path in entity.properties.get(settings.world_entity_wads_property, "").split(";", false):
 					var wad_path := settings.game_wads_directory
 
 					if path.is_absolute_path():
@@ -1015,7 +1015,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 	if settings.smooth_shading_property_enabled:
 		factory.call(parallel_task.bind(generate_smooth_entity_normals, smooth_entities.size()), 5, "Generating smooth entity normals")
 
-	if settings.world_entity_wad_property_enabled:
+	if settings.world_entity_wads_property_enabled:
 		factory.call(load_world_entity_wads, 6, "Loading world entity wads")
 
 	factory.call(load_materials_and_textures, 7, "Loading materials and textures")

@@ -106,8 +106,8 @@ var options: Dictionary
 @export var skip_material_affects_collision := true
 
 @export var world_entity_classname: String = "worldspawn"
-@export var world_entity_wad_property_enabled := true
-@export var world_entity_wad_property: StringName = "wad"
+@export var world_entity_wads_property_enabled := true
+@export var world_entity_wads_property: StringName = "wad"
 @export var world_entity_wads_palette: MapperPaletteResource = null
 @export var world_entity_extra_brush_entities_enabled := true
 @export var world_entity_extra_brush_entities_classnames: PackedStringArray = ["func_group"]
