@@ -34,6 +34,19 @@ func load_resource(resource: String, type_hint: String = "") -> Resource:
 	return null
 
 
+func load_shader(shader: String) -> Shader:
+	for extension in settings.game_shader_extensions:
+		var file := shader + "." + extension
+		var path := settings.game_directory.path_join(file)
+		if ResourceLoader.exists(path, "Shader"):
+			return load(path)
+		for alternative_game_directory in settings.alternative_game_directories:
+			var alternative_path := alternative_game_directory.path_join(file)
+			if ResourceLoader.exists(alternative_path, "Shader"):
+				return load(alternative_path)
+	return null
+
+
 func load_material(material: String) -> Material:
 	material = validate_material_name(material)
 	if material.is_empty():

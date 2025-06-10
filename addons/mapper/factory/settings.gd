@@ -211,6 +211,7 @@ var options: Dictionary
 
 @export var game_resource_extensions: PackedStringArray = ["tres", "res"]
 @export var game_scene_extensions: PackedStringArray = ["tscn", "scn", "res"]
+@export var game_shader_extensions: PackedStringArray = ["gdshader", "res", "tres"]
 @export var game_material_extensions: PackedStringArray = ["tres", "material", "res"]
 @export var game_texture_extensions: PackedStringArray = ["png", "tga", "jpg", "jpeg"]
 @export var game_sound_extensions: PackedStringArray = ["ogg", "wav", "mp3"]
