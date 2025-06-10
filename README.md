@@ -87,7 +87,7 @@ For example, albedo_texture or normal_texture uniforms inside a shader.<br>
 * ```ignore_occlusion``` will disable occlusion culling for MeshInstance3D.
 * ```collision_disabled``` set to true will disable CollisionShape3D.
 
-> Shapes of uniform brushes will be excluded from entity collision shape.
+> Shapes of uniform brushes will not be merged into entity collision shape.
 
 * ```collision_layer``` will set CollisionObject3D layer to the specified layer.
 * ```collision_mask``` will set CollisionObject3D mask to the specified mask.
