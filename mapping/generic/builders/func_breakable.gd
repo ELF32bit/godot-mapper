@@ -5,6 +5,8 @@ static func build(map: MapperMap, entity: MapperEntity) -> Node:
 
 	for brush in entity.brushes:
 		var brush_node := MapperUtilities.create_brush(entity, brush, "RigidBody3D")
+		if not brush_node:
+			continue
 		MapperUtilities.add_global_child(brush_node, node, map.settings)
 
 	return node
