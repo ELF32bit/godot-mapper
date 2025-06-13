@@ -105,6 +105,10 @@ var options: Dictionary
 @export var skip_material_aliases: PackedStringArray = []
 @export var skip_material_affects_collision := true
 
+@export var skip_entities_enabled := true
+@export var skip_entities_classnames: PackedStringArray = []
+@export var skip_entities_without_classname := false
+
 @export var world_entity_classname: String = "worldspawn"
 @export var world_entity_wads_property_enabled := true
 @export var world_entity_wads_property: StringName = "wad"
@@ -117,6 +121,9 @@ var options: Dictionary
 @export var group_entity_type_property: StringName = "_tb_type"
 @export var group_entity_types: PackedStringArray = ["_tb_group", "_tb_layer"]
 @export var group_entity_id_property: StringName = "_tb_id"
+
+@export var tb_layer_omit_from_export_enabled := true
+@export var tb_layer_omit_from_export_property := "_tb_layer_omit_from_export"
 
 @export var alternative_textures_metadata_property: StringName = "alternative_textures"
 @export var override_material_metadata_properties := {

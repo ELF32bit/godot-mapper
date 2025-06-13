@@ -48,15 +48,16 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 			for index in range(elements):
 				action.call(index)
 
+	if not settings:
+		push_error("Error building map %s, factory settings are missing." % [map.name])
+		return null
+
 	game_loader.custom_wads.assign(wads)
 	game_loader.random_number_generator.state = 0
 	random_number_generator.state = 0
 	progress = 0.0
 	build_time = 0
 
-	if not settings:
-		push_error("Error building map %s, factory settings are missing." % [map.name])
-		return null
 	game_loader.random_number_generator.seed = settings.random_number_generator_seed
 	random_number_generator.seed = settings.random_number_generator_seed
 	var inverse_basis := settings.basis.inverse()
@@ -90,42 +91,85 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 		var forward_rotation := Quaternion(Vector3.FORWARD, settings.basis.x)
 		var forward_rotation_euler := forward_rotation.get_euler()
 
-		# preparing to create map structure groups dictionary
+		# creating all entity structures
+		var all_entity_structures: Array[MapperEntity] = []
+		all_entity_structures.resize(map.entities.size())
+		for entity_index in range(map.entities.size()):
+			var entity := map.entities[entity_index]
+			var entity_structure := MapperEntity.new()
+			entity_structure.properties = entity.properties.duplicate()
+			entity_structure.factory = self
+			all_entity_structures[entity_index] = entity_structure
+
+		# creating map structure groups dictionary
 		if settings.group_entity_enabled:
 			for group_entity_type in settings.group_entity_types:
 				map_structure.groups[group_entity_type] = {}
 
-		for entity in map.entities:
-			var entity_structure := MapperEntity.new()
-			entity_structure.properties = entity.properties.duplicate()
-			entity_structure.factory = self
-			if settings.smooth_shading_property_enabled:
-				if entity_structure.is_smooth_shaded():
-					smooth_entities.append(entity_structure)
-			entity_structures.append(entity_structure)
+			for entity_structure in all_entity_structures:
+				var entity_classname := entity_structure.get_classname_property(null)
+				if entity_classname == null:
+					continue
+				if not entity_classname == settings.group_entity_classname:
+					continue
+				if not settings.group_entity_type_property in entity_structure.properties:
+					continue
 
+				var group_entity_type: String = entity_structure.properties[settings.group_entity_type_property]
+				var type_index := settings.group_entity_types.find(group_entity_type)
+				var id: Variant = entity_structure.get_int_property(settings.group_entity_id_property, null)
+				if type_index != -1 and id != null:
+					map_structure.groups[settings.group_entity_types[type_index]][id] = entity_structure
+
+		for entity_index in range(map.entities.size()):
+			var entity := map.entities[entity_index]
+			var entity_structure := all_entity_structures[entity_index]
 			var is_world_entity_extra_brush_entity := false
-			if settings.classname_property in entity_structure.properties:
+
+			# skipping entities from certain layers
+			if settings.group_entity_enabled and settings.tb_layer_omit_from_export_enabled:
+				var property := settings.tb_layer_omit_from_export_property
+				if map_structure.is_group_entity(entity_structure, "_tb_layer"):
+					if entity_structure.get_int_property(property, 0) != 0:
+						continue
+				else:
+					var entity_layer := map_structure.get_entity_group(entity_structure, "_tb_layer")
+					if entity_layer and entity_layer.get_int_property(property, 0) != 0:
+						continue
+					else:
+						var entity_groups := map_structure.get_entity_group_recursively(entity_structure, "_tb_group", true)
+						if entity_groups.size() > 0:
+							var entity_group_layer := map_structure.get_entity_group(entity_groups[0], "_tb_layer")
+							if entity_group_layer and entity_group_layer.get_int_property(property, 0) != 0:
+								continue
+
+			var entity_classname := entity_structure.get_classname_property(null)
+			if entity_classname != null:
+				# skipping certain entities from settings
+				if settings.skip_entities_enabled:
+					var is_skip_entity := false
+					for classname in settings.skip_entities_classnames:
+						if entity_classname.match(classname):
+							is_skip_entity = true
+							break
+					if is_skip_entity:
+						continue
+
 				# creating map structure classnames dictionary
-				var entity_classname: String = entity_structure.get_classname_property(null)
 				if not entity_classname in map_structure.classnames:
 					map_structure.classnames[entity_classname] = []
 				map_structure.classnames[entity_classname].append(entity_structure)
 
-				# also adding brushes from world entity extra brush entity to first world entity if enabled
+				# marking world entity extra brush entities
 				if settings.world_entity_extra_brush_entities_enabled:
 					if entity_classname in settings.world_entity_extra_brush_entities_classnames:
 						is_world_entity_extra_brush_entity = true
+			elif settings.skip_entities_enabled:
+				if settings.skip_entities_without_classname:
+					continue
 
-				# creating map structure groups dictionary
-				if settings.group_entity_enabled:
-					if entity_classname == settings.group_entity_classname:
-						if settings.group_entity_type_property in entity_structure.properties:
-							var group_entity_type: String = entity_structure.properties[settings.group_entity_type_property]
-							var type_index := settings.group_entity_types.find(group_entity_type)
-							var id: Variant = entity_structure.get_int_property(settings.group_entity_id_property, null)
-							if type_index != -1 and id != null:
-								map_structure.groups[settings.group_entity_types[type_index]][id] = entity_structure
+			# inserting entity structure inside the map structure
+			entity_structures.append(entity_structure)
 
 			# binding common entity properties
 			entity_structure.bind_origin_property("position")
@@ -165,6 +209,11 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 			var world_entity: MapperEntity = map_structure.classnames.get(settings.world_entity_classname, [null])[0]
 			if world_entity:
 				world_entity.brushes.append_array(world_entity_extra_brushes)
+
+		if settings.smooth_shading_property_enabled:
+			for entity_structure in entity_structures:
+				if entity_structure.is_smooth_shaded():
+					smooth_entities.append(entity_structure)
 
 	var generate_faces := func(thread_index: int) -> void:
 		var face := face_structures[thread_index]
