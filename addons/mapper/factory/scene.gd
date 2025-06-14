@@ -30,14 +30,14 @@ func _init(settings: MapperSettings) -> void:
 		self.settings = null
 
 
-func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], print_progress: bool = false) -> PackedScene:
+func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> PackedScene:
 	var factory := func(action: Callable, progress: float, comment: String) -> void:
 		var time := Time.get_ticks_msec()
 		action.call()
 		time = Time.get_ticks_msec() - time
 		build_time += time
 		self.progress = progress / 21.0 # number of build steps
-		if print_progress:
+		if settings.print_progress:
 			print("(%.2f) %s: %.3fs" % [self.progress, comment, time / 1000.0])
 
 	var parallel_task := func(action: Callable, elements: int, use_threads: bool = true) -> void:
@@ -1046,7 +1046,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 			push_error("Error packing scene tree, something is wrong!")
 			packed_scene = null
 
-	if print_progress:
+	if settings.print_progress:
 		print("Starting building map %s" % [map.name])
 	factory.call(generate_structures, 1, "Generating structures")
 	factory.call(parallel_task.bind(generate_faces, face_structures.size()), 2, "Generating faces")
@@ -1090,7 +1090,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = [], prin
 	factory.call(generate_scene_node_paths, 19, "Generating scene node paths")
 	factory.call(set_scene_tree_owner, 20, "Preparing to pack scene tree")
 	factory.call(pack_scene_tree, 21, "Packing scene tree")
-	if print_progress:
+	if settings.print_progress:
 		print("Finished building map %s in %.3fs" % [map.name, (build_time / 1000.0)])
 
 	# clearing out some leftover data

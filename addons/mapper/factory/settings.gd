@@ -230,6 +230,7 @@ var options: Dictionary
 @export var post_build_faces_colors_method: StringName = "__build_faces_colors"
 
 @export var warn_about_degenerate_brushes := true
+@export var print_progress := false
 
 @export var mdls_frame_duration: float = 0.1
 @export var mdls_palette: MapperPaletteResource = null
