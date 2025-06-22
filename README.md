@@ -186,7 +186,7 @@ for map_entity in map.classnames.get("func_detail", []):
 ### 7. Generate surface and volume distributions.
 Spread parameter will also filter out nearby points.
 ```GDScript
-var grass_multimesh := preload("grass_multimesh.tres")
+var grass_multimesh := preload("../resources/multimesh.tres")
 var grass_transform_array := entity.generate_surface_distribution(
     ["GRASS*", "__TB_empty"], 1.0, 0.25, 1.0, 2.0, 0.0, 45.0, false, true)
 var grass_multimesh_instance := MapperUtilities.create_multimesh_instance(
