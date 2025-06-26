@@ -11,7 +11,6 @@ var concave_shape: ConcavePolygonShape3D
 var convex_shape: ConvexPolygonShape3D
 var shape: Shape3D
 var occluder: ArrayOccluder3D
-
 var center: Vector3
 var aabb: AABB
 
@@ -199,7 +198,7 @@ func generate_surface_distribution(surfaces: PackedStringArray, density: float, 
 			var r4 := random_number_generator.randf()
 			basis = basis.rotated(rotation_axis, rotation_range * r4)
 
-		# scaling basis by a realitve random scale
+		# scaling basis by a relative random scale
 		if has_scale_range:
 			var r5 := random_number_generator.randf()
 			basis = basis.scaled(Vector3.ONE * (min_scale + scale_range * r5))

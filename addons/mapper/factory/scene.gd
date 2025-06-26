@@ -79,7 +79,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 	var face_structures: Array[MapperFace] = []
 	var brush_structures: Array[MapperBrush] = []
 	var entity_structures: Array[MapperEntity] = map_structure.entities
-	var smooth_entities: Array[MapperEntity] = []
+	var smooth_entity_structures: Array[MapperEntity] = []
 
 	var post_build_script: GDScript = null
 	if settings.post_build_script_enabled:
@@ -97,9 +97,9 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 		for entity_index in range(map.entities.size()):
 			var entity := map.entities[entity_index]
 			var entity_structure := MapperEntity.new()
+			all_entity_structures[entity_index] = entity_structure
 			entity_structure.properties = entity.properties.duplicate()
 			entity_structure.factory = self
-			all_entity_structures[entity_index] = entity_structure
 
 		# creating map structure groups dictionary
 		if settings.group_entity_enabled:
@@ -213,7 +213,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 		if settings.smooth_shading_property_enabled:
 			for entity_structure in entity_structures:
 				if entity_structure.is_smooth_shaded():
-					smooth_entities.append(entity_structure)
+					smooth_entity_structures.append(entity_structure)
 
 	var generate_faces := func(thread_index: int) -> void:
 		var face := face_structures[thread_index]
@@ -330,7 +330,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 		brush.center *= scale
 
 	var generate_smooth_entity_normals := func(thread_index: int) -> void:
-		var entity := smooth_entities[thread_index]
+		var entity := smooth_entity_structures[thread_index]
 
 		var split_angle_property := settings.smooth_shading_split_angle_property
 		var split_angle: float = entity.get_float_property(split_angle_property, 89.0)
@@ -1062,7 +1062,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 			push_warning("Found %s degenerate brushes, consider adjusting epsilon." % [degenerate_brush_structure_amount])
 
 	if settings.smooth_shading_property_enabled:
-		factory.call(parallel_task.bind(generate_smooth_entity_normals, smooth_entities.size()), 5, "Generating smooth entity normals")
+		factory.call(parallel_task.bind(generate_smooth_entity_normals, smooth_entity_structures.size()), 5, "Generating smooth entity normals")
 
 	if settings.world_entity_wads_property_enabled:
 		factory.call(load_world_entity_wads, 6, "Loading world entity wads")

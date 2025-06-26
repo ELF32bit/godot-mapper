@@ -22,7 +22,7 @@ static func get_up_axis_index(settings: MapperSettings) -> int:
 static func get_up_axis(settings: MapperSettings) -> Vector3:
 	var up_axis := Vector3.ZERO
 	var up_vector := get_up_vector(settings)
-	var up_axis_index := MapperUtilities.get_up_axis_index(settings)
+	var up_axis_index := get_up_axis_index(settings)
 	up_axis[up_axis_index] = signf(up_vector[up_axis_index])
 	return up_axis
 
@@ -38,7 +38,7 @@ static func get_forward_axis_index(settings: MapperSettings) -> int:
 static func get_forward_axis(settings: MapperSettings) -> Vector3:
 	var forward_axis := Vector3.ZERO
 	var forward_vector := get_forward_vector(settings)
-	var forward_axis_index := MapperUtilities.get_forward_axis_index(settings)
+	var forward_axis_index := get_forward_axis_index(settings)
 	forward_axis[forward_axis_index] = signf(forward_vector[forward_axis_index])
 	return forward_axis
 
@@ -54,7 +54,7 @@ static func get_right_axis_index(settings: MapperSettings) -> int:
 static func get_right_axis(settings: MapperSettings) -> Vector3:
 	var right_axis := Vector3.ZERO
 	var right_vector := get_right_vector(settings)
-	var right_axis_index := MapperUtilities.get_right_axis_index(settings)
+	var right_axis_index := get_right_axis_index(settings)
 	right_axis[right_axis_index] = signf(right_vector[right_axis_index])
 	return right_axis
 
