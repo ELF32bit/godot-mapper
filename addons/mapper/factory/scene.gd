@@ -1069,7 +1069,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 
 	factory.call(load_materials_and_textures, 7, "Loading materials and textures")
 	factory.call(parallel_task.bind(generate_brush_geometry, brush_structures.size()), 8, "Generating brush geometry")
-	factory.call(parallel_task.bind(generate_entity_bounds, entity_structures.size()), 9, "Generating entity bounds")
+	factory.call(parallel_task.bind(generate_entity_bounds, entity_structures.size(), false), 9, "Generating entity bounds")
 	factory.call(parallel_task.bind(generate_entity_meshes, entity_structures.size(), false), 10, "Generating entity meshes")
 	factory.call(parallel_task.bind(generate_entity_shapes, entity_structures.size()), 11, "Generating entity shapes")
 
