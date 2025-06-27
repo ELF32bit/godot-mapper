@@ -66,15 +66,15 @@ func bind_signal_property(property: StringName, target_source_property: StringNa
 
 
 func bind_node_path_property(property: StringName, target_source_property: StringName, node_property: StringName, classname: String = "*") -> void:
-	var parameters: Array[Variant] = [property, target_source_property, node_property, classname]
+	var parameters: Array[Variant] = [property, target_source_property, node_property, classname, true]
 	if not parameters in node_paths:
-		node_paths.append([property, target_source_property, node_property, classname, true])
+		node_paths.append(parameters)
 
 
 func bind_node_path_array_property(property: StringName, target_source_property: StringName, node_property: StringName, classname: String = "*") -> void:
-	var parameters: Array[Variant] = [property, target_source_property, node_property, classname]
+	var parameters: Array[Variant] = [property, target_source_property, node_property, classname, false]
 	if not parameters in node_paths:
-		node_paths.append([property, target_source_property, node_property, classname, false])
+		node_paths.append(parameters)
 
 
 func get_string_property(property: StringName, default: Variant = null) -> Variant:
