@@ -49,10 +49,6 @@ func convert_unit(line: String) -> Variant:
 	return null
 
 
-func convert_direction(line: String) -> Variant:
-	return convert_origin(line)
-
-
 func convert_color(line: String) -> Variant:
 	var numbers := line.split_floats(" ", false)
 	if numbers.size() < 3:

@@ -116,7 +116,7 @@ func get_unit_property(property: StringName, default: Variant = null, convert_de
 
 
 func get_direction_property(property: StringName, default: Variant = null) -> Variant:
-	return get_property("convert_direction", property, default)
+	return get_property("convert_origin", property, default)
 
 
 func get_color_property(property: StringName, default: Variant = null) -> Variant:
@@ -188,7 +188,7 @@ func bind_unit_property(property: StringName, node_property: StringName) -> void
 
 
 func bind_direction_property(property: StringName, node_property: StringName) -> void:
-	bind_property("convert_direction", property, node_property)
+	bind_property("convert_origin", property, node_property)
 
 
 func bind_color_property(property: StringName, node_property: StringName) -> void:
