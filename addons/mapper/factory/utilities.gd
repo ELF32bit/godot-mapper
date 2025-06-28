@@ -407,6 +407,7 @@ static func create_brush(entity: MapperEntity, brush: MapperBrush, node_class: S
 			planes.append(brush.get_planes(entity.factory.settings.skip_material_affects_collision))
 			node.set_meta(entity.factory.settings.planes_metadata_property, planes)
 		return node
+
 	node.free()
 	return null
 
@@ -456,6 +457,7 @@ static func create_brush_entity(entity: MapperEntity, node_class: StringName = "
 					planes.append(brush.get_planes(entity.factory.settings.skip_material_affects_collision))
 			node.set_meta(entity.factory.settings.planes_metadata_property, planes)
 		return node
+
 	node.free()
 	return null
 
@@ -522,6 +524,7 @@ static func create_merged_brush_entity(entity: MapperEntity, node_class: StringN
 					planes.append(brush.get_planes(entity.factory.settings.skip_material_affects_collision))
 			node.set_meta(entity.factory.settings.planes_metadata_property, planes)
 		return node
+
 	node.free()
 	return null
 

@@ -25,28 +25,6 @@ func has_point(point: Vector3) -> bool:
 	return true
 
 
-func get_point_penetration(point: Vector3) -> Array[float]:
-	var min_distance: float = INF
-	var max_distance: float = -INF
-	for face in faces:
-		var distance_to_plane := face.plane.distance_to(point)
-		if distance_to_plane > factory.settings.epsilon:
-			return []
-		distance_to_plane = absf(distance_to_plane)
-		min_distance = minf(distance_to_plane, min_distance)
-		max_distance = maxf(distance_to_plane, max_distance)
-	return [min_distance, max_distance]
-
-
-func get_relative_point_penetration(point: Vector3) -> float:
-	var point_penetration := get_point_penetration(point)
-	if point_penetration.size():
-		var min_distance := point_penetration[0]
-		var max_distance := point_penetration[1]
-		return min_distance / max_distance # can return NAN which is safe
-	return NAN
-
-
 func get_planes(from_mesh: bool = true) -> Array[Plane]:
 	var planes: Array[Plane] = []
 	if mesh and from_mesh:
@@ -83,6 +61,38 @@ func get_uniform_property_list() -> PackedStringArray:
 	if not override_material:
 		return PackedStringArray()
 	return override_material.get_meta_list()
+
+
+func get_min_point_penetration(point: Vector3) -> Variant:
+	var min_distance: float = INF
+	for face in faces:
+		var distance_to_plane := face.plane.distance_to(point)
+		if distance_to_plane > factory.settings.epsilon:
+			return null
+		distance_to_plane = absf(distance_to_plane)
+		min_distance = minf(distance_to_plane, min_distance)
+	return (null if is_nan(min_distance) else min_distance)
+
+
+func get_max_point_penetration(point: Vector3) -> Variant:
+	var max_distance: float = INF
+	for face in faces:
+		var distance_to_plane := face.plane.distance_to(point)
+		if distance_to_plane > factory.settings.epsilon:
+			return null
+		distance_to_plane = absf(distance_to_plane)
+		max_distance = maxf(distance_to_plane, max_distance)
+	return (null if is_nan(max_distance) else max_distance)
+
+
+func get_relative_point_penetration(point: Vector3) -> Variant:
+	var min_distance := get_min_point_penetration(point)
+	if min_distance == null:
+		return null
+	var max_distance := get_max_point_penetration(point)
+	if max_distance == null:
+		return null
+	return min_distance / max_distance
 
 
 func generate_surface_distribution(surfaces: PackedStringArray, density: float, spread: float = 0.0, min_scale: float = 1.0, max_scale: float = 1.0, min_floor_angle: float = 0.0, max_floor_angle: float = 45.0, even_distribution: bool = false, random_rotation: bool = true, world_space: bool = false, seed: int = 0) -> PackedVector3Array:
@@ -260,9 +270,8 @@ func generate_volume_distribution(density: float, spread: float = 0.0, min_scale
 
 		var brush_has_point := false
 		if has_penetration_range:
-			var point_penetration := get_point_penetration(point)
-			if point_penetration.size():
-				var min_point_penetration := point_penetration[0]
+			var min_point_penetration := get_min_point_penetration(point)
+			if min_point_penetration != null:
 				if min_point_penetration >= min_penetration:
 					if min_point_penetration <= max_penetration:
 						brush_has_point = true

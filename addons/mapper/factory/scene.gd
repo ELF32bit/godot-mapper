@@ -53,14 +53,12 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 		return null
 
 	game_loader.custom_wads.assign(wads)
+	game_loader.random_number_generator.seed = settings.random_number_generator_seed
+	random_number_generator.seed = settings.random_number_generator_seed
 	game_loader.random_number_generator.state = 0
 	random_number_generator.state = 0
 	progress = 0.0
 	build_time = 0
-
-	game_loader.random_number_generator.seed = settings.random_number_generator_seed
-	random_number_generator.seed = settings.random_number_generator_seed
-	var inverse_basis := settings.basis.inverse()
 
 	# creating scene root and map structures from resources
 	var packed_scene := PackedScene.new()
@@ -81,6 +79,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 	var entity_structures: Array[MapperEntity] = map_structure.entities
 	var smooth_entity_structures: Array[MapperEntity] = []
 
+	var inverse_basis := settings.basis.inverse()
 	var post_build_script: GDScript = null
 	if settings.post_build_script_enabled:
 		var path := settings.game_builders_directory.path_join(settings.post_build_script_name)
@@ -914,6 +913,10 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 
 	var generate_entity_nodes := func() -> void:
 		for classname in map_structure.classnames:
+			if settings.post_build_script_enabled:
+				if classname == settings.post_build_script_name:
+					continue
+
 			var class_builder: GDScript = null
 			var path := settings.game_builders_directory.path_join(classname)
 			class_builder = game_loader.load_script(path)
