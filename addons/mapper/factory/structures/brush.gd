@@ -95,7 +95,7 @@ func get_relative_point_penetration(point: Vector3) -> Variant:
 	return min_distance / max_distance
 
 
-func generate_surface_distribution(surfaces: PackedStringArray, density: float, spread: float = 0.0, min_scale: float = 1.0, max_scale: float = 1.0, min_floor_angle: float = 0.0, max_floor_angle: float = 45.0, even_distribution: bool = false, random_rotation: bool = true, world_space: bool = false, seed: int = 0) -> PackedVector3Array:
+func generate_surface_distribution(surfaces: PackedStringArray, density: float, spread: float = 0.0, min_floor_angle: float = 0.0, max_floor_angle: float = 45.0, even_distribution: bool = false, world_space: bool = false, seed: int = 0) -> PackedVector3Array:
 	var triangles := PackedVector3Array()
 	var normals := PackedVector3Array()
 	var distribution := PackedFloat32Array([0.0])
@@ -110,14 +110,6 @@ func generate_surface_distribution(surfaces: PackedStringArray, density: float, 
 	min_floor_angle = actual_min_floor_angle
 	max_floor_angle = actual_max_floor_angle
 
-	var actual_min_scale := minf(min_scale, max_scale)
-	var actual_max_scale := maxf(min_scale, max_scale)
-	min_scale = actual_min_scale
-	max_scale = actual_max_scale
-
-	var rotation_range := 2.0 * PI
-	var scale_range := max_scale - min_scale
-	var has_scale_range := (scale_range != 0.0)
 	var floor_angle_range := max_floor_angle - min_floor_angle
 	var offset := -center * float(not world_space)
 
@@ -162,6 +154,7 @@ func generate_surface_distribution(surfaces: PackedStringArray, density: float, 
 	# creating random number generator with specified seed
 	var random_number_generator := RandomNumberGenerator.new()
 	random_number_generator.seed = seed
+	random_number_generator.state = 0
 
 	# determining amount of points from density
 	var transform_array := PackedVector3Array()
@@ -192,28 +185,12 @@ func generate_surface_distribution(surfaces: PackedStringArray, density: float, 
 		if not is_equal_approx(area1 + area2 + area3, area):
 			p = (a + b) - p
 
-		# preparing to create basis
-		var undefined_rotation := normals[index].is_equal_approx(Vector3.DOWN)
-		var rotation_axis: Vector3 = (Vector3.DOWN if undefined_rotation else Vector3.UP)
-
 		# creating basis with up axis equal to triangle normal
 		var basis := Basis.IDENTITY
-		if undefined_rotation:
-			basis = basis.scaled(Vector3(1.0, -1.0, 1.0))
+		if normals[index].is_equal_approx(Vector3.DOWN):
+			basis = basis.scaled(Vector3(-1.0, -1.0, -1.0))
 		else:
 			basis = Basis(Quaternion(normals[index], Vector3.UP))
-
-		# rotating basis around up axis by a random angle
-		if random_rotation:
-			var r4 := random_number_generator.randf()
-			basis = basis.rotated(rotation_axis, rotation_range * r4)
-
-		# scaling basis by a relative random scale
-		if has_scale_range:
-			var r5 := random_number_generator.randf()
-			basis = basis.scaled(Vector3.ONE * (min_scale + scale_range * r5))
-		else:
-			basis = basis.scaled(Vector3.ONE * min_scale)
 
 		# calculating origin
 		var origin := (triangles[index * 3] + p)
@@ -230,7 +207,7 @@ func generate_surface_distribution(surfaces: PackedStringArray, density: float, 
 	return transform_array
 
 
-func generate_volume_distribution(density: float, spread: float = 0.0, min_scale: float = 1.0, max_scale: float = 1.0, min_penetration: float = 0.0, max_penetration: float = INF, random_rotation: bool = true, world_space: bool = false, seed: int = 0) -> PackedVector3Array:
+func generate_volume_distribution(density: float, spread: float = 0.0, min_penetration: float = 0.0, max_penetration: float = INF, world_space: bool = false, seed: int = 0) -> PackedVector3Array:
 	if not aabb.has_volume():
 		return PackedVector3Array()
 
@@ -244,20 +221,13 @@ func generate_volume_distribution(density: float, spread: float = 0.0, min_scale
 	min_penetration = actual_min_penetration
 	max_penetration = actual_max_penetration
 
-	var actual_min_scale := minf(min_scale, max_scale)
-	var actual_max_scale := maxf(min_scale, max_scale)
-	min_scale = actual_min_scale
-	max_scale = actual_max_scale
-
-	var rotation_range := 2.0 * PI
-	var scale_range := max_scale - min_scale
-	var has_scale_range := (scale_range != 0.0)
 	var has_penetration_range := bool(min_penetration != max_penetration)
 	var offset := -center * float(not world_space)
 
 	# creating random number generator with specified seed
 	var random_number_generator := RandomNumberGenerator.new()
 	random_number_generator.seed = seed
+	random_number_generator.state = 0
 
 	var transform_array := PackedVector3Array()
 	for index in range(int(aabb.get_volume() * density)):
@@ -280,17 +250,6 @@ func generate_volume_distribution(density: float, spread: float = 0.0, min_scale
 
 		if brush_has_point:
 			var basis := Basis.IDENTITY
-			if random_rotation:
-				var r4 := random_number_generator.randf() - 0.5
-				var r5 := random_number_generator.randf() - 0.5
-				var r6 := random_number_generator.randf() - 0.5
-				basis = Basis(Quaternion.from_euler(Vector3(r4, r5, r6) * rotation_range))
-			if has_scale_range:
-				var r7 := random_number_generator.randf()
-				basis = basis.scaled(Vector3.ONE * (min_scale + scale_range * r7))
-			else:
-				basis = basis.scaled(Vector3.ONE * min_scale)
-
 			transform_array.append(basis.x)
 			transform_array.append(basis.y)
 			transform_array.append(basis.z)

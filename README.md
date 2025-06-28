@@ -188,9 +188,14 @@ Spread parameter will also filter out nearby points.
 ```GDScript
 var grass_multimesh := preload("../resources/multimesh.tres")
 var grass_transform_array := entity.generate_surface_distribution(
-    ["GRASS*", "__TB_empty"], 1.0, 0.25, 1.0, 2.0, 0.0, 45.0, false, true)
+	["GRASS*", "__TB_empty"], 1.0, 0.25, 0.0, 60.0, false, false, 0)
+
+MapperUtilities.scale_transform_array(grass_transform_array,
+	Vector3(1.0, 1.0, 1.0), Vector3(1.0, 2.0, 1.0))
+MapperUtilities.rotate_transform_array(grass_transform_array, true)
+
 var grass_multimesh_instance := MapperUtilities.create_multimesh_instance(
-    entity, entity_node, grass_multimesh, grass_transform_array)
+	entity, entity_node, grass_multimesh, grass_transform_array)
 ```
 
 ## Examples

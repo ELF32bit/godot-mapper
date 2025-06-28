@@ -92,6 +92,83 @@ static func get_transform_array_positions(transform_array: PackedVector3Array, u
 	return positions_array
 
 
+static func scale_transform_array(transform_array: PackedVector3Array, min_scale: Vector3, max_scale: Vector3, seed: int = 0) -> void:
+	if transform_array.size() % 4 != 0:
+		return
+
+	var random_number_generator := RandomNumberGenerator.new()
+	random_number_generator.seed = seed
+	random_number_generator.state = 0
+
+	var uniform_xz := false
+	if min_scale.x == min_scale.z:
+		if max_scale.x == max_scale.z:
+			uniform_xz = true
+	var scale_range := max_scale - min_scale
+
+	for index in range(0, transform_array.size(), 4):
+		var x_axis := transform_array[index + 0]
+		var y_axis := transform_array[index + 1]
+		var z_axis := transform_array[index + 2]
+		var basis := Basis(x_axis, y_axis, z_axis)
+		var scale := Vector3(min_scale)
+
+		if scale_range.y != 0.0:
+			var r1 := random_number_generator.randf()
+			scale.y += scale_range.y * r1
+
+		if uniform_xz:
+			if scale_range.x != 0.0:
+				var r2 := random_number_generator.randf()
+				scale.x += scale_range.x * r2
+				scale.z += scale_range.z * r2
+		else:
+			if scale_range.x != 0.0:
+				var r2 := random_number_generator.randf()
+				scale.x += scale_range.x * r2
+			if scale_range.z != 0.0:
+				var r3 := random_number_generator.randf()
+				scale.z += scale_range.z * r3
+
+		basis = basis.scaled(scale)
+		transform_array[index + 0] = basis.x
+		transform_array[index + 1] = basis.y
+		transform_array[index + 2] = basis.z
+
+
+static func rotate_transform_array(transform_array: PackedVector3Array, around_up: bool = true, seed: int = 0) -> void:
+	if transform_array.size() % 4 != 0:
+		return
+
+	var random_number_generator := RandomNumberGenerator.new()
+	random_number_generator.seed = seed
+	random_number_generator.state = 0
+
+	for index in range(0, transform_array.size(), 4):
+		var x_axis := transform_array[index + 0]
+		var y_axis := transform_array[index + 1]
+		var z_axis := transform_array[index + 2]
+		var basis := Basis(x_axis, y_axis, z_axis)
+
+		if around_up:
+			var r1 := random_number_generator.randf() * 2.0 * PI
+			basis = basis.rotated(Vector3(0.0, 1.0, 0.0), r1)
+		else:
+			var r1 := random_number_generator.randf() * 2.0 * PI
+			var r2 := random_number_generator.randf() * 2.0 * PI
+			var r3 := random_number_generator.randf() * 2.0 * PI
+
+			var rotation := Basis.IDENTITY
+			rotation = rotation.rotated(Vector3(1.0, 0.0, 0.0), r1)
+			rotation = rotation.rotated(Vector3(0.0, 1.0, 0.0), r2)
+			rotation = rotation.rotated(Vector3(0.0, 0.0, 1.0), r3)
+			basis *= rotation
+
+		transform_array[index + 0] = basis.x
+		transform_array[index + 1] = basis.y
+		transform_array[index + 2] = basis.z
+
+
 static func change_node_type(node: Node, classname: StringName) -> Node:
 	if not ClassDB.is_parent_class(classname, "Node"):
 		return null
