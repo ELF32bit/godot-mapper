@@ -207,7 +207,7 @@ func generate_surface_distribution(surfaces: PackedStringArray, density: float, 
 	return transform_array
 
 
-func generate_volume_distribution(density: float, spread: float = 0.0, min_penetration: float = 0.0, max_penetration: float = INF, world_space: bool = false, seed: int = 0) -> PackedVector3Array:
+func generate_volume_distribution(density: float, spread: float = 0.0, min_penetration: float = 0.0, max_penetration: float = INF, basis: Basis = Basis.IDENTITY, world_space: bool = false, seed: int = 0) -> PackedVector3Array:
 	if not aabb.has_volume():
 		return PackedVector3Array()
 
@@ -249,7 +249,6 @@ func generate_volume_distribution(density: float, spread: float = 0.0, min_penet
 			brush_has_point = has_point(point)
 
 		if brush_has_point:
-			var basis := Basis.IDENTITY
 			transform_array.append(basis.x)
 			transform_array.append(basis.y)
 			transform_array.append(basis.z)
