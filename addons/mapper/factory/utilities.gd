@@ -155,7 +155,7 @@ static func rotate_transform_array(transform_array: PackedVector3Array, around_u
 
 		if around_up:
 			var r1 := random_number_generator.randf() * 2.0 * PI
-			basis = basis.rotated(Vector3(0.0, 1.0, 0.0), r1)
+			basis *= Basis(basis.transposed().y.normalized(), r1)
 		else:
 			var r1 := random_number_generator.randf() * 2.0 * PI
 			var r2 := random_number_generator.randf() * 2.0 * PI
