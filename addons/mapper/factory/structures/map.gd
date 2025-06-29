@@ -126,7 +126,7 @@ func get_entity_targets(entity: MapperEntity, destination_property: StringName, 
 			# entities without classname, empty one, will not match here
 			if map_entity.get_classname_property("").match(classname):
 				targets.append(map_entity)
-	else:
+	else: # will limit target sources to the local group, this can be useful for duplicating spotlights
 		var entity_group := get_entity_group(entity, group_type)
 		bind_group_target_source_property(entity_group, group_type, source_property)
 		var entity_target_destination: String = entity.properties[destination_property]
