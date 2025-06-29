@@ -336,8 +336,7 @@ static func create_multimesh_mesh_instance(entity: MapperEntity, parent: Node, m
 		transform.basis.x = transform_array[index * 4 + 0]
 		transform.basis.y = transform_array[index * 4 + 1]
 		transform.basis.z = transform_array[index * 4 + 2]
-		var scale := transform.basis.get_scale() # something strange with basis here
-		transform.basis = transform.basis.orthonormalized().inverse().scaled(scale)
+		transform.basis = transform.basis.transposed()
 		transform.origin = transform_array[index * 4 + 3]
 		transforms[index] = transform
 
@@ -383,7 +382,6 @@ static func create_multimesh_mesh_instance(entity: MapperEntity, parent: Node, m
 								array[index * 4 + 0] = tangent.x
 								array[index * 4 + 1] = tangent.y
 								array[index * 4 + 2] = tangent.z
-								# array[index * 4 + 3] tangent transform ???
 							array_mesh_arrays[array_index].append_array(array)
 					ArrayMesh.ARRAY_INDEX:
 						var max_index: int = 0
