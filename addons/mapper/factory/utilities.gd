@@ -86,8 +86,11 @@ static func get_transform_array_positions(transform_array: PackedVector3Array, u
 	var positions_array := PackedVector3Array()
 	positions_array.resize(transform_array.size() / 4)
 	for index in range(0, transform_array.size(), 4):
+		var x_axis := transform_array[index + 0]
 		var y_axis := transform_array[index + 1]
-		var offset_direction := y_axis.normalized() * up_offset
+		var z_axis := transform_array[index + 2]
+		var basis := Basis(x_axis, y_axis, z_axis)
+		var offset_direction := basis.transposed().y.normalized() * up_offset
 		positions_array[index / 4] = transform_array[index + 3] + offset_direction
 	return positions_array
 
