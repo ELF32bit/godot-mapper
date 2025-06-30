@@ -138,32 +138,42 @@ static func scale_transform_array(transform_array: PackedVector3Array, min_scale
 		transform_array[index + 2] = basis.z
 
 
-static func rotate_transform_array(transform_array: PackedVector3Array, around_up: bool = true, seed: int = 0) -> void:
+static func rotate_transform_array(transform_array: PackedVector3Array, snap_angles: Vector3 = Vector3.ZERO, seed: int = 0) -> void:
 	if transform_array.size() % 4 != 0:
 		return
 
 	var random_number_generator := RandomNumberGenerator.new()
 	random_number_generator.seed = seed
 
+	var snap_angles_radians := Vector3.ZERO
+	snap_angles_radians.x = deg_to_rad(snap_angles.x)
+	snap_angles_radians.y = deg_to_rad(snap_angles.y)
+	snap_angles_radians.z = deg_to_rad(snap_angles.z)
+
 	for index in range(0, transform_array.size(), 4):
 		var x_axis := transform_array[index + 0]
 		var y_axis := transform_array[index + 1]
 		var z_axis := transform_array[index + 2]
 		var basis := Basis(x_axis, y_axis, z_axis)
+		var transposed_basis := basis.transposed()
 
-		if around_up:
+		if not snap_angles.y < 0.0 and not transposed_basis.y.is_zero_approx():
 			var r1 := random_number_generator.randf() * 2.0 * PI
-			basis *= Basis(basis.transposed().y.normalized(), r1)
-		else:
-			var r1 := random_number_generator.randf() * 2.0 * PI
+			if snap_angles.y > 0.0:
+				r1 = snappedf(r1, snap_angles_radians.y)
+			basis *= Basis(transposed_basis.y.normalized(), r1)
+
+		if not snap_angles.x < 0.0 and not transposed_basis.x.is_zero_approx():
 			var r2 := random_number_generator.randf() * 2.0 * PI
-			var r3 := random_number_generator.randf() * 2.0 * PI
+			if snap_angles.x > 0.0:
+				r2 = snappedf(r2, snap_angles_radians.x)
+			basis *= Basis(transposed_basis.x.normalized(), r2)
 
-			var rotation := Basis.IDENTITY
-			rotation = rotation.rotated(Vector3(1.0, 0.0, 0.0), r1)
-			rotation = rotation.rotated(Vector3(0.0, 1.0, 0.0), r2)
-			rotation = rotation.rotated(Vector3(0.0, 0.0, 1.0), r3)
-			basis *= rotation
+		if not snap_angles.z < 0.0 and not transposed_basis.z.is_zero_approx():
+			var r3 := random_number_generator.randf() * 2.0 * PI
+			if snap_angles.z > 0.0:
+				r3 = snappedf(r3, snap_angles_radians.z)
+			basis *= Basis(transposed_basis.z.normalized(), r3)
 
 		transform_array[index + 0] = basis.x
 		transform_array[index + 1] = basis.y
