@@ -162,18 +162,21 @@ static func rotate_transform_array(transform_array: PackedVector3Array, snap_ang
 			if snap_angles.y > 0.0:
 				r1 = snappedf(r1, snap_angles_radians.y)
 			basis *= Basis(transposed_basis.y.normalized(), r1)
+			transposed_basis = basis.transposed()
 
 		if not snap_angles.x < 0.0 and not transposed_basis.x.is_zero_approx():
 			var r2 := random_number_generator.randf() * 2.0 * PI
 			if snap_angles.x > 0.0:
 				r2 = snappedf(r2, snap_angles_radians.x)
 			basis *= Basis(transposed_basis.x.normalized(), r2)
+			transposed_basis = basis.transposed()
 
 		if not snap_angles.z < 0.0 and not transposed_basis.z.is_zero_approx():
 			var r3 := random_number_generator.randf() * 2.0 * PI
 			if snap_angles.z > 0.0:
 				r3 = snappedf(r3, snap_angles_radians.z)
 			basis *= Basis(transposed_basis.z.normalized(), r3)
+			transposed_basis = basis.transposed()
 
 		transform_array[index + 0] = basis.x
 		transform_array[index + 1] = basis.y
