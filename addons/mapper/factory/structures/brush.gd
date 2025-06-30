@@ -154,7 +154,6 @@ func generate_surface_distribution(surfaces: PackedStringArray, density: float, 
 	# creating random number generator with specified seed
 	var random_number_generator := RandomNumberGenerator.new()
 	random_number_generator.seed = seed
-	random_number_generator.state = 0
 
 	# determining amount of points from density
 	var transform_array := PackedVector3Array()
@@ -227,7 +226,6 @@ func generate_volume_distribution(density: float, spread: float = 0.0, min_penet
 	# creating random number generator with specified seed
 	var random_number_generator := RandomNumberGenerator.new()
 	random_number_generator.seed = seed
-	random_number_generator.state = 0
 
 	var transform_array := PackedVector3Array()
 	for index in range(int(aabb.get_volume() * density)):

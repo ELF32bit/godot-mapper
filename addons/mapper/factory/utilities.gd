@@ -101,7 +101,6 @@ static func scale_transform_array(transform_array: PackedVector3Array, min_scale
 
 	var random_number_generator := RandomNumberGenerator.new()
 	random_number_generator.seed = seed
-	random_number_generator.state = 0
 
 	var uniform_xz := false
 	if min_scale.x == min_scale.z:
@@ -145,7 +144,6 @@ static func rotate_transform_array(transform_array: PackedVector3Array, around_u
 
 	var random_number_generator := RandomNumberGenerator.new()
 	random_number_generator.seed = seed
-	random_number_generator.state = 0
 
 	for index in range(0, transform_array.size(), 4):
 		var x_axis := transform_array[index + 0]

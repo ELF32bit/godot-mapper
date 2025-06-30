@@ -55,8 +55,6 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 	game_loader.custom_wads.assign(wads)
 	game_loader.random_number_generator.seed = settings.random_number_generator_seed
 	random_number_generator.seed = settings.random_number_generator_seed
-	game_loader.random_number_generator.state = 0
-	random_number_generator.state = 0
 	progress = 0.0
 	build_time = 0
 
