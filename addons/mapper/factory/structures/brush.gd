@@ -188,8 +188,11 @@ func generate_surface_distribution(surfaces: PackedStringArray, density: float, 
 		var basis := Basis.IDENTITY
 		if normals[index].is_equal_approx(Vector3.DOWN):
 			basis = Basis(Vector3.FORWARD, PI)
-		else:
-			basis = Basis(Quaternion(normals[index], Vector3.UP))
+		elif not normals[index].is_equal_approx(Vector3.UP):
+			var direction := (normals[index] * Vector3(1.0, 0.0, 1.0)).normalized()
+			var horizontal_rotation := Quaternion(direction, Vector3.FORWARD)
+			var vertical_rotation := Quaternion(normals[index], Vector3.UP)
+			basis = Basis(horizontal_rotation * vertical_rotation)
 
 		# calculating origin
 		var origin := (triangles[index * 3] + p)
