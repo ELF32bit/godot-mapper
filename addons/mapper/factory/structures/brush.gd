@@ -188,7 +188,7 @@ func generate_surface_distribution(surfaces: PackedStringArray, density: float, 
 		# creating basis with up axis equal to triangle normal
 		var basis := Basis.IDENTITY
 		if normals[index].is_equal_approx(Vector3.DOWN):
-			basis = basis.scaled(Vector3(-1.0, -1.0, -1.0))
+			basis = Basis(Vector3.FORWARD, PI)
 		else:
 			basis = Basis(Quaternion(normals[index], Vector3.UP))
 
