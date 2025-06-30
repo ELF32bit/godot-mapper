@@ -321,7 +321,8 @@ static func create_multimesh_mesh_instance(entity: MapperEntity, parent: Node, m
 	mesh_instance.position = entity.center
 	add_global_child(mesh_instance, parent, entity.factory.settings)
 
-	mesh_instance.gi_mode = GeometryInstance3D.GI_MODE_STATIC
+	mesh_instance.cast_shadow = int(entity.is_casting_shadow())
+	mesh_instance.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
 
 	var multimesh_mesh: Mesh = multimesh.mesh
 	if not multimesh_mesh:
