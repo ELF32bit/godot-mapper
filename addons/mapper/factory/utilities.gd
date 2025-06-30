@@ -101,7 +101,7 @@ static func get_transform_array_positions(transform_array: PackedVector3Array, o
 	return positions_array
 
 
-static func scale_transform_array(transform_array: PackedVector3Array, min_scale: Vector3, max_scale: Vector3, seed: int = 0) -> void:
+static func scale_transform_array(transform_array: PackedVector3Array, min_scale: Vector3, max_scale: Vector3, offset: Vector3 = Vector3.ZERO, seed: int = 0) -> void:
 	if transform_array.size() % 4 != 0:
 		return
 
@@ -119,6 +119,7 @@ static func scale_transform_array(transform_array: PackedVector3Array, min_scale
 		var y_axis := transform_array[index + 1]
 		var z_axis := transform_array[index + 2]
 		var basis := Basis(x_axis, y_axis, z_axis)
+		var transposed_basis := basis.transposed()
 		var scale := Vector3(min_scale)
 
 		if scale_range.y != 0.0:
@@ -138,10 +139,16 @@ static func scale_transform_array(transform_array: PackedVector3Array, min_scale
 				var r3 := random_number_generator.randf()
 				scale.z += scale_range.z * r3
 
+		var offset_direction := Vector3.ZERO
+		offset_direction += transposed_basis.x.normalized() * offset.x * scale.x
+		offset_direction += transposed_basis.y.normalized() * offset.y * scale.y
+		offset_direction += transposed_basis.z.normalized() * offset.z * scale.z
+
 		basis = basis.scaled(scale)
 		transform_array[index + 0] = basis.x
 		transform_array[index + 1] = basis.y
 		transform_array[index + 2] = basis.z
+		transform_array[index + 3] += offset_direction
 
 
 static func rotate_transform_array(transform_array: PackedVector3Array, snap_angles: Vector3 = Vector3(-1.0, 0.0, -1.0), offset: Vector3 = Vector3.ZERO, seed: int = 0) -> void:
