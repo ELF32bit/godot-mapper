@@ -293,6 +293,9 @@ static func create_lightmap_gi(map: MapperMap, parent: Node, as_first_child: boo
 
 
 static func create_multimesh_instance(entity: MapperEntity, parent: Node, multimesh: MultiMesh, transform_array: PackedVector3Array) -> MultiMeshInstance3D:
+	if transform_array.size() % 4 != 0:
+		return null
+
 	var multimesh_instance := MultiMeshInstance3D.new()
 	multimesh_instance.position = entity.center
 	add_global_child(multimesh_instance, parent, entity.factory.settings)
@@ -317,6 +320,9 @@ static func create_multimesh_instance(entity: MapperEntity, parent: Node, multim
 
 
 static func create_multimesh_mesh_instance(entity: MapperEntity, parent: Node, multimesh: MultiMesh, transform_array: PackedVector3Array) -> MeshInstance3D: # BUG: workaround for baking light on multimeshes
+	if transform_array.size() % 4 != 0:
+		return null
+
 	var mesh_instance := MeshInstance3D.new()
 	mesh_instance.position = entity.center
 	add_global_child(mesh_instance, parent, entity.factory.settings)
@@ -325,7 +331,7 @@ static func create_multimesh_mesh_instance(entity: MapperEntity, parent: Node, m
 	mesh_instance.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
 
 	var multimesh_mesh: Mesh = multimesh.mesh
-	if not multimesh_mesh:
+	if not multimesh_mesh or not multimesh_mesh is ArrayMesh:
 		return mesh_instance
 
 	var transforms: Array[Transform3D] = []
@@ -343,8 +349,6 @@ static func create_multimesh_mesh_instance(entity: MapperEntity, parent: Node, m
 		var array_mesh := ArrayMesh.new()
 		if transform_array.size() == 0:
 			return array_mesh
-		elif transform_array.size() % 4 != 0:
-			return null
 
 		for surface_index in range(multimesh_mesh.get_surface_count()):
 			var array_mesh_arrays := multimesh_mesh.surface_get_arrays(surface_index)
