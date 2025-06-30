@@ -305,7 +305,8 @@ static func create_multimesh_instance(entity: MapperEntity, parent: Node, multim
 		if multimesh_mesh and multimesh_mesh is ArrayMesh:
 			multimesh_mesh = multimesh_mesh.duplicate()
 			var transform := Transform3D.IDENTITY.translated(entity.center)
-			multimesh_mesh.lightmap_unwrap(transform, entity.factory.settings.lightmap_texel_size);
+			var lightmap_scale: float = entity.get_lightmap_scale_property(1.0)
+			multimesh_mesh.lightmap_unwrap(transform, entity.factory.settings.lightmap_texel_size / lightmap_scale)
 
 	multimesh_instance.multimesh = MultiMesh.new()
 	multimesh_instance.multimesh.mesh = multimesh_mesh
@@ -414,7 +415,8 @@ static func create_multimesh_mesh_instance(entity: MapperEntity, parent: Node, m
 
 	if entity.factory.settings.lightmap_unwrap:
 		var transform := Transform3D.IDENTITY.translated(entity.center)
-		array_mesh.lightmap_unwrap(transform, entity.factory.settings.lightmap_texel_size);
+		var lightmap_scale: float = entity.get_lightmap_scale_property(1.0)
+		array_mesh.lightmap_unwrap(transform, entity.factory.settings.lightmap_texel_size / lightmap_scale)
 	mesh_instance.mesh = array_mesh
 
 	return mesh_instance

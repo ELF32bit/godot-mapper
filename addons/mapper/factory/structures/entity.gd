@@ -235,12 +235,28 @@ func bind_mdl_property(property: StringName, node_property: StringName) -> void:
 	bind_property("convert_mdl", property, node_property)
 
 
+func get_lightmap_scale_property(default: Variant = null) -> Variant:
+	if factory.settings.lightmap_scale_property_enabled:
+		var lightmap_scale: Variant = get_float_property(factory.settings.lightmap_scale_property, null)
+		if lightmap_scale != null:
+			return clampf(lightmap_scale, 0.0625, 16.0)
+		elif typeof(default) in [TYPE_FLOAT, TYPE_INT]:
+			return clampf(float(default), 0.0625, 16.0)
+		else:
+			return default
+	return default
+
+
 func is_smooth_shaded() -> bool:
-	return bool(get_float_property(factory.settings.smooth_shading_property, false) and factory.settings.smooth_shading_property_enabled)
+	if factory.settings.smooth_shading_property_enabled:
+		return bool(get_float_property(factory.settings.smooth_shading_property, false))
+	return false
 
 
 func is_casting_shadow() -> bool:
-	return bool(get_float_property(factory.settings.cast_shadow_property, true) and factory.settings.cast_shadow_property_enabled)
+	if factory.settings.cast_shadow_property_enabled:
+		return bool(get_float_property(factory.settings.cast_shadow_property, true))
+	return false
 
 
 func is_decal() -> bool:

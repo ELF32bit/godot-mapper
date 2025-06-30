@@ -762,7 +762,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 			surface_names.set(surface_index, mesh.surface_get_name(surface_index))
 		# BUG: lightmap unwrap creates new mesh without surface names
 		# BUG: sometimes throws invalid index count errors when epsilon is too small
-		mesh.lightmap_unwrap(transform, settings.lightmap_texel_size * (1.0 / lightmap_scale))
+		mesh.lightmap_unwrap(transform, settings.lightmap_texel_size / lightmap_scale)
 		for surface_index in range(mesh.get_surface_count()):
 			mesh.surface_set_name(surface_index, surface_names[surface_index])
 
@@ -903,10 +903,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 	var generate_entity_lightmap_uvs := func(thread_index: int) -> void:
 		var entity := entity_structures[thread_index]
 		var transform := Transform3D.IDENTITY.translated(entity.center)
-		var lightmap_scale: float = 1.0
-		if settings.lightmap_scale_property_enabled:
-			lightmap_scale = entity.get_float_property(settings.lightmap_scale_property, 1.0)
-			lightmap_scale = clampf(lightmap_scale, 0.0625, 16.0)
+		var lightmap_scale: float = entity.get_lightmap_scale_property(1.0)
 		generate_lightmap_uv.call(entity.mesh, transform, lightmap_scale)
 
 	var generate_entity_nodes := func() -> void:
