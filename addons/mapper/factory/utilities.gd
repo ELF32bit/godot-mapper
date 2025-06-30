@@ -138,7 +138,7 @@ static func scale_transform_array(transform_array: PackedVector3Array, min_scale
 		transform_array[index + 2] = basis.z
 
 
-static func rotate_transform_array(transform_array: PackedVector3Array, snap_angles: Vector3 = Vector3.ZERO, seed: int = 0) -> void:
+static func rotate_transform_array(transform_array: PackedVector3Array, snap_angles: Vector3 = Vector3(-1.0, 0.0, -1.0), seed: int = 0) -> void:
 	if transform_array.size() % 4 != 0:
 		return
 
