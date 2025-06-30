@@ -80,7 +80,7 @@ static func spread_transform_array(transform_array: PackedVector3Array, spread: 
 	return spread_transform_array
 
 
-static func get_transform_array_positions(transform_array: PackedVector3Array, up_offset: float = 0.0) -> PackedVector3Array:
+static func get_transform_array_positions(transform_array: PackedVector3Array, offset: Vector3 = Vector3.ZERO) -> PackedVector3Array:
 	if transform_array.size() % 4 != 0:
 		return PackedVector3Array()
 	var positions_array := PackedVector3Array()
@@ -90,7 +90,13 @@ static func get_transform_array_positions(transform_array: PackedVector3Array, u
 		var y_axis := transform_array[index + 1]
 		var z_axis := transform_array[index + 2]
 		var basis := Basis(x_axis, y_axis, z_axis)
-		var offset_direction := basis.transposed().y.normalized() * up_offset
+		var transposed_basis := basis.transposed()
+
+		var offset_direction := Vector3.ZERO
+		offset_direction += transposed_basis.x.normalized() * offset.x
+		offset_direction += transposed_basis.y.normalized() * offset.y
+		offset_direction += transposed_basis.z.normalized() * offset.z
+
 		positions_array[index / 4] = transform_array[index + 3] + offset_direction
 	return positions_array
 
@@ -138,7 +144,7 @@ static func scale_transform_array(transform_array: PackedVector3Array, min_scale
 		transform_array[index + 2] = basis.z
 
 
-static func rotate_transform_array(transform_array: PackedVector3Array, snap_angles: Vector3 = Vector3(-1.0, 0.0, -1.0), seed: int = 0) -> void:
+static func rotate_transform_array(transform_array: PackedVector3Array, snap_angles: Vector3 = Vector3(-1.0, 0.0, -1.0), offset: Vector3 = Vector3.ZERO, seed: int = 0) -> void:
 	if transform_array.size() % 4 != 0:
 		return
 
@@ -146,9 +152,9 @@ static func rotate_transform_array(transform_array: PackedVector3Array, snap_ang
 	random_number_generator.seed = seed
 
 	var snap_angles_radians := Vector3.ZERO
-	snap_angles_radians.x = deg_to_rad(snap_angles.x)
-	snap_angles_radians.y = deg_to_rad(snap_angles.y)
-	snap_angles_radians.z = deg_to_rad(snap_angles.z)
+	snap_angles_radians.x = deg_to_rad(clampf(snap_angles.x, -1.0, 180.0))
+	snap_angles_radians.y = deg_to_rad(clampf(snap_angles.y, -1.0, 180.0))
+	snap_angles_radians.z = deg_to_rad(clampf(snap_angles.z, -1.0, 180.0))
 
 	for index in range(0, transform_array.size(), 4):
 		var x_axis := transform_array[index + 0]
@@ -156,6 +162,11 @@ static func rotate_transform_array(transform_array: PackedVector3Array, snap_ang
 		var z_axis := transform_array[index + 2]
 		var basis := Basis(x_axis, y_axis, z_axis)
 		var transposed_basis := basis.transposed()
+
+		var offset_direction := Vector3.ZERO
+		offset_direction += transposed_basis.x.normalized() * offset.x
+		offset_direction += transposed_basis.y.normalized() * offset.y
+		offset_direction += transposed_basis.z.normalized() * offset.z
 
 		if not snap_angles.y < 0.0 and not transposed_basis.y.is_zero_approx():
 			var r1 := random_number_generator.randf() * 2.0 * PI
@@ -181,6 +192,7 @@ static func rotate_transform_array(transform_array: PackedVector3Array, snap_ang
 		transform_array[index + 0] = basis.x
 		transform_array[index + 1] = basis.y
 		transform_array[index + 2] = basis.z
+		transform_array[index + 3] += offset_direction
 
 
 static func change_node_type(node: Node, classname: StringName) -> Node:
