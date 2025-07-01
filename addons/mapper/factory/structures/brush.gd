@@ -17,10 +17,10 @@ var aabb: AABB
 var factory: MapperFactory
 
 
-func has_point(point: Vector3) -> bool:
+func has_point(point: Vector3, epsilon: float) -> bool:
 	for face in faces:
 		if face.plane.is_point_over(point):
-			if not face.plane.has_point(point, factory.settings.epsilon):
+			if not face.plane.has_point(point, epsilon):
 				return false
 	return true
 
@@ -63,33 +63,33 @@ func get_uniform_property_list() -> PackedStringArray:
 	return override_material.get_meta_list()
 
 
-func get_min_point_penetration(point: Vector3) -> Variant:
+func get_min_point_penetration(point: Vector3, epsilon: float) -> Variant:
 	var min_distance: float = INF
 	for face in faces:
 		var distance_to_plane := face.plane.distance_to(point)
-		if distance_to_plane > factory.settings.epsilon:
+		if distance_to_plane > epsilon:
 			return null
 		distance_to_plane = absf(distance_to_plane)
 		min_distance = minf(distance_to_plane, min_distance)
 	return (null if is_nan(min_distance) else min_distance)
 
 
-func get_max_point_penetration(point: Vector3) -> Variant:
+func get_max_point_penetration(point: Vector3, epsilon: float) -> Variant:
 	var max_distance: float = INF
 	for face in faces:
 		var distance_to_plane := face.plane.distance_to(point)
-		if distance_to_plane > factory.settings.epsilon:
+		if distance_to_plane > epsilon:
 			return null
 		distance_to_plane = absf(distance_to_plane)
 		max_distance = maxf(distance_to_plane, max_distance)
 	return (null if is_nan(max_distance) else max_distance)
 
 
-func get_relative_point_penetration(point: Vector3) -> Variant:
-	var min_distance := get_min_point_penetration(point)
+func get_relative_point_penetration(point: Vector3, epsilon: float) -> Variant:
+	var min_distance := get_min_point_penetration(point, epsilon)
 	if min_distance == null:
 		return null
-	var max_distance := get_max_point_penetration(point)
+	var max_distance := get_max_point_penetration(point, epsilon)
 	if max_distance == null:
 		return null
 	return min_distance / max_distance
@@ -212,8 +212,9 @@ func generate_surface_distribution(surfaces: PackedStringArray, density: float, 
 func generate_volume_distribution(density: float, spread: float = 0.0, min_penetration: float = 0.0, max_penetration: float = INF, basis: Basis = Basis.IDENTITY, world_space: bool = false, seed: int = 0) -> PackedVector3Array:
 	if not aabb.has_volume():
 		return PackedVector3Array()
+	var epsilon := factory.settings.epsilon / factory.settings.unit_size
 
-	# clamping density and depth range values
+	# clamping density and penetration range values
 	density = clampf(density, 0.0, pow(factory.settings.max_distribution_density, 3.0))
 
 	min_penetration = clampf(min_penetration, 0.0, INF)
@@ -241,13 +242,13 @@ func generate_volume_distribution(density: float, spread: float = 0.0, min_penet
 
 		var brush_has_point := false
 		if has_penetration_range:
-			var min_point_penetration := get_min_point_penetration(point)
+			var min_point_penetration := get_min_point_penetration(point, epsilon)
 			if min_point_penetration != null:
 				if min_point_penetration >= min_penetration:
 					if min_point_penetration <= max_penetration:
 						brush_has_point = true
 		else:
-			brush_has_point = has_point(point)
+			brush_has_point = has_point(point, epsilon)
 
 		if brush_has_point:
 			transform_array.append(basis.x)

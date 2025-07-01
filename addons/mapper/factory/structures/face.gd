@@ -23,8 +23,7 @@ var skip := false
 var factory: MapperFactory
 
 
-func has_vertex(vertex: Vector3) -> bool:
-	var epsilon := factory.settings.epsilon
+func has_vertex(vertex: Vector3, epsilon: float) -> bool:
 	for face_vertex in vertices:
 		if MapperUtilities.is_equal_approximately(vertex, face_vertex, epsilon):
 			return true

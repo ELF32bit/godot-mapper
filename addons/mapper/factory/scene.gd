@@ -248,6 +248,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 
 	var generate_brushes := func(thread_index: int) -> void:
 		var brush := brush_structures[thread_index]
+		var epsilon := settings.epsilon
 
 		# finding face vertices forming convex hull by intersecting face planes
 		for face1 in brush.faces:
@@ -255,8 +256,9 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 				for face3 in brush.faces:
 					var vertex: Variant = face1.plane.intersect_3(face2.plane, face3.plane)
 					if vertex != null:
-						if brush.has_point(vertex) and not face1.has_vertex(vertex):
-							face1.vertices.append(vertex)
+						if brush.has_point(vertex, epsilon):
+							if not face1.has_vertex(vertex, epsilon):
+								face1.vertices.append(vertex)
 
 		# removing brush faces that failed to form triangles
 		for index in range(brush.faces.size() - 1, -1, -1):
@@ -328,11 +330,11 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 
 	var generate_smooth_entity_normals := func(thread_index: int) -> void:
 		var entity := smooth_entity_structures[thread_index]
+		var epsilon := settings.epsilon / settings.unit_size
 
 		var split_angle_property := settings.smooth_shading_split_angle_property
 		var split_angle: float = entity.get_float_property(split_angle_property, 89.0)
 		split_angle = deg_to_rad(clampf(split_angle, 0.0, 180.0))
-		var epsilon := settings.epsilon
 
 		# collecting entity faces
 		var entity_faces: Array[MapperFace] = []
