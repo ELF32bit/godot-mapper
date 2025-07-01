@@ -69,7 +69,7 @@ func get_min_point_penetration(point: Vector3, epsilon: float) -> Variant:
 		var distance_to_plane := face.plane.distance_to(point)
 		if distance_to_plane > epsilon:
 			return null
-		distance_to_plane = absf(distance_to_plane)
+		distance_to_plane = absf(clampf(distance_to_plane, -INF, 0.0))
 		min_distance = minf(distance_to_plane, min_distance)
 	return (null if is_nan(min_distance) else min_distance)
 
@@ -80,7 +80,7 @@ func get_max_point_penetration(point: Vector3, epsilon: float) -> Variant:
 		var distance_to_plane := face.plane.distance_to(point)
 		if distance_to_plane > epsilon:
 			return null
-		distance_to_plane = absf(distance_to_plane)
+		distance_to_plane = absf(clampf(distance_to_plane, -INF, 0.0))
 		max_distance = maxf(distance_to_plane, max_distance)
 	return (null if is_nan(max_distance) else max_distance)
 
