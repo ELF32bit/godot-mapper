@@ -435,8 +435,7 @@ static func create_multimesh_mesh_instance(entity: MapperEntity, parent: Node, m
 						for transform in transforms:
 							var array: Variant = multimesh_mesh_arrays[array_index].duplicate()
 							array_mesh_arrays[array_index].append_array(array)
-			var blend_shape_arrays := multimesh_mesh.surface_get_blend_shape_arrays(surface_index)
-			array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, array_mesh_arrays, blend_shape_arrays)
+			array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, array_mesh_arrays)
 			array_mesh.surface_set_name(surface_index, multimesh_mesh.surface_get_name(surface_index))
 			array_mesh.surface_set_material(surface_index, multimesh_mesh.surface_get_material(surface_index))
 		return array_mesh
