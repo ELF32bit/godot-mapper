@@ -202,6 +202,37 @@ static func rotate_transform_array(transform_array: PackedVector3Array, snap_ang
 		transform_array[index + 3] += offset_direction
 
 
+static func erase_transform_array(transform_array: PackedVector3Array, position: Vector3, radius: float, hardness: float = 1.0, seed: int = 0) -> PackedVector3Array:
+	if transform_array.size() % 4 != 0:
+		return PackedVector3Array()
+
+	radius = clampf(radius, 0.0, INF)
+	hardness = clampf(hardness, 0.0, 1.0)
+	if is_zero_approx(radius) or is_zero_approx(hardness):
+		return transform_array
+
+	var random_number_generator := RandomNumberGenerator.new()
+	random_number_generator.seed = seed
+
+	var erased_transform_array := PackedVector3Array()
+	for index in range(0, transform_array.size(), 4):
+		var distance := (transform_array[index + 3] - position).length()
+		if distance <= radius:
+			var probability := 1.0 - clampf(distance / radius, 0.0, 1.0)
+			probability = lerpf(0.0, pow(probability, 1.0 - hardness), hardness)
+			if is_equal_approx(probability, 1.0):
+				continue
+			if random_number_generator.randf() <= probability:
+				continue
+
+		erased_transform_array.append(transform_array[index + 0])
+		erased_transform_array.append(transform_array[index + 1])
+		erased_transform_array.append(transform_array[index + 2])
+		erased_transform_array.append(transform_array[index + 3])
+
+	return erased_transform_array
+
+
 static func change_node_type(node: Node, classname: StringName) -> Node:
 	if not ClassDB.is_parent_class(classname, "Node"):
 		return null
@@ -352,7 +383,7 @@ static func create_multimesh_instance(entity: MapperEntity, parent: Node, multim
 	return multimesh_instance
 
 
-static func create_multimesh_mesh_instance(entity: MapperEntity, parent: Node, multimesh: MultiMesh, transform_array: PackedVector3Array, store_instance_id: bool = false) -> MeshInstance3D: # BUG: workaround for baking light on multimeshes
+static func create_multimesh_mesh_instance(entity: MapperEntity, parent: Node, multimesh: MultiMesh, transform_array: PackedVector3Array, store_instance_id: bool = true, seed: int = 0) -> MeshInstance3D:
 	if transform_array.size() % 4 != 0:
 		return null
 
@@ -367,6 +398,7 @@ static func create_multimesh_mesh_instance(entity: MapperEntity, parent: Node, m
 	if not untyped_multimesh_mesh or not untyped_multimesh_mesh is ArrayMesh:
 		return mesh_instance
 	var multimesh_mesh: ArrayMesh = untyped_multimesh_mesh
+	var random_number_generator := RandomNumberGenerator.new()
 
 	var transforms: Array[Transform3D] = []
 	transforms.resize(transform_array.size() / 4)
@@ -396,7 +428,6 @@ static func create_multimesh_mesh_instance(entity: MapperEntity, parent: Node, m
 			colors_size = source_arrays[ArrayMesh.ARRAY_COLOR].size()
 		if source_arrays[ArrayMesh.ARRAY_VERTEX] != null:
 			colors_size = source_arrays[ArrayMesh.ARRAY_VERTEX].size()
-		var max_instances: int = 11864338 # magic number
 
 		for array_index in range(source_arrays.size()):
 			if source_arrays[array_index] == null:
@@ -434,6 +465,7 @@ static func create_multimesh_mesh_instance(entity: MapperEntity, parent: Node, m
 						destination_arrays[array_index].append_array(array)
 				ArrayMesh.ARRAY_COLOR:
 					if store_instance_id:
+						random_number_generator.seed = seed
 						for id in range(transforms.size()):
 							var array := PackedColorArray()
 							if source_arrays[array_index] != null:
@@ -442,7 +474,7 @@ static func create_multimesh_mesh_instance(entity: MapperEntity, parent: Node, m
 							if not array.size() > 0:
 								array.resize(colors_size)
 								array.fill(Color.WHITE)
-							var id_remap := float(absi(hash(id)) % (max_instances + 1)) / float(max_instances)
+							var id_remap := random_number_generator.randf()
 							for index in range(array.size()):
 								array[index].a = clampf(id_remap, 0.0, 1.0)
 							destination_arrays[array_index].append_array(array)
