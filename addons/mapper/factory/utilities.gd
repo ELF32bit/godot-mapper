@@ -352,7 +352,7 @@ static func create_multimesh_instance(entity: MapperEntity, parent: Node, multim
 	return multimesh_instance
 
 
-static func create_multimesh_mesh_instance(entity: MapperEntity, parent: Node, multimesh: MultiMesh, transform_array: PackedVector3Array) -> MeshInstance3D: # BUG: workaround for baking light on multimeshes
+static func create_multimesh_mesh_instance(entity: MapperEntity, parent: Node, multimesh: MultiMesh, transform_array: PackedVector3Array, store_instance_id: bool = false) -> MeshInstance3D: # BUG: workaround for baking light on multimeshes
 	if transform_array.size() % 4 != 0:
 		return null
 
@@ -363,9 +363,10 @@ static func create_multimesh_mesh_instance(entity: MapperEntity, parent: Node, m
 	mesh_instance.cast_shadow = int(entity.is_casting_shadow())
 	mesh_instance.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
 
-	var multimesh_mesh: Mesh = multimesh.mesh
-	if not multimesh_mesh or not multimesh_mesh is ArrayMesh:
+	var untyped_multimesh_mesh: Mesh = multimesh.mesh
+	if not untyped_multimesh_mesh or not untyped_multimesh_mesh is ArrayMesh:
 		return mesh_instance
+	var multimesh_mesh: ArrayMesh = untyped_multimesh_mesh
 
 	var transforms: Array[Transform3D] = []
 	transforms.resize(transform_array.size() / 4)
@@ -374,11 +375,11 @@ static func create_multimesh_mesh_instance(entity: MapperEntity, parent: Node, m
 		transform.basis.x = transform_array[index * 4 + 0]
 		transform.basis.y = transform_array[index * 4 + 1]
 		transform.basis.z = transform_array[index * 4 + 2]
-		transform.basis = transform.basis.transposed()
 		transform.origin = transform_array[index * 4 + 3]
+		transform.basis = transform.basis.transposed()
 		transforms[index] = transform
 
-	var transform_array_mesh_arrays := func(destination_arrays: Array, source_arrays: Array) -> void:
+	var transform_array_mesh_arrays := func(destination_arrays: Array, source_arrays: Array, is_blend_shape: bool = false) -> void:
 		destination_arrays.resize(ArrayMesh.ARRAY_MAX)
 		for array_index in range(source_arrays.size()):
 			if source_arrays[array_index] != null:
@@ -386,26 +387,40 @@ static func create_multimesh_mesh_instance(entity: MapperEntity, parent: Node, m
 				destination_arrays[array_index].clear()
 			else:
 				destination_arrays[array_index] = null
+		if not is_blend_shape and store_instance_id:
+			if source_arrays[ArrayMesh.ARRAY_COLOR] == null:
+				destination_arrays[ArrayMesh.ARRAY_COLOR] = PackedColorArray([])
+
+		var colors_size: int = 0
+		if source_arrays[ArrayMesh.ARRAY_COLOR] != null:
+			colors_size = source_arrays[ArrayMesh.ARRAY_COLOR].size()
+		if source_arrays[ArrayMesh.ARRAY_VERTEX] != null:
+			colors_size = source_arrays[ArrayMesh.ARRAY_VERTEX].size()
+		var max_instances: int = 11864338 # magic number
 
 		for array_index in range(source_arrays.size()):
 			if source_arrays[array_index] == null:
-				continue
+				if array_index != ArrayMesh.ARRAY_COLOR:
+					continue
+				elif is_blend_shape or not store_instance_id:
+					continue
+
 			match array_index:
 				ArrayMesh.ARRAY_VERTEX:
 					for transform in transforms:
-						var array: PackedVector3Array
+						var array := PackedVector3Array()
 						array = transform * source_arrays[array_index]
 						destination_arrays[array_index].append_array(array)
 				ArrayMesh.ARRAY_NORMAL:
 					for transform in transforms:
-						var array: PackedVector3Array
+						var array := PackedVector3Array()
 						array = source_arrays[array_index].duplicate()
-						for normal_index in range(array.size()):
-							array[normal_index] = (transform.basis * array[normal_index]).normalized()
+						for index in range(source_arrays[array_index].size()):
+							array[index] = (transform.basis * array[index]).normalized()
 						destination_arrays[array_index].append_array(array)
 				ArrayMesh.ARRAY_TANGENT:
 					for transform in transforms:
-						var array: PackedFloat32Array
+						var array := PackedFloat32Array()
 						array = source_arrays[array_index].duplicate()
 						for index in range(array.size() / 4):
 							var tangent := Vector3.ZERO
@@ -417,6 +432,23 @@ static func create_multimesh_mesh_instance(entity: MapperEntity, parent: Node, m
 							array[index * 4 + 1] = tangent.y
 							array[index * 4 + 2] = tangent.z
 						destination_arrays[array_index].append_array(array)
+				ArrayMesh.ARRAY_COLOR:
+					if store_instance_id:
+						for id in range(transforms.size()):
+							var array := PackedColorArray()
+							if source_arrays[array_index] != null:
+								if source_arrays[array_index].size() > 0:
+									array = source_arrays[array_index].duplicate()
+							if not array.size() > 0:
+								array.resize(colors_size)
+								array.fill(Color.WHITE)
+							var id_remap := float(absi(hash(id)) % (max_instances + 1)) / float(max_instances)
+							for index in range(array.size()):
+								array[index].a = clampf(id_remap, 0.0, 1.0)
+							destination_arrays[array_index].append_array(array)
+					else:
+						for transform in transforms:
+							destination_arrays[array_index].append_array(source_arrays[array_index])
 				ArrayMesh.ARRAY_INDEX:
 					var max_index: int = 0
 					for index in source_arrays[array_index]:
@@ -424,40 +456,40 @@ static func create_multimesh_mesh_instance(entity: MapperEntity, parent: Node, m
 							max_index = index
 					max_index += 1
 					for transform_index in range(transforms.size()):
-						var array: PackedInt32Array
+						var array := PackedInt32Array()
 						array = source_arrays[array_index].duplicate()
 						for index in range(array.size()):
 							array[index] += max_index * transform_index
 						destination_arrays[array_index].append_array(array)
 				_:
 					for transform in transforms:
-						var array: Variant = source_arrays[array_index].duplicate()
-						destination_arrays[array_index].append_array(array)
+						destination_arrays[array_index].append_array(source_arrays[array_index])
 
-	var create_array_mesh_from_multimesh := func(multimesh_mesh: Mesh, transforms: Array[Transform3D]) -> ArrayMesh:
+	var create_array_mesh_from_multimesh := func(mesh: ArrayMesh, transforms: Array[Transform3D]) -> ArrayMesh:
 		var array_mesh := ArrayMesh.new()
 		if transform_array.size() == 0:
 			return array_mesh
 
-		array_mesh.blend_shape_mode = multimesh_mesh.blend_shape_mode
-		for blend_shape_index in range(multimesh_mesh.get_blend_shape_count()):
-			array_mesh.add_blend_shape(multimesh_mesh.get_blend_shape_name(blend_shape_index))
+		array_mesh.blend_shape_mode = mesh.blend_shape_mode
+		for blend_shape_index in range(mesh.get_blend_shape_count()):
+			array_mesh.add_blend_shape(mesh.get_blend_shape_name(blend_shape_index))
 
-		for surface_index in range(multimesh_mesh.get_surface_count()):
+		for surface_index in range(mesh.get_surface_count()):
 			var array_mesh_arrays: Array = []
-			var multimesh_mesh_arrays := multimesh_mesh.surface_get_arrays(surface_index)
-			transform_array_mesh_arrays.call(array_mesh_arrays, multimesh_mesh_arrays)
+			var multimesh_mesh_arrays := mesh.surface_get_arrays(surface_index)
+			transform_array_mesh_arrays.call(array_mesh_arrays, multimesh_mesh_arrays, false)
 
 			var array_mesh_blendshape_arrays: Array = []
-			var multimesh_mesh_blendshape_arrays := multimesh_mesh.surface_get_blend_shape_arrays(surface_index)
+			var multimesh_mesh_blendshape_arrays := mesh.surface_get_blend_shape_arrays(surface_index)
 			for multimesh_mesh_blendshape_array in multimesh_mesh_blendshape_arrays:
 				var array_mesh_blendshape_array: Array = []
-				transform_array_mesh_arrays.call(array_mesh_blendshape_array, multimesh_mesh_blendshape_array)
+				transform_array_mesh_arrays.call(array_mesh_blendshape_array, multimesh_mesh_blendshape_array, true)
 				array_mesh_blendshape_arrays.append(array_mesh_blendshape_array)
 
 			array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, array_mesh_arrays, array_mesh_blendshape_arrays)
-			array_mesh.surface_set_name(surface_index, multimesh_mesh.surface_get_name(surface_index))
-			array_mesh.surface_set_material(surface_index, multimesh_mesh.surface_get_material(surface_index))
+			array_mesh.surface_set_name(surface_index, mesh.surface_get_name(surface_index))
+			array_mesh.surface_set_material(surface_index, mesh.surface_get_material(surface_index))
+
 		return array_mesh
 
 	var array_mesh := create_array_mesh_from_multimesh.call(multimesh_mesh, transforms)
