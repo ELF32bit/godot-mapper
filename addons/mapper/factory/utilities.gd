@@ -365,7 +365,7 @@ static func create_multimesh_instance(entity: MapperEntity, parent: Node, multim
 
 	var multimesh_mesh: Mesh = multimesh.mesh
 	if multimesh_mesh and multimesh_mesh is ArrayMesh:
-		if entity.factory.settings.lightmap_unwrap and multimesh.get_blend_shape_count() == 0:
+		if entity.factory.settings.lightmap_unwrap and multimesh_mesh.get_blend_shape_count() == 0:
 			multimesh_mesh = multimesh_mesh.duplicate()
 			var transform := Transform3D.IDENTITY.translated(entity.center)
 			var lightmap_scale: float = entity.get_lightmap_scale_property(1.0)
