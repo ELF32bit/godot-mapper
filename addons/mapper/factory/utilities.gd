@@ -66,17 +66,17 @@ static func spread_transform_array(transform_array: PackedVector3Array, spread: 
 		return transform_array
 	var spread_transform_array := PackedVector3Array()
 	var spread_squared := spread * spread
-	for index in range(0, transform_array.size(), 4):
+	for index1 in range(0, transform_array.size(), 4):
 		var is_new := true
 		for index2 in range(0, spread_transform_array.size(), 4):
-			if (transform_array[index + 3] - spread_transform_array[index2 + 3]).length_squared() < spread_squared:
+			if (transform_array[index1 + 3] - spread_transform_array[index2 + 3]).length_squared() < spread_squared:
 				is_new = false
 				break
 		if is_new:
-			spread_transform_array.append(transform_array[index + 0])
-			spread_transform_array.append(transform_array[index + 1])
-			spread_transform_array.append(transform_array[index + 2])
-			spread_transform_array.append(transform_array[index + 3])
+			spread_transform_array.append(transform_array[index1 + 0])
+			spread_transform_array.append(transform_array[index1 + 1])
+			spread_transform_array.append(transform_array[index1 + 2])
+			spread_transform_array.append(transform_array[index1 + 3])
 	return spread_transform_array
 
 
