@@ -442,7 +442,7 @@ static func create_multimesh_mesh_instance(entity: MapperEntity, parent: Node, m
 		return array_mesh
 
 	var array_mesh := create_array_mesh_from_multimesh.call(multimesh_mesh, transforms)
-	if multimesh_mesh.shadow_mesh:
+	if multimesh_mesh.shadow_mesh and entity.factory.settings.shadow_meshes:
 		array_mesh.shadow_mesh = create_array_mesh_from_multimesh.call(multimesh_mesh.shadow_mesh, transforms)
 
 	if entity.factory.settings.lightmap_unwrap:
