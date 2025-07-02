@@ -52,6 +52,7 @@ const MAX_ENTITY_GROUP_DEPTH: int = 256
 const MAX_ENTITY_TARGET_DEPTH: int = 1024
 const MAX_ENTITY_PARENT_DEPTH: int = 1024
 const MAX_MATERIAL_TEXTURES: int = 1024
+const MAX_MAP_LOADING_DEPTH: int = 64
 
 var options: Dictionary
 

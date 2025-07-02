@@ -287,7 +287,7 @@ for index in range(100):
 	map.node.add_child(island_prefab_instance, map.settings.readable_node_names)
 	island_prefab_instance.position += Vector3(randf(), 0.0, randf()) * 1000.0
 ```
-Cyclical references inside sub-maps will freeze the plugin.<br>
+Maps can also load themselves recursively, allowing a form of fractal generation.<br>
 
 ## Examples
 Check out provided examples to get a hang on API.<br>
