@@ -257,6 +257,38 @@ var positions := MapperUtilities.get_transform_array_positions(
 	transform_array, Vector3(0.0, 1.0, 0.0)) # up offset
 ```
 
+### 8. Load map resources using game loader.
+Game loader can retrieve resources without extensions from multiple game directories.<br>
+```GDScript
+# resources require full game directory path
+var noise1 := map.loader.load_sound("sounds/ambience/swamp1")
+var noise2 := map.loader.load_sound("sounds/ambience/swamp2")
+var supershotgun := map.loader.load_mdl_raw("mdls/items/g_shot")
+```
+Sub-maps are constructed using settings from the main map and stored inside a cache.<br>
+Instances of cached sub-maps will have unusable overlapping navigation regions.<br>
+```GDScript
+# misc_explobox.gd will construct sub-map or retrieve it from cache
+var explobox := map.loader.load_map_raw("maps/items/b_explob", true)
+if explobox:
+	var explobox_instance := explobox.instantiate()
+	return explobox_instance
+```
+Caching can be disabled for loading sub-maps with unique navigation regions.<br>
+```GDScript
+# __post.gd
+for index in range(100):
+	# island prefab will be constructed 100 times with unique navigation regions
+	var island_prefab := map.loader.load_map_raw("maps/islands/variant1", false)
+	if not island_prefab:
+		continue
+	# spawning 100 islands with random positions
+	var island_prefab_instance := island_prefab.instantiate()
+	map.node.add_child(island_prefab_instance, map.settings.readable_node_names)
+	island_prefab_instance.position += Vector3(randf(), 0.0, randf()) * 1000.0
+```
+Cyclical references inside sub-maps will freeze the plugin.<br>
+
 ## Examples
 Check out provided examples to get a hang on API.<br>
 Adjust plugin configuration inside **importers/map-scene.gd** file.<br>
