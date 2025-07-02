@@ -59,30 +59,33 @@ static func get_right_axis(settings: MapperSettings) -> Vector3:
 	return right_axis
 
 
-static func spread_transform_array(transform_array: PackedVector3Array, spread: float) -> PackedVector3Array:
-	if transform_array.size() % 4 != 0 or spread < 0.0:
-		return PackedVector3Array()
-	elif spread == 0.0:
-		return transform_array
-	var spread_transform_array := PackedVector3Array()
+static func spread_transform_array(transform_array: PackedVector3Array, spread: float) -> void:
+	if transform_array.size() % 4 != 0 or spread <= 0.0:
+		return
+
 	var spread_squared := spread * spread
+	var spread_transform_array := PackedVector3Array()
 	for index1 in range(0, transform_array.size(), 4):
 		var is_new := true
 		for index2 in range(0, spread_transform_array.size(), 4):
 			if (transform_array[index1 + 3] - spread_transform_array[index2 + 3]).length_squared() < spread_squared:
 				is_new = false
 				break
+
 		if is_new:
 			spread_transform_array.append(transform_array[index1 + 0])
 			spread_transform_array.append(transform_array[index1 + 1])
 			spread_transform_array.append(transform_array[index1 + 2])
 			spread_transform_array.append(transform_array[index1 + 3])
-	return spread_transform_array
+
+	transform_array.clear()
+	transform_array.append_array(spread_transform_array)
 
 
 static func get_transform_array_positions(transform_array: PackedVector3Array, offset: Vector3 = Vector3.ZERO) -> PackedVector3Array:
 	if transform_array.size() % 4 != 0:
 		return PackedVector3Array()
+
 	var positions_array := PackedVector3Array()
 	positions_array.resize(transform_array.size() / 4)
 	for index in range(0, transform_array.size(), 4):
@@ -202,14 +205,14 @@ static func rotate_transform_array(transform_array: PackedVector3Array, snap_ang
 		transform_array[index + 3] += offset_direction
 
 
-static func erase_transform_array(transform_array: PackedVector3Array, position: Vector3, radius: float, hardness: float = 1.0, seed: int = 0) -> PackedVector3Array:
+static func erase_transform_array(transform_array: PackedVector3Array, position: Vector3, radius: float, hardness: float = 1.0, seed: int = 0) -> void:
 	if transform_array.size() % 4 != 0:
-		return PackedVector3Array()
+		return
 
 	radius = clampf(radius, 0.0, INF)
 	hardness = clampf(hardness, 0.0, 1.0)
 	if is_zero_approx(radius) or is_zero_approx(hardness):
-		return transform_array
+		return
 
 	var random_number_generator := RandomNumberGenerator.new()
 	random_number_generator.seed = seed
@@ -230,7 +233,8 @@ static func erase_transform_array(transform_array: PackedVector3Array, position:
 		erased_transform_array.append(transform_array[index + 2])
 		erased_transform_array.append(transform_array[index + 3])
 
-	return erased_transform_array
+	transform_array.clear()
+	transform_array.append_array(erased_transform_array)
 
 
 static func change_node_type(node: Node, classname: StringName) -> Node:
@@ -423,6 +427,11 @@ static func create_multimesh_mesh_instance(entity: MapperEntity, parent: Node, m
 			if source_arrays[ArrayMesh.ARRAY_COLOR] == null:
 				destination_arrays[ArrayMesh.ARRAY_COLOR] = PackedColorArray([])
 
+		var has_colors := false
+		if source_arrays[ArrayMesh.ARRAY_COLOR] != null:
+			if source_arrays[ArrayMesh.ARRAY_COLOR].size() > 0:
+				has_colors = true
+
 		var colors_size: int = 0
 		if source_arrays[ArrayMesh.ARRAY_COLOR] != null:
 			colors_size = source_arrays[ArrayMesh.ARRAY_COLOR].size()
@@ -468,9 +477,8 @@ static func create_multimesh_mesh_instance(entity: MapperEntity, parent: Node, m
 						random_number_generator.seed = seed
 						for id in range(transforms.size()):
 							var array := PackedColorArray()
-							if source_arrays[array_index] != null:
-								if source_arrays[array_index].size() > 0:
-									array = source_arrays[array_index].duplicate()
+							if has_colors:
+								array = source_arrays[array_index].duplicate()
 							if not array.size() > 0:
 								array.resize(colors_size)
 								array.fill(Color.WHITE)

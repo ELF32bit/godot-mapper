@@ -285,7 +285,7 @@ func generate_surface_distribution(surfaces: PackedStringArray, density: float, 
 			populate_brushes.call(index)
 
 	if spread > 0.0:
-		return MapperUtilities.spread_transform_array(transform_array, spread)
+		MapperUtilities.spread_transform_array(transform_array, spread)
 
 	return transform_array
 
@@ -312,6 +312,6 @@ func generate_volume_distribution(density: float, spread: float = 0.0, min_penet
 			populate_brushes.call(index)
 
 	if spread > 0.0:
-		return MapperUtilities.spread_transform_array(transform_array, spread)
+		MapperUtilities.spread_transform_array(transform_array, spread)
 
 	return transform_array
