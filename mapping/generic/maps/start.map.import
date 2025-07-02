@@ -15,5 +15,6 @@ dest_files=["res://.godot/imported/start.map-b82343784a329c7d23c5ed8b413c4f0a.sc
 game=0
 wads=[]
 options={
-"lightmap_unwrap": false
+"lightmap_unwrap": false,
+"print_progress": true
 }
