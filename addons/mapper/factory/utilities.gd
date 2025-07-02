@@ -399,8 +399,12 @@ static func create_multimesh_mesh_instance(entity: MapperEntity, parent: Node, m
 	mesh_instance.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
 
 	var untyped_multimesh_mesh: Mesh = multimesh.mesh
-	if not untyped_multimesh_mesh or not untyped_multimesh_mesh is ArrayMesh:
+	if not untyped_multimesh_mesh:
 		return mesh_instance
+	if not untyped_multimesh_mesh is ArrayMesh:
+		push_warning("Multimesh mesh instance requires ArrayMesh.")
+		return mesh_instance
+
 	var multimesh_mesh: ArrayMesh = untyped_multimesh_mesh
 	var random_number_generator := RandomNumberGenerator.new()
 
