@@ -14,8 +14,8 @@ Organize map resources into game expansions by specifying alternative game direc
 * Effortless brush entity construction and animation using plugin functions.
 * Safe entity property parsing and binding, entity linking and grouping.
 * **Ability to scatter grass on textures and barycentric wireframes!**
-* Texture WAD and Palette support.
-* Basic MDL support.
+* Texture WAD (WAD2, WAD3) and Palette support.
+* Basic MDL (IDPO version 6) support.
 
 ## Usage
 ### 1. Create game directory with map resources.
@@ -24,8 +24,8 @@ Organize map resources into game expansions by specifying alternative game direc
 * game/textures for textures with possible PBR or animation names.
 * game/sounds for loading sounds with any of the supported extensions.
 * game/maps for maps, also maps might embed each other in entity properties.
-* game/mapdata for storing map lightmaps and navigation data.
-* game/wads for additional texture WADs.
+* game/mapdata for automatically generated lightmaps and navigation data.
+* game/wads for texture WADs defined in map files.
 * game/mdls for animated models.
 
 ### 2. Construct map entities with build scripts.
@@ -57,6 +57,22 @@ static func build(map: MapperMap, entity: MapperEntity) -> Node:
 	return MapperUtilities.create_decal_entity(entity)
 ```
 Create entity node or nodes, set a script with @export annotations and bind entity properties.<br>
+```GDScript
+# info_player_start.gd
+static func build(map: MapperMap, entity: MapperEntity) -> Node:
+	var entity_node := Marker3D.new()
+	entity_node.add_to_group("info_player_start", true)
+	return entity_node # origin and angles are assigned automatically
+```
+```GDScript
+# light_.gd
+static func build(map: MapperMap, entity: MapperEntity) -> Node:
+	var entity_node := OmniLight3D.new()
+	entity_node.set_script(preload("../scripts/light.gd"))
+	entity_node.omni_range = entity.get_unit_property("light", 300)
+	entity_node.light_color = entity.get_color_property("_color", Color.WHITE)
+	return entity_node # origin and angles are assigned automatically
+```
 Entity linking information is also avaliable, but linked entities might not be constructed yet.<br>
 ```GDScript
 # light_.gd
@@ -64,7 +80,8 @@ var entity_target := map.get_first_entity_target(entity,
 	"target", "targetname", "info_null")
 if entity_target:
 	entity_target.get_origin_property(null) # is available
-	entity_target.node # is missing
+	entity_target.node # is most likely missing
+	entity_target.center # stores AABB center
 ```
 Post build script named __post.gd can be executed after all entity nodes are constructed.<br>
 
@@ -105,11 +122,16 @@ metadata/mesh_disabled = true
 metadata/collision_disabled = true
 metadata/occluder_disabled = true
 
-# worldspawn.gd (created as the merged brush entity)
+# worldspawn.gd
+var entity_node := MapperUtilities.create_merged_brush_entity(entity, "StaticBody3D")
+if not entity_node:
+	return null
+
 for brush in entity.brushes:
 	if not brush.get_uniform_property("liquid", 0) > 0:
 		continue
 
+	# liquid area is created at a global position
 	var liquid_area := MapperUtilities.create_brush(entity, brush, "Area3D")
 	if not liquid_area:
 		continue
@@ -123,6 +145,7 @@ for brush in entity.brushes:
 		elif child is OccluderInstance3D:
 			child.visible = true
 
+	# add_global_child parents one node to another with right local coordinates
 	MapperUtilities.add_global_child(liquid_area, entity_node, map.settings)
 ```
 
@@ -150,25 +173,30 @@ Custom loader can be implemented for your own assets.<br>
 ### 5. Bind entity properties to node properties.
 Simple entity properties can be bound to entity node properties.<br>
 Assignment of node properties happens after entity node is constructed.<br>
+Common entity properties such as origin, angle, angles (mangle) are already bound.<br>
 ```GDScript
 entity.bind_int_property("hp", "health")
 ```
 Sometimes it's necessary to modify entity properties before assigning.<br>
 ```GDScript
-entity_node.health = entity.get_int_property("hp", 0) * 10.0
+entity_node.set_script(preload("../scripts/monster_dog.gd"))
+entity_node.health = maxi(entity.get_int_property("hp", 100), 10)
 ```
-Complex entity properties like signals or node paths can also be bound.<br>
-For example, trigger might need to send a kill signal to another entity.<br>
+Complex entity properties such as signals and node paths can also be bound.<br>
+For example, trigger might need to send activation signals to nodes of other entities.<br>
 ```GDScript
-# trigger entity will send generic signal upon activation
+entity_node.set_script(preload("../scripts/trigger.gd")) # with "generic" signal
 entity.bind_signal_property("target", "targetname", "generic", "_on_generic_signal")
 entity.bind_signal_property("killtarget", "targetname", "generic", "queue_free")
 ```
 ```GDScript
-# path_corner entity will be storing an array of other path_corner targets
+entity_node.set_script(preload("../scripts/path_corner.gd")) # with "targets" export
 entity.bind_node_path_array_property("target", "targetname", "targets", "path_corner")
 ```
-Common entity properties such as origin, angle, mangle are already bound.<br>
+Other entity properties can be manually inserted into entity node properties.<br>
+```GDScript
+entity.node_properties["my_property"] = value
+```
 
 ### 6. Assign navigation regions.
 Various entities might affect navigation regions differently.<br>
@@ -180,12 +208,17 @@ MapperUtilities.add_to_navigation_region(entity_node, navigation_region)
 
 # func_detail entities will affect worldspawn navigation region
 for map_entity in map.classnames.get("func_detail", []):
+	# same as map_entity.node_groups.append("my_entity_group_name")
 	MapperUtilities.add_entity_to_navigation_region(map_entity, navigation_region)
 ```
+Assignment of node groups happens after entity node is constructed.<br>
 
 ### 7. Generate surface and volume distributions.
-Spread parameter will also filter out nearby points.
+Distributions are stored as transform arrays with basis and origin.<br>
+MapperUtilities class provides functions for working with transform arrays.<br>
+Spread function filters out nearby points, rotation function takes snap angles.<br>
 ```GDScript
+# worldspawn.gd
 var grass_multimesh := preload("../resources/multimesh.tres")
 var grass_transform_array := entity.generate_surface_distribution(
 	["GRASS*", "__TB_empty"], 1.0, 0.0, 60.0, false, false, 0)
@@ -194,15 +227,39 @@ MapperUtilities.spread_transform_array(grass_transform_array, 0.25)
 MapperUtilities.scale_transform_array(grass_transform_array,
 	Vector3(1.0, 1.0, 1.0), Vector3(1.5, 2.0, 1.5))
 MapperUtilities.rotate_transform_array(grass_transform_array,
-	Vector3(-1.0, 0.0, -1.0)) # randomly rotates around up vector
+	Vector3(-1.0, 0.0, -1.0)) # rotates around up vector without snap
+```
+An example of using point entities to erase grass.<br>
+```GDScript
+# obtaining entity node inverse transform
+var transform := MapperUtilities.get_tree_transform(entity_node)
+var inverse_transform := transform.affine_inverse()
+
+for map_entity in map.classnames.get("info_eraser", []):
+	var position := map_entity.get_origin_property(null)
+	if position == null:
+		continue
+	# same as entity_node.to_local(position)
+	var local_position := inverse_transform * position
+	var radius := map_entity.get_unit_property("radius", 300.0)
+	var hardness := map_entity.get_float_property("hardness", 1.0)
+	MapperUtilities.erase_transform_array(
+		grass_transform_array, local_position, radius, hardness)
 
 var grass_multimesh_instance := MapperUtilities.create_multimesh_instance(
 	entity, entity_node, grass_multimesh, grass_transform_array)
+```
+Distributions can be configured to generate world space data for placing other nodes.<br>
+```GDScript
+var transform_array := entity.generate_volume_distribution(
+	1.0, 0.5, INF, Basis.IDENTITY, true, 0)
+var positions := MapperUtilities.get_transform_array_positions(
+	transform_array, Vector3(0.0, 1.0, 0.0)) # up offset
 ```
 
 ## Examples
 Check out provided examples to get a hang on API.<br>
 Adjust plugin configuration inside **importers/map-scene.gd** file.<br>
 Disable **editor/import/use_multiple_threads** for older versions of Godot.<br>
-Restart Godot if the import process freezes during the first launch.<br>
+Restart Godot if the plugin types fail to parse during the first launch.<br>
 Disable ```lightmap_unwrap``` setting if the freezes are consistent.<br>
