@@ -102,6 +102,8 @@ func generate_surface_distribution(surfaces: PackedStringArray, density: float, 
 
 	# clamping input values and converting angles to radians
 	density = clampf(density, 0.0, pow(factory.settings.max_distribution_density, 2.0))
+	if density == 0.0: # allowing small density values a chance
+		return PackedVector3Array()
 
 	min_floor_angle = deg_to_rad(clampf(min_floor_angle, 0.0, 180.0))
 	max_floor_angle = deg_to_rad(clampf(max_floor_angle, 0.0, 180.0))
