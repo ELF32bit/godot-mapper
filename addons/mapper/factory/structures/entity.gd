@@ -263,13 +263,13 @@ func is_decal() -> bool:
 	return bool(aabb.has_volume() and brushes.size() == 1 and brushes[0].is_uniform())
 
 
-func generate_surface_distribution(surfaces: PackedStringArray, density: float, spread: float = 0.0, min_floor_angle: float = 0.0, max_floor_angle: float = 45.0, even_distribution: bool = false, world_space: bool = false, seed: int = 0) -> PackedVector3Array:
+func generate_surface_distribution(surfaces: PackedStringArray, density: float, min_floor_angle: float = 0.0, max_floor_angle: float = 45.0, even_distribution: bool = false, world_space: bool = false, seed: int = 0) -> PackedVector3Array:
 	var transform_array := PackedVector3Array()
 	var mutex := Mutex.new()
 
 	var populate_brushes := func(thread_index: int) -> void:
 		var brush := brushes[thread_index]
-		var brush_transform_array := brush.generate_surface_distribution(surfaces, density, 0.0, min_floor_angle, max_floor_angle, even_distribution, world_space, seed + thread_index)
+		var brush_transform_array := brush.generate_surface_distribution(surfaces, density, min_floor_angle, max_floor_angle, even_distribution, world_space, seed + thread_index)
 		if not world_space:
 			for index in range(3, brush_transform_array.size(), 4):
 				brush_transform_array[index] += brush.center - center
@@ -283,20 +283,17 @@ func generate_surface_distribution(surfaces: PackedStringArray, density: float, 
 	else:
 		for index in range(brushes.size()):
 			populate_brushes.call(index)
-
-	if spread > 0.0:
-		MapperUtilities.spread_transform_array(transform_array, spread)
 
 	return transform_array
 
 
-func generate_volume_distribution(density: float, spread: float = 0.0, min_penetration: float = 0.0, max_penetration: float = INF, basis: Basis = Basis.IDENTITY, world_space: bool = false, seed: int = 0) -> PackedVector3Array:
+func generate_volume_distribution(density: float, min_penetration: float = 0.0, max_penetration: float = INF, basis: Basis = Basis.IDENTITY, world_space: bool = false, seed: int = 0) -> PackedVector3Array:
 	var transform_array := PackedVector3Array()
 	var mutex := Mutex.new()
 
 	var populate_brushes := func(thread_index: int) -> void:
 		var brush := brushes[thread_index]
-		var brush_transform_array := brush.generate_volume_distribution(density, 0.0, min_penetration, max_penetration, basis, world_space, seed + thread_index)
+		var brush_transform_array := brush.generate_volume_distribution(density, min_penetration, max_penetration, basis, world_space, seed + thread_index)
 		if not world_space:
 			for index in range(3, brush_transform_array.size(), 4):
 				brush_transform_array[index] += brush.center - center
@@ -310,8 +307,5 @@ func generate_volume_distribution(density: float, spread: float = 0.0, min_penet
 	else:
 		for index in range(brushes.size()):
 			populate_brushes.call(index)
-
-	if spread > 0.0:
-		MapperUtilities.spread_transform_array(transform_array, spread)
 
 	return transform_array

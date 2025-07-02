@@ -95,7 +95,7 @@ func get_relative_point_penetration(point: Vector3, epsilon: float) -> Variant:
 	return min_distance / max_distance
 
 
-func generate_surface_distribution(surfaces: PackedStringArray, density: float, spread: float = 0.0, min_floor_angle: float = 0.0, max_floor_angle: float = 45.0, even_distribution: bool = false, world_space: bool = false, seed: int = 0) -> PackedVector3Array:
+func generate_surface_distribution(surfaces: PackedStringArray, density: float, min_floor_angle: float = 0.0, max_floor_angle: float = 45.0, even_distribution: bool = false, world_space: bool = false, seed: int = 0) -> PackedVector3Array:
 	var triangles := PackedVector3Array()
 	var normals := PackedVector3Array()
 	var distribution := PackedFloat32Array([0.0])
@@ -203,13 +203,10 @@ func generate_surface_distribution(surfaces: PackedStringArray, density: float, 
 		transform_array[transform_index * 4 + 2] = basis.z
 		transform_array[transform_index * 4 + 3] = origin + offset
 
-	if spread > 0.0:
-		MapperUtilities.spread_transform_array(transform_array, spread)
-
 	return transform_array
 
 
-func generate_volume_distribution(density: float, spread: float = 0.0, min_penetration: float = 0.0, max_penetration: float = INF, basis: Basis = Basis.IDENTITY, world_space: bool = false, seed: int = 0) -> PackedVector3Array:
+func generate_volume_distribution(density: float, min_penetration: float = 0.0, max_penetration: float = INF, basis: Basis = Basis.IDENTITY, world_space: bool = false, seed: int = 0) -> PackedVector3Array:
 	if not aabb.has_volume():
 		return PackedVector3Array()
 	var epsilon := factory.settings.epsilon / factory.settings.unit_size
@@ -255,8 +252,5 @@ func generate_volume_distribution(density: float, spread: float = 0.0, min_penet
 			transform_array.append(basis.y)
 			transform_array.append(basis.z)
 			transform_array.append(point + offset)
-
-	if spread > 0.0:
-		MapperUtilities.spread_transform_array(transform_array, spread)
 
 	return transform_array
