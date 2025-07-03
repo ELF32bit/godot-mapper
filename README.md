@@ -190,6 +190,13 @@ Other entity properties can be manually inserted into entity node properties.<br
 ```GDScript
 entity.node_properties["my_property"] = value
 ```
+Changing automatically assigned properties will adjust the pivot of an entity.<br>
+```GDScript
+# func_turnable.gd
+var pivot_offset := Vector3.DOWN * entity.aabb.size.y / 2.0
+entity.node_properties["position"] = entity.center + pivot_offset
+return MapperUtilities.create_merged_brush_entity(entity, "StaticBody3D")
+```
 
 ### 6. Assign navigation regions.
 Various entities might affect navigation regions differently.<br>
