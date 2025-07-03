@@ -122,20 +122,14 @@ metadata/mesh_disabled = true
 metadata/collision_disabled = true
 metadata/occluder_disabled = true
 
-# worldspawn.gd
-var entity_node := MapperUtilities.create_merged_brush_entity(entity, "StaticBody3D")
-if not entity_node:
-	return null
-
+# worldspawn.gd (created as the merged brush entity)
 for brush in entity.brushes:
 	if not brush.get_uniform_property("liquid", 0) > 0:
 		continue
-
 	# liquid area is created at a global position
 	var liquid_area := MapperUtilities.create_brush(entity, brush, "Area3D")
 	if not liquid_area:
 		continue
-
 	# manually re-enabling disabled brush nodes
 	for child in liquid_area.get_children():
 		if child is MeshInstance3D:
@@ -144,8 +138,7 @@ for brush in entity.brushes:
 			child.disabled = false
 		elif child is OccluderInstance3D:
 			child.visible = true
-
-	# add_global_child parents one node to another with right local coordinates
+	# parenting one global node to another with right local coordinates
 	MapperUtilities.add_global_child(liquid_area, entity_node, map.settings)
 ```
 
@@ -231,18 +224,18 @@ MapperUtilities.rotate_transform_array(grass_transform_array,
 ```
 An example of using point entities to erase grass.<br>
 ```GDScript
-# obtaining entity node inverse transform
+# obtaining entity node global transform without scene tree
 var transform := MapperUtilities.get_tree_transform(entity_node)
 var inverse_transform := transform.affine_inverse()
 
 for map_entity in map.classnames.get("info_eraser", []):
-	var position := map_entity.get_origin_property(null)
+	var position = map_entity.get_origin_property(null)
 	if position == null:
 		continue
 	# same as entity_node.to_local(position)
-	var local_position := inverse_transform * position
-	var radius := map_entity.get_unit_property("radius", 300.0)
-	var hardness := map_entity.get_float_property("hardness", 1.0)
+	var local_position := inverse_transform * Vector3(position)
+	var radius = map_entity.get_unit_property("radius", 300.0)
+	var hardness = map_entity.get_float_property("hardness", 1.0)
 	MapperUtilities.erase_transform_array(
 		grass_transform_array, local_position, radius, hardness)
 
