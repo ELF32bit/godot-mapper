@@ -213,6 +213,8 @@ static func erase_transform_array(transform_array: PackedVector3Array, position:
 	hardness = clampf(hardness, 0.0, 1.0)
 	if is_zero_approx(radius) or is_zero_approx(hardness):
 		return
+	var hardness_remap := (hardness - 0.5) * 2.0
+	var hardness_factor := 1.0 + minf(hardness_remap, 0.0)
 
 	var random_number_generator := RandomNumberGenerator.new()
 	random_number_generator.seed = seed
@@ -222,11 +224,13 @@ static func erase_transform_array(transform_array: PackedVector3Array, position:
 		var distance := (transform_array[index + 3] - position).length()
 		if distance <= radius:
 			var probability := 1.0 - clampf(distance / radius, 0.0, 1.0)
-			probability = lerpf(0.0, pow(probability, 1.0 - hardness), hardness)
+			var gradient := pow(probability, 1.0 - hardness_remap)
+			probability = lerpf(0.0, gradient, hardness_factor)
 			if is_equal_approx(probability, 1.0):
 				continue
-			if random_number_generator.randf() <= probability:
-				continue
+			if not is_zero_approx(probability):
+				if random_number_generator.randf() <= probability:
+					continue
 
 		erased_transform_array.append(transform_array[index + 0])
 		erased_transform_array.append(transform_array[index + 1])
