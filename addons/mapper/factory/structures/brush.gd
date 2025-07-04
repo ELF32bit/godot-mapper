@@ -121,6 +121,12 @@ func generate_surface_distribution(surfaces: PackedStringArray, density: float, 
 	var floor_angle_range := max_floor_angle - min_floor_angle
 	var offset := -center * float(not world_space)
 
+	var up := MapperUtilities.get_up_vector(factory.settings)
+	var forward := MapperUtilities.get_forward_vector(factory.settings)
+	var forward_rotation := Quaternion(Vector3.FORWARD, forward)
+	var inverse_basis := Basis(forward_rotation).inverse()
+	var up_plane := Plane(up, 0.0)
+
 	var get_triangle_area := func(a: Vector3, b: Vector3) -> float:
 		return a.length() * b.length() * sin(a.angle_to(b)) / 2.0
 
@@ -130,7 +136,7 @@ func generate_surface_distribution(surfaces: PackedStringArray, density: float, 
 			if brush_surface.matchn(surface):
 				for face in self.surfaces[brush_surface]:
 					# calculating face normal angle to up vector
-					var angle: float = face.plane.normal.angle_to(Vector3.UP)
+					var angle: float = face.plane.normal.angle_to(up)
 					# discarding some brush faces by angle to up vector
 					if not is_equal_approx(angle, min_floor_angle):
 						if not is_equal_approx(angle, max_floor_angle):
@@ -193,14 +199,16 @@ func generate_surface_distribution(surfaces: PackedStringArray, density: float, 
 			p = (a + b) - p
 
 		# creating basis with up axis equal to triangle normal
-		var basis := Basis.IDENTITY
-		if normals[index].is_equal_approx(Vector3.DOWN):
-			basis = Basis(Vector3.FORWARD, PI)
-		elif not normals[index].is_equal_approx(Vector3.UP):
-			var direction := (normals[index] * Vector3(1.0, 0.0, 1.0)).normalized()
-			var horizontal_rotation := Quaternion(direction, Vector3.FORWARD)
-			var vertical_rotation := Quaternion(normals[index], Vector3.UP)
-			basis = Basis(horizontal_rotation * vertical_rotation)
+		var basis := inverse_basis
+		if normals[index].is_equal_approx(-up):
+			basis *= Basis(forward, PI)
+		elif not normals[index].is_equal_approx(up):
+			var up_rotation := Quaternion(normals[index], up)
+			var direction := up_plane.project(normals[index]).normalized()
+			if not direction.is_equal_approx(-forward):
+				basis *= Basis(Quaternion(direction, forward) * up_rotation)
+			else:
+				basis *= Basis(Quaternion(up, PI) * up_rotation)
 
 		# calculating origin
 		var origin := (triangles[index * 3] + p)
@@ -238,6 +246,11 @@ func generate_volume_distribution(density: float, min_penetration: float = 0.0, 
 	var has_penetration_range := bool(min_penetration != max_penetration)
 	var offset := -center * float(not world_space)
 
+	var forward := MapperUtilities.get_forward_vector(factory.settings)
+	var forward_rotation := Quaternion(Vector3.FORWARD, forward)
+	var inverse_basis := Basis(forward_rotation).inverse()
+	inverse_basis = basis * inverse_basis
+
 	# creating random number generator with specified seed
 	var random_number_generator := RandomNumberGenerator.new()
 	random_number_generator.seed = seed
@@ -262,9 +275,9 @@ func generate_volume_distribution(density: float, min_penetration: float = 0.0, 
 			brush_has_point = has_point(point, epsilon)
 
 		if brush_has_point:
-			transform_array.append(basis.x)
-			transform_array.append(basis.y)
-			transform_array.append(basis.z)
+			transform_array.append(inverse_basis.x)
+			transform_array.append(inverse_basis.y)
+			transform_array.append(inverse_basis.z)
 			transform_array.append(point + offset)
 
 	return transform_array
