@@ -95,7 +95,7 @@ func get_relative_point_penetration(point: Vector3, epsilon: float) -> Variant:
 	return min_distance / max_distance
 
 
-func generate_surface_distribution(surfaces: PackedStringArray, density: float, min_floor_angle: float = 0.0, max_floor_angle: float = 45.0, even_distribution: bool = false, world_space: bool = false, seed: int = 0) -> PackedVector3Array:
+func generate_surface_distribution(surfaces: PackedStringArray, density: float, min_floor_angle: float = 0.0, max_floor_angle: float = 45.0, even_distribution: bool = false, world_space: bool = false, seed: int = 0, use_map_basis: bool = true) -> PackedVector3Array:
 	var triangles := PackedVector3Array()
 	var normals := PackedVector3Array()
 	var distribution := PackedFloat32Array([0.0])
@@ -121,10 +121,14 @@ func generate_surface_distribution(surfaces: PackedStringArray, density: float, 
 	var floor_angle_range := max_floor_angle - min_floor_angle
 	var offset := -center * float(not world_space)
 
-	var up := MapperUtilities.get_up_vector(factory.settings)
-	var forward := MapperUtilities.get_forward_vector(factory.settings)
-	var forward_rotation := Quaternion(Vector3.FORWARD, forward)
-	var inverse_basis := Basis(forward_rotation).inverse()
+	var up := Vector3.UP
+	var forward := Vector3.FORWARD
+	var inverse_basis := Basis.IDENTITY
+	if use_map_basis:
+		up = MapperUtilities.get_up_vector(factory.settings)
+		forward = MapperUtilities.get_forward_vector(factory.settings)
+		var forward_rotation := Quaternion(Vector3.FORWARD, forward)
+		inverse_basis = Basis(forward_rotation).inverse()
 	var up_plane := Plane(up, 0.0)
 
 	var get_triangle_area := func(a: Vector3, b: Vector3) -> float:
@@ -222,7 +226,7 @@ func generate_surface_distribution(surfaces: PackedStringArray, density: float, 
 	return transform_array
 
 
-func generate_volume_distribution(density: float, min_penetration: float = 0.0, max_penetration: float = INF, basis: Basis = Basis.IDENTITY, world_space: bool = false, seed: int = 0) -> PackedVector3Array:
+func generate_volume_distribution(density: float, min_penetration: float = 0.0, max_penetration: float = INF, basis: Basis = Basis.IDENTITY, world_space: bool = false, seed: int = 0, use_map_basis: bool = true) -> PackedVector3Array:
 	if not aabb.has_volume():
 		return PackedVector3Array()
 	var epsilon := factory.settings.epsilon / factory.settings.unit_size
@@ -246,10 +250,12 @@ func generate_volume_distribution(density: float, min_penetration: float = 0.0, 
 	var has_penetration_range := bool(min_penetration != max_penetration)
 	var offset := -center * float(not world_space)
 
-	var forward := MapperUtilities.get_forward_vector(factory.settings)
-	var forward_rotation := Quaternion(Vector3.FORWARD, forward)
-	var inverse_basis := Basis(forward_rotation).inverse()
-	inverse_basis = basis * inverse_basis
+	var inverse_basis := basis
+	if use_map_basis:
+		var forward := MapperUtilities.get_forward_vector(factory.settings)
+		var forward_rotation := Quaternion(Vector3.FORWARD, forward)
+		inverse_basis = Basis(forward_rotation).inverse()
+		inverse_basis = basis * inverse_basis
 
 	# creating random number generator with specified seed
 	var random_number_generator := RandomNumberGenerator.new()
