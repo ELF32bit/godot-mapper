@@ -35,7 +35,7 @@ func get_uv(global_vertex: Vector3, texture_size: Vector2, inverse_basis: Basis)
 		return (Vector2(u_axis.dot(global_vertex), v_axis.dot(global_vertex)) / scale + uv_shift) / texture_size
 
 	var vertex := inverse_basis * global_vertex
-	var normal := (inverse_basis * plane.normal).abs()
+	var normal := (inverse_basis * plane.normal).normalized().abs()
 	var uv := Vector2.ZERO
 
 	if normal.z >= normal.y and normal.z >= normal.x:

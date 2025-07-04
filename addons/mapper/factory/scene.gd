@@ -223,7 +223,12 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 
 		if face.uv_valve:
 			face.u_axis = settings.basis * face.u_axis
+			face.scale.x *= face.u_axis.length()
+			face.u_axis = face.u_axis.normalized()
+
 			face.v_axis = settings.basis * face.v_axis
+			face.scale.y *= face.v_axis.length()
+			face.v_axis = face.v_axis.normalized()
 
 		# removing texture suffixes from material names
 		for suffix in settings.texture_suffixes.values():

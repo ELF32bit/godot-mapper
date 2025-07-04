@@ -59,9 +59,7 @@ var options: Dictionary
 @export var use_threads := false
 @export var force_deterministic := true
 
-@export var basis := Basis(Vector3(0.0, 0.0, -1.0), Vector3(-1.0, 0.0, 0.0), Vector3(0.0, 1.0, 0.0)):
-	set(value):
-		basis = value.orthonormalized()
+@export var basis := Basis(Vector3(0.0, 0.0, -1.0), Vector3(-1.0, 0.0, 0.0), Vector3(0.0, 1.0, 0.0))
 
 @export var unit_size: float = 32.0
 @export var epsilon: float = 1e-03
