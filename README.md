@@ -231,16 +231,11 @@ MapperUtilities.rotate_transform_array(grass_transform_array,
 ```
 An example of using point entities to erase grass.<br>
 ```GDScript
-# obtaining entity node global transform without scene tree
-var transform := MapperUtilities.get_tree_transform(entity_node)
-var inverse_transform := transform.affine_inverse()
-
 for map_entity in map.classnames.get("info_eraser", []):
 	var position = map_entity.get_origin_property(null)
 	if position == null:
 		continue
-	# same as entity_node.to_local(position)
-	var local_position := inverse_transform * Vector3(position)
+	var local_position := Vector3(position) - entity.center
 	var radius = map_entity.get_unit_property("radius", 300.0)
 	var hardness = map_entity.get_float_property("hardness", 1.0)
 	MapperUtilities.erase_transform_array(
