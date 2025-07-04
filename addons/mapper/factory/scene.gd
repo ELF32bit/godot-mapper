@@ -230,6 +230,11 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 			face.scale.y *= face.v_axis.length()
 			face.v_axis = face.v_axis.normalized()
 
+		if is_zero_approx(face.scale.x):
+			face.scale.x = 1.0
+		if is_zero_approx(face.scale.y):
+			face.scale.y = 1.0
+
 		# removing texture suffixes from material names
 		for suffix in settings.texture_suffixes.values():
 			if face.material_name.ends_with(suffix):
@@ -599,7 +604,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 
 			# face base material always exists storing albedo texture
 			var texture := face_material.base.get_texture(BaseMaterial3D.TEXTURE_ALBEDO)
-			var texture_size := texture.get_size() if texture else Vector2.ZERO
+			var texture_size := texture.get_size() if texture else Vector2.ONE
 			texture_size *= (1.0 / settings.unit_size)
 
 			var uvs := PackedVector2Array()
