@@ -19,12 +19,14 @@ func convert_angle(line: String) -> Variant:
 	var line_strip := line.strip_edges()
 	if line_strip.is_valid_float():
 		var angle := line_strip.to_float()
-		var forward_rotation := Quaternion(Vector3.FORWARD, settings.basis.x)
+		var up := MapperUtilities.get_up_vector(settings)
+		var forward := MapperUtilities.get_forward_vector(settings)
+		var forward_rotation := Quaternion(Vector3.FORWARD, forward)
 		if angle == -1:
-			return (Quaternion(settings.basis.x, settings.basis.z) * forward_rotation).get_euler()
+			return (Quaternion(forward, up) * forward_rotation).get_euler()
 		if angle == -2:
-			return (Quaternion(settings.basis.x, -settings.basis.z) * forward_rotation).get_euler()
-		return (Quaternion(settings.basis.z, deg_to_rad(angle)) * forward_rotation).get_euler()
+			return (Quaternion(forward, -up) * forward_rotation).get_euler()
+		return (Quaternion(up, deg_to_rad(angle)) * forward_rotation).get_euler()
 	return null
 
 
@@ -32,10 +34,14 @@ func convert_angles(line: String) -> Variant:
 	var numbers := line.split_floats(" ", false)
 	if numbers.size() < 3:
 		return null
-	var x := Quaternion(settings.basis.x, deg_to_rad(numbers[2]))
-	var y := Quaternion(settings.basis.z, deg_to_rad(numbers[1]))
-	var z := Quaternion(settings.basis.y, deg_to_rad(numbers[0]))
-	return (y * z * x * Quaternion(Vector3.FORWARD, settings.basis.x)).get_euler()
+	var up := MapperUtilities.get_up_vector(settings)
+	var forward := MapperUtilities.get_forward_vector(settings)
+	var forward_rotation := Quaternion(Vector3.FORWARD, forward)
+	var right := MapperUtilities.get_right_vector(settings)
+	var pitch := Quaternion(-right, deg_to_rad(numbers[0]))
+	var yaw := Quaternion(up, deg_to_rad(numbers[1]))
+	var roll := Quaternion(forward, deg_to_rad(numbers[2]))
+	return (yaw * pitch * roll * forward_rotation).get_euler()
 
 
 func convert_mangle(line: String) -> Variant:

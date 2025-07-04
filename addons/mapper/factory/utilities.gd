@@ -12,7 +12,7 @@ static func is_equal_approximately(a: Vector3, b: Vector3, epsilon: float) -> bo
 
 
 static func get_up_vector(settings: MapperSettings) -> Vector3:
-	return (settings.basis * Vector3(0.0, 0.0, 1.0)).normalized()
+	return settings.basis.z.normalized()
 
 
 static func get_up_axis_index(settings: MapperSettings) -> int:
@@ -28,7 +28,7 @@ static func get_up_axis(settings: MapperSettings) -> Vector3:
 
 
 static func get_forward_vector(settings: MapperSettings) -> Vector3:
-	return (settings.basis * Vector3(1.0, 0.0, 0.0)).normalized()
+	return settings.basis.x.normalized()
 
 
 static func get_forward_axis_index(settings: MapperSettings) -> int:
@@ -44,7 +44,7 @@ static func get_forward_axis(settings: MapperSettings) -> Vector3:
 
 
 static func get_right_vector(settings: MapperSettings) -> Vector3:
-	return (settings.basis * Vector3(0.0, -1.0, 0.0)).normalized()
+	return -settings.basis.y.normalized()
 
 
 static func get_right_axis_index(settings: MapperSettings) -> int:

@@ -85,7 +85,8 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 
 	var generate_structures := func() -> void:
 		var world_entity_extra_brushes: Array[MapperBrush] = []
-		var forward_rotation := Quaternion(Vector3.FORWARD, settings.basis.x)
+		var forward := MapperUtilities.get_forward_vector(settings)
+		var forward_rotation := Quaternion(Vector3.FORWARD, forward)
 		var forward_rotation_euler := forward_rotation.get_euler()
 
 		# creating all entity structures
