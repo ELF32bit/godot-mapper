@@ -55,6 +55,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 	game_loader.custom_wads.assign(wads)
 	game_loader.random_number_generator.seed = settings.random_number_generator_seed
 	random_number_generator.seed = settings.random_number_generator_seed
+	var inverse_basis := settings.basis.inverse()
 	progress = 0.0
 	build_time = 0
 
@@ -77,7 +78,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 	var entity_structures: Array[MapperEntity] = map_structure.entities
 	var smooth_entity_structures: Array[MapperEntity] = []
 
-	var inverse_basis := settings.basis.inverse()
+	# preloading post build script
 	var post_build_script: GDScript = null
 	if settings.post_build_script_enabled:
 		var path := settings.game_builders_directory.path_join(settings.post_build_script_name)
@@ -237,10 +238,11 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 			var world_entity_structure: MapperEntity = null
 			var classname := settings.world_entity_classname
 			var is_skip_entity := false
-			for skip_classname in settings.skip_entities_classnames:
-				if classname.match(skip_classname):
-					is_skip_entity = true
-					break
+			if settings.skip_entities_enabled:
+				for skip_classname in settings.skip_entities_classnames:
+					if classname.match(skip_classname):
+						is_skip_entity = true
+						break
 
 			if tb_first_world_entity_structure and not is_skip_entity:
 				world_entity_structure = MapperEntity.new()
@@ -515,11 +517,12 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 			if entity.properties.has(settings.world_entity_wads_property):
 				for path in entity.properties.get(settings.world_entity_wads_property, "").split(";", false):
 					var wad_path := settings.game_wads_directory
+					var path_strip: String = path.strip_edges()
 
-					if path.is_absolute_path():
-						wad_path = wad_path.path_join(path.get_file())
-					elif path.is_relative_path():
-						wad_path = wad_path.path_join(path.trim_prefix("/"))
+					if path_strip.is_absolute_path():
+						wad_path = wad_path.path_join(path_strip.get_file())
+					elif path_strip.is_relative_path():
+						wad_path = wad_path.path_join(path_strip.trim_prefix("/"))
 					else:
 						continue
 

@@ -4,7 +4,7 @@ extends Resource
 @export var colors: PackedColorArray
 
 
-func _init(colors: PackedColorArray = PackedColorArray()) -> void:
+func _init(colors: PackedColorArray = []) -> void:
 	self.colors = colors.duplicate()
 	self.colors.resize(256)
 

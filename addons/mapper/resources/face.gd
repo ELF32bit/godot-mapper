@@ -14,7 +14,7 @@ extends Resource
 @export var parameters: PackedInt64Array
 
 
-func _init(point1: Vector3 = Vector3.ZERO, point2: Vector3 = Vector3.ZERO, point3: Vector3 = Vector3.ZERO, material: String = "", u_axis: Vector3 = Vector3.ZERO, v_axis: Vector3 = Vector3.ZERO, uv_shift: Vector2 = Vector2.ZERO, uv_valve: bool = true, rotation: float = 0.0, scale: Vector2 = Vector2.ZERO, parameters: PackedInt64Array = PackedInt64Array()) -> void:
+func _init(point1: Vector3 = Vector3.ZERO, point2: Vector3 = Vector3.ZERO, point3: Vector3 = Vector3.ZERO, material: String = "", u_axis: Vector3 = Vector3.ZERO, v_axis: Vector3 = Vector3.ZERO, uv_shift: Vector2 = Vector2.ZERO, uv_valve: bool = true, rotation: float = 0.0, scale: Vector2 = Vector2.ZERO, parameters: PackedInt64Array = []) -> void:
 	self.point1 = point1
 	self.point2 = point2
 	self.point3 = point3
