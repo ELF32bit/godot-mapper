@@ -153,8 +153,8 @@ static func load_from_file(path: String, palette: MapperPaletteResource = null, 
 
 	# extracting textures
 	if use_threads:
-		var group_task1 := WorkerThreadPool.add_group_task(extract_texture1, texture1_positions.size(), -1, true)
-		var group_task2 := WorkerThreadPool.add_group_task(extract_texture2, texture2_positions.size(), -1, true)
+		var group_task1 := WorkerThreadPool.add_group_task(extract_texture1, texture1_positions.size(), 4, true)
+		var group_task2 := WorkerThreadPool.add_group_task(extract_texture2, texture2_positions.size(), 4, true)
 
 		WorkerThreadPool.wait_for_group_task_completion(group_task1)
 		WorkerThreadPool.wait_for_group_task_completion(group_task2)

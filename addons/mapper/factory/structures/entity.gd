@@ -278,7 +278,7 @@ func generate_surface_distribution(surfaces: PackedStringArray, density: float, 
 		mutex.unlock()
 
 	if not factory.settings.force_deterministic and factory.settings.use_threads:
-		var group_task := WorkerThreadPool.add_group_task(populate_brushes, brushes.size(), -1, true)
+		var group_task := WorkerThreadPool.add_group_task(populate_brushes, brushes.size(), 4, true)
 		WorkerThreadPool.wait_for_group_task_completion(group_task)
 	else:
 		for index in range(brushes.size()):
@@ -302,7 +302,7 @@ func generate_volume_distribution(density: float, min_penetration: float = 0.0, 
 		mutex.unlock()
 
 	if not factory.settings.force_deterministic and factory.settings.use_threads:
-		var group_task := WorkerThreadPool.add_group_task(populate_brushes, brushes.size(), -1, true)
+		var group_task := WorkerThreadPool.add_group_task(populate_brushes, brushes.size(), 4, true)
 		WorkerThreadPool.wait_for_group_task_completion(group_task)
 	else:
 		for index in range(brushes.size()):

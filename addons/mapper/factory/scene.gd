@@ -40,9 +40,9 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 		if settings.print_progress:
 			print("(%.2f) %s: %.3fs" % [self.progress, comment, time / 1000.0])
 
-	var parallel_task := func(action: Callable, elements: int, use_threads: bool = true) -> void:
-		if use_threads and settings.use_threads:
-			var group_task := WorkerThreadPool.add_group_task(action, elements, -1, true)
+	var parallel_task := func(action: Callable, elements: int, tasks_needed: int = -1) -> void:
+		if tasks_needed != 0 and settings.use_threads:
+			var group_task := WorkerThreadPool.add_group_task(action, elements, tasks_needed, true)
 			WorkerThreadPool.wait_for_group_task_completion(group_task)
 		else:
 			for index in range(elements):
@@ -1060,9 +1060,9 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 	if settings.print_progress:
 		print("Starting building map %s" % [map.name])
 	factory.call(generate_structures, 1, "Generating structures")
-	factory.call(parallel_task.bind(generate_faces, face_structures.size()), 2, "Generating faces")
+	factory.call(parallel_task.bind(generate_faces, face_structures.size(), 2), 2, "Generating faces")
 	factory.call(generate_materials, 3, "Generating materials")
-	factory.call(parallel_task.bind(generate_brushes, brush_structures.size()), 4, "Generating brushes")
+	factory.call(parallel_task.bind(generate_brushes, brush_structures.size(), 4), 4, "Generating brushes")
 
 	if settings.warn_about_degenerate_brushes:
 		var degenerate_brush_structure_amount: int = 0
@@ -1073,27 +1073,27 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 			push_warning("Found %s degenerate brushes, consider adjusting epsilon." % [degenerate_brush_structure_amount])
 
 	if settings.smooth_shading_property_enabled:
-		factory.call(parallel_task.bind(generate_smooth_entity_normals, smooth_entity_structures.size()), 5, "Generating smooth entity normals")
+		factory.call(parallel_task.bind(generate_smooth_entity_normals, smooth_entity_structures.size(), 4), 5, "Generating smooth entity normals")
 
 	if settings.world_entity_wads_property_enabled:
 		factory.call(load_world_entity_wads, 6, "Loading world entity wads")
 
 	factory.call(load_materials_and_textures, 7, "Loading materials and textures")
-	factory.call(parallel_task.bind(generate_brush_geometry, brush_structures.size()), 8, "Generating brush geometry")
-	factory.call(parallel_task.bind(generate_entity_bounds, entity_structures.size(), false), 9, "Generating entity bounds")
-	factory.call(parallel_task.bind(generate_entity_meshes, entity_structures.size(), false), 10, "Generating entity meshes")
-	factory.call(parallel_task.bind(generate_entity_shapes, entity_structures.size()), 11, "Generating entity shapes")
+	factory.call(parallel_task.bind(generate_brush_geometry, brush_structures.size(), 4), 8, "Generating brush geometry")
+	factory.call(parallel_task.bind(generate_entity_bounds, entity_structures.size(), 0), 9, "Generating entity bounds")
+	factory.call(parallel_task.bind(generate_entity_meshes, entity_structures.size(), 0), 10, "Generating entity meshes")
+	factory.call(parallel_task.bind(generate_entity_shapes, entity_structures.size(), 2), 11, "Generating entity shapes")
 
 	# BUG: creating array occluders is not thread safe
 	if settings.occlusion_culling:
-		factory.call(parallel_task.bind(generate_brush_occluders, brush_structures.size(), false), 12, "Generating brush occluders")
+		factory.call(parallel_task.bind(generate_brush_occluders, brush_structures.size(), 0), 12, "Generating brush occluders")
 		# BUG: creating array occluders here should be thread safe, but memory errors are thrown
-		factory.call(parallel_task.bind(generate_entity_occluders, entity_structures.size(), false), 13, "Generating entity occluders")
+		factory.call(parallel_task.bind(generate_entity_occluders, entity_structures.size(), 0), 13, "Generating entity occluders")
 
 	# BUG: unwrapping array meshes for lightmaps is not thread safe
 	if settings.lightmap_unwrap:
-		factory.call(parallel_task.bind(generate_brush_lightmap_uvs, brush_structures.size(), false), 14, "Unwrapping brushes for lightmaps")
-		factory.call(parallel_task.bind(generate_entity_lightmap_uvs, entity_structures.size(), false), 15, "Unwrapping entities for lightmaps")
+		factory.call(parallel_task.bind(generate_brush_lightmap_uvs, brush_structures.size(), 0), 14, "Unwrapping brushes for lightmaps")
+		factory.call(parallel_task.bind(generate_entity_lightmap_uvs, entity_structures.size(), 0), 15, "Unwrapping entities for lightmaps")
 
 	factory.call(generate_entity_nodes, 16, "Generating entity nodes")
 	factory.call(generate_scene_tree, 17, "Generating scene tree")
