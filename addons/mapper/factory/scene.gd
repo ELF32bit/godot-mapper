@@ -88,6 +88,8 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 		var forward := MapperUtilities.get_forward_vector(settings)
 		var forward_rotation := Quaternion(Vector3.FORWARD, forward)
 		var forward_rotation_euler := forward_rotation.get_euler()
+		var tb_first_world_entity_structure: MapperEntity = null
+		var tb_default_layer_omit_from_export := false
 
 		# creating all entity structures
 		var all_entity_structures: Array[MapperEntity] = []
@@ -108,6 +110,15 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 				var entity_classname := entity_structure.get_classname_property(null)
 				if entity_classname == null:
 					continue
+
+				# also getting tb default layer omit from export from any world entity
+				if settings.tb_layer_omit_from_export_enabled:
+					if entity_classname == settings.world_entity_classname:
+						if entity_structure.get_int_property(settings.tb_layer_omit_from_export_property, 0) != 0:
+							if tb_first_world_entity_structure == null:
+								tb_first_world_entity_structure = entity_structure
+							tb_default_layer_omit_from_export = true
+
 				if not entity_classname == settings.group_entity_classname:
 					continue
 				if not settings.group_entity_type_property in entity_structure.properties:
@@ -119,27 +130,46 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 				if type_index != -1 and id != null:
 					map_structure.groups[settings.group_entity_types[type_index]][id] = entity_structure
 
+		# preparing to skip entities from tb layers
+		var tb_omit_from_export_entities: Array[bool] = []
+		if settings.group_entity_enabled and settings.tb_layer_omit_from_export_enabled:
+			tb_omit_from_export_entities.resize(all_entity_structures.size())
+			tb_omit_from_export_entities.fill(tb_default_layer_omit_from_export)
+			for entity_index in range(all_entity_structures.size()):
+				var entity_structure := all_entity_structures[entity_index]
+				if tb_first_world_entity_structure:
+					if entity_structure == tb_first_world_entity_structure:
+						continue
+
+				var property := settings.tb_layer_omit_from_export_property
+				if map_structure.is_group_entity(entity_structure, "_tb_layer"):
+					var omit := bool(entity_structure.get_int_property(property, 0) != 0)
+					tb_omit_from_export_entities[entity_index] = omit
+					continue
+
+				var entity_layer := map_structure.get_entity_group(entity_structure, "_tb_layer")
+				if entity_layer:
+					var omit := bool(entity_layer.get_int_property(property, 0) != 0)
+					tb_omit_from_export_entities[entity_index] = omit
+					continue
+
+				var entity_groups := map_structure.get_entity_group_recursively(entity_structure, "_tb_group", true)
+				if entity_groups.size() > 0:
+					var entity_group_layer := map_structure.get_entity_group(entity_groups[0], "_tb_layer")
+					if entity_group_layer:
+						var omit := bool(entity_group_layer.get_int_property(property, 0) != 0)
+						tb_omit_from_export_entities[entity_index] = omit
+						continue
+
 		for entity_index in range(map.entities.size()):
 			var entity := map.entities[entity_index]
 			var entity_structure := all_entity_structures[entity_index]
 			var is_world_entity_extra_brush_entity := false
 
-			# skipping entities from certain layers
+			# skipping entities from tb layers
 			if settings.group_entity_enabled and settings.tb_layer_omit_from_export_enabled:
-				var property := settings.tb_layer_omit_from_export_property
-				if map_structure.is_group_entity(entity_structure, "_tb_layer"):
-					if entity_structure.get_int_property(property, 0) != 0:
-						continue
-				else:
-					var entity_layer := map_structure.get_entity_group(entity_structure, "_tb_layer")
-					if entity_layer and entity_layer.get_int_property(property, 0) != 0:
-						continue
-					else:
-						var entity_groups := map_structure.get_entity_group_recursively(entity_structure, "_tb_group", true)
-						if entity_groups.size() > 0:
-							var entity_group_layer := map_structure.get_entity_group(entity_groups[0], "_tb_layer")
-							if entity_group_layer and entity_group_layer.get_int_property(property, 0) != 0:
-								continue
+				if tb_omit_from_export_entities[entity_index]:
+					continue
 
 			var entity_classname := entity_structure.get_classname_property(null)
 			if entity_classname != null:
@@ -171,7 +201,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 
 			# binding common entity properties
 			entity_structure.bind_origin_property("position")
-			entity_structure.node_properties[StringName("rotation")] = forward_rotation_euler
+			entity_structure.node_properties["rotation"] = forward_rotation_euler
 			entity_structure.bind_angle_property("rotation")
 			entity_structure.bind_angles_property("rotation")
 			entity_structure.bind_mangle_property("rotation")
@@ -203,10 +233,35 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 					face_structure.factory = self
 
 		# adding extra world entity brushes to first world entity entity without modifying source entities
-		if settings.world_entity_extra_brush_entities_enabled:
-			var world_entity: MapperEntity = map_structure.classnames.get(settings.world_entity_classname, [null])[0]
-			if world_entity:
-				world_entity.brushes.append_array(world_entity_extra_brushes)
+		if settings.world_entity_extra_brush_entities_enabled and world_entity_extra_brushes.size() > 0:
+			var world_entity_structure: MapperEntity = null
+			var classname := settings.world_entity_classname
+			var is_skip_entity := false
+			for skip_classname in settings.skip_entities_classnames:
+				if classname.match(skip_classname):
+					is_skip_entity = true
+					break
+
+			if tb_first_world_entity_structure and not is_skip_entity:
+				world_entity_structure = MapperEntity.new()
+				world_entity_structure.properties = tb_first_world_entity_structure.properties.duplicate()
+				world_entity_structure.brushes.append_array(world_entity_extra_brushes)
+				world_entity_structure.factory = self
+
+				world_entity_structure.bind_origin_property("position")
+				world_entity_structure.node_properties["rotation"] = forward_rotation_euler
+				world_entity_structure.bind_angle_property("rotation")
+				world_entity_structure.bind_angles_property("rotation")
+				world_entity_structure.bind_mangle_property("rotation")
+
+				if not classname in map_structure.classnames:
+					map_structure.classnames[classname] = []
+				map_structure.classnames[classname].append(world_entity_structure)
+				entity_structures.append(world_entity_structure)
+			else:
+				world_entity_structure = map_structure.classnames.get(classname, [null])[0]
+				if world_entity_structure:
+					world_entity_structure.brushes.append_array(world_entity_extra_brushes)
 
 		if settings.smooth_shading_property_enabled:
 			for entity_structure in entity_structures:
