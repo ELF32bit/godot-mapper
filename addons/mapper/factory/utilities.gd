@@ -534,7 +534,10 @@ static func create_multimesh_mesh_instance(entity: MapperEntity, parent: Node, m
 				transform_array_mesh_arrays.call(array_mesh_blendshape_array, multimesh_mesh_blendshape_array, true)
 				array_mesh_blendshape_arrays.append(array_mesh_blendshape_array)
 
-			array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, array_mesh_arrays, array_mesh_blendshape_arrays)
+			var flags: int = 0
+			if array_mesh_arrays[ArrayMesh.ARRAY_VERTEX] == null:
+				flags = ArrayMesh.ARRAY_FLAG_USES_EMPTY_VERTEX_ARRAY
+			array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, array_mesh_arrays, array_mesh_blendshape_arrays, {}, flags)
 			array_mesh.surface_set_name(surface_index, mesh.surface_get_name(surface_index))
 			array_mesh.surface_set_material(surface_index, mesh.surface_get_material(surface_index))
 
