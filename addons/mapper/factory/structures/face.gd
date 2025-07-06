@@ -10,7 +10,7 @@ var uv_shift: Vector2
 var uv_valve: bool
 var rotation: float
 var scale: Vector2
-var parameters: PackedInt64Array
+var parameters: PackedStringArray
 
 var plane: Plane
 var material: MapperMaterial

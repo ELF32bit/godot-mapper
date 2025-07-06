@@ -11,10 +11,10 @@ extends Resource
 @export var uv_valve: bool
 @export var rotation: float
 @export var scale: Vector2
-@export var parameters: PackedInt64Array
+@export var parameters: PackedStringArray
 
 
-func _init(point1: Vector3 = Vector3.ZERO, point2: Vector3 = Vector3.ZERO, point3: Vector3 = Vector3.ZERO, material: String = "", u_axis: Vector3 = Vector3.ZERO, v_axis: Vector3 = Vector3.ZERO, uv_shift: Vector2 = Vector2.ZERO, uv_valve: bool = true, rotation: float = 0.0, scale: Vector2 = Vector2.ZERO, parameters: PackedInt64Array = []) -> void:
+func _init(point1: Vector3 = Vector3.ZERO, point2: Vector3 = Vector3.ZERO, point3: Vector3 = Vector3.ZERO, material: String = "", u_axis: Vector3 = Vector3.ZERO, v_axis: Vector3 = Vector3.ZERO, uv_shift: Vector2 = Vector2.ZERO, uv_valve: bool = true, rotation: float = 0.0, scale: Vector2 = Vector2.ZERO, parameters: PackedStringArray = []) -> void:
 	self.point1 = point1
 	self.point2 = point2
 	self.point3 = point3
@@ -40,7 +40,7 @@ static func create_from_string(string: String) -> MapperFaceResource:
 	var uv_valve: bool
 	var rotation: float
 	var scale: Vector2
-	var parameters := PackedInt64Array()
+	var parameters := PackedStringArray()
 
 	for index1 in [1, 6, 11]:
 		for index2 in range(index1, index1 + 3):
@@ -72,8 +72,7 @@ static func create_from_string(string: String) -> MapperFaceResource:
 		scale = Vector2(values[29].to_float(), values[30].to_float())
 
 		for bitmask_index in range(31, values.size()):
-			if values[bitmask_index].is_valid_int():
-				parameters.append(values[bitmask_index].to_int())
+			parameters.append(values[bitmask_index])
 	else:
 		for index in range(16, 20 + 1):
 			if not values[index].is_valid_float():
@@ -86,7 +85,6 @@ static func create_from_string(string: String) -> MapperFaceResource:
 		scale = Vector2(values[19].to_float(), values[20].to_float())
 
 		for index in range(21, values.size()):
-			if values[index].is_valid_int():
-				parameters.append(values[index].to_int())
+			parameters.append(values[index])
 
 	return MapperFaceResource.new(point1, point2, point3, material, u_axis, v_axis, uv_shift, uv_valve, rotation, scale, parameters)
