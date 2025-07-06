@@ -390,6 +390,9 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 		var scale := (1.0 / settings.unit_size)
 		var transform := Transform3D.IDENTITY.scaled(Vector3.ONE * scale)
 		for face in brush.faces:
+			face.point1 *= scale
+			face.point2 *= scale
+			face.point3 *= scale
 			face.plane.d *= scale
 			face.center *= scale
 			face.vertices = transform * face.vertices
