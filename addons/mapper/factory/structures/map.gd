@@ -42,12 +42,14 @@ func get_entity_group(entity: MapperEntity, group_type: StringName) -> MapperEnt
 
 func get_entity_group_recursively(entity: MapperEntity, group_type: StringName, reverse: bool = false) -> Array[MapperEntity]:
 	var entity_groups: Array[MapperEntity] = []
+	var entity_groups_set: Dictionary = { entity: true }
 	var group := get_entity_group(entity, group_type)
 	while group and entity_groups.size() < factory.settings.MAX_ENTITY_GROUP_DEPTH:
-		if group in entity_groups or group == entity:
+		if group in entity_groups_set:
 			entity_groups.append(group)
 			break
 		else:
+			entity_groups_set[group] = true
 			entity_groups.append(group)
 		group = get_entity_group(group, group_type)
 	if reverse:
