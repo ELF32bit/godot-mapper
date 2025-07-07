@@ -377,7 +377,15 @@ static func create_multimesh_instance(entity: MapperEntity, parent: Node, multim
 			multimesh_mesh = multimesh_mesh.duplicate()
 			var transform := Transform3D.IDENTITY.translated(entity.center)
 			var lightmap_scale: float = entity.get_lightmap_scale_property(1.0)
+
+			var surface_names: PackedStringArray = []
+			surface_names.resize(multimesh_mesh.get_surface_count())
+			for surface_index in range(multimesh_mesh.get_surface_count()):
+				surface_names.set(surface_index, multimesh_mesh.surface_get_name(surface_index))
+			# BUG: lightmap unwrap creates new mesh without surface names
 			multimesh_mesh.lightmap_unwrap(transform, entity.factory.settings.lightmap_texel_size / lightmap_scale)
+			for surface_index in range(multimesh_mesh.get_surface_count()):
+				multimesh_mesh.surface_set_name(surface_index, surface_names[surface_index])
 
 	multimesh_instance.multimesh = MultiMesh.new()
 	multimesh_instance.multimesh.mesh = multimesh_mesh
@@ -550,9 +558,17 @@ static func create_multimesh_mesh_instance(entity: MapperEntity, parent: Node, m
 	if entity.factory.settings.lightmap_unwrap and array_mesh.get_blend_shape_count() == 0:
 		var transform := Transform3D.IDENTITY.translated(entity.center)
 		var lightmap_scale: float = entity.get_lightmap_scale_property(1.0)
-		array_mesh.lightmap_unwrap(transform, entity.factory.settings.lightmap_texel_size / lightmap_scale)
-	mesh_instance.mesh = array_mesh
 
+		var surface_names: PackedStringArray = []
+		surface_names.resize(array_mesh.get_surface_count())
+		for surface_index in range(array_mesh.get_surface_count()):
+			surface_names.set(surface_index, array_mesh.surface_get_name(surface_index))
+		# BUG: lightmap unwrap creates new mesh without surface names
+		array_mesh.lightmap_unwrap(transform, entity.factory.settings.lightmap_texel_size / lightmap_scale)
+		for surface_index in range(array_mesh.get_surface_count()):
+			array_mesh.surface_set_name(surface_index, surface_names[surface_index])
+
+	mesh_instance.mesh = array_mesh
 	return mesh_instance
 
 
