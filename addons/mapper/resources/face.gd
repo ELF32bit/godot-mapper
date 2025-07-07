@@ -1,6 +1,8 @@
 class_name MapperFaceResource
 extends Resource
 
+const MAX_PARAMETERS: int = 16
+
 @export var point1: Vector3
 @export var point2: Vector3
 @export var point3: Vector3
@@ -29,7 +31,7 @@ func _init(point1: Vector3 = Vector3.ZERO, point2: Vector3 = Vector3.ZERO, point
 
 
 static func create_from_string(string: String) -> MapperFaceResource:
-	var values := string.split(" ", false)
+	var values := string.split(" ", false, 31 + MAX_PARAMETERS)
 
 	if values.size() < 20:
 		return null
@@ -71,7 +73,7 @@ static func create_from_string(string: String) -> MapperFaceResource:
 		rotation = values[28].to_float()
 		scale = Vector2(values[29].to_float(), values[30].to_float())
 
-		for bitmask_index in range(31, values.size()):
+		for bitmask_index in range(31, mini(31 + MAX_PARAMETERS, values.size())):
 			parameters.append(values[bitmask_index])
 	else:
 		for index in range(16, 20 + 1):
@@ -84,7 +86,7 @@ static func create_from_string(string: String) -> MapperFaceResource:
 		rotation = values[18].to_float()
 		scale = Vector2(values[19].to_float(), values[20].to_float())
 
-		for index in range(21, values.size()):
+		for index in range(21, mini(21 + MAX_PARAMETERS, values.size())):
 			parameters.append(values[index])
 
 	return MapperFaceResource.new(point1, point2, point3, material, u_axis, v_axis, uv_shift, uv_valve, rotation, scale, parameters)

@@ -97,8 +97,6 @@ func _import(source_file: String, save_path: String, options: Dictionary, platfo
 			pass
 	map_options.merge(options.get("options", {}), true)
 
-	var settings := MapperSettings.new(map_options)
-	var factory := MapperFactory.new(settings)
 	# loading wads from options
 	var wads: Array[MapperWadResource] = []
 	for wad_path in options.get("wads", []):
@@ -108,6 +106,9 @@ func _import(source_file: String, save_path: String, options: Dictionary, platfo
 				wad = ResourceLoader.load(wad_path, "MapperWadResource")
 				if wad:
 					wads.append(wad)
+
+	var settings := MapperSettings.new(map_options)
+	var factory := MapperFactory.new(settings)
 	var scene := factory.build_map(map, wads)
 
 	var save_flags: int = ResourceSaver.FLAG_COMPRESS

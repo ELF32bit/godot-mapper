@@ -62,13 +62,12 @@ static func load_from_file(path: String) -> MapperMapResource:
 					is_inside_entity = false
 		elif is_inside_brush:
 			var face := MapperFaceResource.create_from_string(line)
-
 			if face:
 				faces.append(face)
 			else:
 				push_warning("Line %s: Brush face has wrong format, not importing." % [line_number])
 		elif is_inside_entity:
-			var line_split := line.split('"', false)
+			var line_split := line.split('"', false, 3)
 			var property := StringName(line_split[0])
 
 			if line_split.size() >= 3:

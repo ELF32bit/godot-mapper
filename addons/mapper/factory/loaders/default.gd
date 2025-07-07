@@ -285,12 +285,13 @@ func load_map_raw(map: String, use_cache: bool = true) -> PackedScene:
 		return null
 
 	var settings_copy := MapperSettings.new(settings.options)
-	# changing seed on copied settings to make navigation groups unique to map
-	# instances of cached maps will have unusable overlapping navigation regions
-	settings_copy.random_number_generator_seed = random_number_generator.randi()
 	settings_copy.options["__loading_depth"] = settings.options.get("__loading_depth", 0) + 1
 	if settings_copy.options["__loading_depth"] > settings.MAX_MAP_LOADING_DEPTH:
 		return null
+
+	# changing seed on copied settings to make navigation groups unique to map
+	# instances of cached maps will have unusable overlapping navigation regions
+	settings_copy.random_number_generator_seed = random_number_generator.randi()
 
 	var factory := MapperFactory.new(settings_copy)
 	var scene := factory.build_map(map_resource, custom_wads)
