@@ -127,7 +127,7 @@ func generate_surface_distribution(surfaces: PackedStringArray, density: float, 
 	if use_map_basis:
 		up = MapperUtilities.get_up_vector(factory.settings)
 		forward = MapperUtilities.get_forward_vector(factory.settings)
-		var forward_rotation := Quaternion(Vector3.FORWARD, forward)
+		var forward_rotation := MapperUtilities.get_forward_rotation(factory.settings)
 		inverse_basis = Basis(forward_rotation).inverse()
 	var up_plane := Plane(up, 0.0)
 
@@ -251,11 +251,10 @@ func generate_volume_distribution(density: float, min_penetration: float = 0.0, 
 	var offset := -center * float(not world_space)
 
 	var inverse_basis := basis
+	var forward_rotation := MapperUtilities.get_forward_rotation(factory.settings)
 	if use_map_basis:
-		var forward := MapperUtilities.get_forward_vector(factory.settings)
-		var forward_rotation := Quaternion(Vector3.FORWARD, forward)
-		inverse_basis = Basis(forward_rotation).inverse()
-		inverse_basis = basis * inverse_basis
+		inverse_basis = basis * Basis(forward_rotation).inverse()
+	var aabb_center := aabb.get_center()
 
 	# creating random number generator with specified seed
 	var random_number_generator := RandomNumberGenerator.new()
@@ -263,12 +262,16 @@ func generate_volume_distribution(density: float, min_penetration: float = 0.0, 
 
 	var transform_array := PackedVector3Array()
 	for index in range(int(aabb.get_volume() * density)):
-		var r1 := random_number_generator.randf()
-		var r2 := random_number_generator.randf()
-		var r3 := random_number_generator.randf()
+		var r1 := (random_number_generator.randf() - 0.5) * 2.0
+		var r2 := (random_number_generator.randf() - 0.5) * 2.0
+		var r3 := (random_number_generator.randf() - 0.5) * 2.0
 
 		# generating points inside aabb and discarding points outside of brush
-		var point := aabb.position + aabb.size * Vector3(r1, r2, r3)
+		var direction := Vector3(r1, r2, r3)
+		if use_map_basis:
+			direction = forward_rotation * direction
+			direction = direction.clamp(-Vector3.ONE, Vector3.ONE)
+		var point := aabb_center + direction * aabb.size / 2.0
 
 		var brush_has_point := false
 		if has_penetration_range:

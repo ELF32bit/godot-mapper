@@ -55,6 +55,13 @@ static func get_forward_axis(settings: MapperSettings) -> Vector3:
 	return forward_axis
 
 
+static func get_forward_rotation(settings: MapperSettings) -> Quaternion:
+	var forward := get_forward_vector(settings)
+	if forward.is_equal_approx(-Vector3.FORWARD):
+		return Quaternion(get_up_vector(settings), PI)
+	return Quaternion(Vector3.FORWARD, forward)
+
+
 static func get_right_vector(settings: MapperSettings) -> Vector3:
 	return -settings.basis.y.normalized()
 
