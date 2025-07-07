@@ -830,15 +830,8 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 	var generate_lightmap_uv := func(mesh: ArrayMesh, transform: Transform3D, lightmap_scale: float = 1.0) -> void:
 		if not mesh:
 			return
-		var surface_names: PackedStringArray = []
-		surface_names.resize(mesh.get_surface_count())
-		for surface_index in range(mesh.get_surface_count()):
-			surface_names.set(surface_index, mesh.surface_get_name(surface_index))
-		# BUG: lightmap unwrap creates new mesh without surface names
 		# BUG: sometimes throws invalid index count errors when epsilon is too small
-		mesh.lightmap_unwrap(transform, settings.lightmap_texel_size / lightmap_scale)
-		for surface_index in range(mesh.get_surface_count()):
-			mesh.surface_set_name(surface_index, surface_names[surface_index])
+		MapperUtilities.lightmap_unwrap(mesh, transform, settings.lightmap_texel_size / lightmap_scale)
 
 	var generate_brush_occluders := func(thread_index: int) -> void:
 		var brush := brush_structures[thread_index]
