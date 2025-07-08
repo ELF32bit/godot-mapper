@@ -86,7 +86,6 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 
 	var generate_structures := func() -> void:
 		var world_entity_extra_brushes: Array[MapperBrush] = []
-		var forward := MapperUtilities.get_forward_vector(settings)
 		var forward_rotation := MapperUtilities.get_forward_rotation(settings)
 		var forward_rotation_euler := forward_rotation.get_euler()
 		var tb_first_world_entity_structure: MapperEntity = null
