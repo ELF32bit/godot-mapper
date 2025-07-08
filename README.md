@@ -80,8 +80,8 @@ var entity_target := map.get_first_entity_target(entity,
 	"target", "targetname", "info_null")
 if entity_target:
 	entity_target.get_origin_property(null) # is available
+	entity_target.center # stores brush entity AABB center
 	entity_target.node # is most likely missing
-	entity_target.center # stores AABB center
 ```
 Post build script named __post.gd can be executed after all entity nodes are constructed.<br>
 
