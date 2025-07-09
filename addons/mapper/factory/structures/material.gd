@@ -4,7 +4,7 @@ var base: BaseMaterial3D
 var override: Material
 
 
-func _init(base: BaseMaterial3D = null, override: Material = null):
+func _init(base: BaseMaterial3D = null, override: Material = null) -> void:
 	self.base = base
 	self.override = override
 

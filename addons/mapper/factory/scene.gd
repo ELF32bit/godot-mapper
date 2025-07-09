@@ -465,7 +465,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 
 		# collecting unique vertices and face normals
 		var vertices := PackedVector3Array()
-		var indices: Array[PackedInt64Array] = []
+		var indices: Array[PackedInt32Array] = []
 		var faces: Array[Array] = []
 
 		for entity_face_index in range(entity_faces.size()):
@@ -488,7 +488,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 
 				if is_unique_vertex:
 					vertices.append(vertex)
-					indices.append(PackedInt64Array([index1]))
+					indices.append(PackedInt32Array([index1]))
 					faces.append([face])
 
 		# calculating smooth normals
