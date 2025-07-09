@@ -38,13 +38,13 @@ const TEXTURE_SUFFIXES := {
 	BaseMaterial3D.TEXTURE_FLOWMAP: "_anisotropy",
 	BaseMaterial3D.TEXTURE_AMBIENT_OCCLUSION: "_ao",
 	BaseMaterial3D.TEXTURE_HEIGHTMAP: "_heightmap",
-	BaseMaterial3D.TEXTURE_SUBSURFACE_SCATTERING: "_subsurf_scatter",
-	BaseMaterial3D.TEXTURE_SUBSURFACE_TRANSMITTANCE: "_subsurf_scatter_transmittance",
+	BaseMaterial3D.TEXTURE_SUBSURFACE_SCATTERING: "_subsurf",
+	BaseMaterial3D.TEXTURE_SUBSURFACE_TRANSMITTANCE: "_transmittance",
 	BaseMaterial3D.TEXTURE_BACKLIGHT: "_backlight",
 	BaseMaterial3D.TEXTURE_REFRACTION: "_refraction",
-	BaseMaterial3D.TEXTURE_DETAIL_MASK: "_detail_mask",
-	BaseMaterial3D.TEXTURE_DETAIL_ALBEDO: "_albedo_detail",
-	BaseMaterial3D.TEXTURE_DETAIL_NORMAL: "_normal_detail",
+	BaseMaterial3D.TEXTURE_DETAIL_MASK: "_dmask",
+	BaseMaterial3D.TEXTURE_DETAIL_ALBEDO: "_dalbedo",
+	BaseMaterial3D.TEXTURE_DETAIL_NORMAL: "_dnormal",
 	BaseMaterial3D.TEXTURE_ORM: "_orm"
 }
 
