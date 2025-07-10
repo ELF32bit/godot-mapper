@@ -115,10 +115,6 @@ func get_unit_property(property: StringName, default: Variant = null, convert_de
 	return get_property("convert_unit", property, default)
 
 
-func get_direction_property(property: StringName, default: Variant = null) -> Variant:
-	return get_property("convert_origin", property, default)
-
-
 func get_color_property(property: StringName, default: Variant = null) -> Variant:
 	return get_property("convert_color", property, default)
 
@@ -185,10 +181,6 @@ func bind_mangle_property(node_property: StringName) -> void:
 
 func bind_unit_property(property: StringName, node_property: StringName) -> void:
 	bind_property("convert_unit", property, node_property)
-
-
-func bind_direction_property(property: StringName, node_property: StringName) -> void:
-	bind_property("convert_origin", property, node_property)
 
 
 func bind_color_property(property: StringName, node_property: StringName) -> void:
