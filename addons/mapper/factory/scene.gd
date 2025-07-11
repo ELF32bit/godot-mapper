@@ -84,6 +84,23 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 		var path := settings.game_builders_directory.path_join(settings.post_build_script_name)
 		post_build_script = game_loader.load_script(path)
 
+	var is_skip_entity := func(entity_classname: String) -> bool:
+		if not settings.skip_entities_enabled:
+			return false
+		var skip_entity := false
+		for classname in settings.skip_entities_classnames:
+			if not classname.begins_with("^"):
+				if entity_classname.match(classname):
+					skip_entity = true
+					break
+		if skip_entity:
+			for classname in settings.skip_entities_classnames:
+				if classname.begins_with("^"):
+					if entity_classname.match(classname.trim_prefix("^")):
+						skip_entity = false
+						break
+		return skip_entity
+
 	var generate_structures := func() -> void:
 		var world_entity_extra_brush_structures: Array[MapperBrush] = []
 		var forward_rotation := MapperUtilities.get_forward_rotation(settings)
@@ -174,14 +191,8 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 			var entity_classname := entity_structure.get_classname_property(null)
 			if entity_classname != null:
 				# skipping certain entities from settings
-				if settings.skip_entities_enabled:
-					var is_skip_entity := false
-					for classname in settings.skip_entities_classnames:
-						if entity_classname.match(classname):
-							is_skip_entity = true
-							break
-					if is_skip_entity:
-						continue
+				if is_skip_entity.call(entity_classname):
+					continue
 
 				# creating map structure classnames dictionary
 				if not entity_classname in map_structure.classnames:
@@ -236,14 +247,9 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 		if settings.world_entity_extra_brush_entities_enabled and world_entity_extra_brush_structures.size() > 0:
 			var world_entity_structure: MapperEntity = null
 			var classname := settings.world_entity_classname
-			var is_skip_entity := false
-			if settings.skip_entities_enabled:
-				for skip_classname in settings.skip_entities_classnames:
-					if classname.match(skip_classname):
-						is_skip_entity = true
-						break
+			var skip_entity := is_skip_entity.call(classname)
 
-			if tb_first_world_entity_structure and not is_skip_entity:
+			if tb_first_world_entity_structure and not skip_entity:
 				world_entity_structure = MapperEntity.new()
 				world_entity_structure.properties = tb_first_world_entity_structure.properties.duplicate()
 				world_entity_structure.brushes.append_array(world_entity_extra_brush_structures)
@@ -259,7 +265,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 					map_structure.classnames[classname] = []
 				map_structure.classnames[classname].append(world_entity_structure)
 				entity_structures.append(world_entity_structure)
-			else:
+			elif not skip_entity:
 				world_entity_structure = map_structure.classnames.get(classname, [null])[0]
 				if world_entity_structure:
 					world_entity_structure.brushes.append_array(world_entity_extra_brush_structures)
