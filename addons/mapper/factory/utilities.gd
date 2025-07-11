@@ -723,7 +723,7 @@ static func create_merged_brush_entity(entity: MapperEntity, node_class: StringN
 		has_children = true
 
 		if entity.factory.settings.store_base_materials:
-			var materials := {}
+			var materials: Dictionary = {}
 			for brush in entity.brushes:
 				materials.merge(brush.materials, false)
 			for surface_index in range(entity.mesh.get_surface_count()):

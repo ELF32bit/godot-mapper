@@ -82,7 +82,7 @@ func _import(source_file: String, save_path: String, options: Dictionary, platfo
 	if not map:
 		return ERR_PARSE_ERROR
 
-	var map_options := {}
+	var map_options: Dictionary = {}
 	match options.get("game", 0):
 		0:
 			map_options["game_directory"] = "res://mapping/generic"

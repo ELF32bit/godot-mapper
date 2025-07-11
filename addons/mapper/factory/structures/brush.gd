@@ -29,7 +29,7 @@ func get_planes(from_mesh: bool = true) -> Array[Plane]:
 	var planes: Array[Plane] = []
 	if mesh and from_mesh:
 		for index in range(mesh.get_surface_count()):
-			for face in surfaces[mesh.surface_get_name(index)]:
+			for face in surfaces.get(mesh.surface_get_name(index), []):
 				planes.append(face.plane)
 	else:
 		for face in faces:
@@ -71,7 +71,9 @@ func get_min_point_penetration(point: Vector3, epsilon: float) -> Variant:
 			return null
 		distance_to_plane = absf(clampf(distance_to_plane, -INF, 0.0))
 		min_distance = minf(distance_to_plane, min_distance)
-	return (null if is_nan(min_distance) else min_distance)
+	if is_nan(min_distance):
+		return null
+	return min_distance
 
 
 func get_max_point_penetration(point: Vector3, epsilon: float) -> Variant:
@@ -82,7 +84,9 @@ func get_max_point_penetration(point: Vector3, epsilon: float) -> Variant:
 			return null
 		distance_to_plane = absf(clampf(distance_to_plane, -INF, 0.0))
 		max_distance = maxf(distance_to_plane, max_distance)
-	return (null if is_nan(max_distance) else max_distance)
+	if is_nan(max_distance):
+		return null
+	return max_distance
 
 
 func get_relative_point_penetration(point: Vector3, epsilon: float) -> Variant:
@@ -135,39 +139,43 @@ func generate_surface_distribution(surfaces: PackedStringArray, density: float, 
 		return a.length() * b.length() * sin(a.angle_to(b)) / 2.0
 
 	# collecting triangles and normals from matching brush surfaces
+	var matching_brush_surfaces := PackedStringArray()
 	for brush_surface in self.surfaces:
 		for surface in surfaces:
 			if brush_surface.matchn(surface):
-				for face in self.surfaces[brush_surface]:
-					# calculating face normal angle to up vector
-					var angle: float = face.plane.normal.angle_to(up)
-					# discarding some brush faces by angle to up vector
-					if not is_equal_approx(angle, min_floor_angle):
-						if not is_equal_approx(angle, max_floor_angle):
-							if angle < min_floor_angle or angle > max_floor_angle:
-								continue
-
-					# calculating triangle weight based on angle to up vector
-					var angle_weight: float = 0.0
-					if not is_zero_approx(floor_angle_range):
-						angle_weight = (angle - min_floor_angle) / floor_angle_range
-					var weight: float = clampf(1.0 - angle_weight, 0.0, 1.0)
-					weight = 1.0 if even_distribution else sqrt(weight)
-
-					var face_triangles: PackedVector3Array = face.get_triangles(Vector3.ZERO, true)
-					triangles.append_array(face_triangles)
-
-					for index in range(0, face_triangles.size(), 3):
-						normals.append(face.plane.normal)
-
-						# calculating triangle vectors and area
-						var a := face_triangles[index + 1] - face_triangles[index]
-						var b := face_triangles[index + 2] - face_triangles[index]
-						var area: float = get_triangle_area.call(a, b)
-
-						# appending weighted triangle area to the distribution
-						distribution.append(distribution[-1] + area * weight)
+				matching_brush_surfaces.append(brush_surface)
 				break
+
+	for brush_surface in matching_brush_surfaces:
+		for face in self.surfaces[brush_surface]:
+			# calculating face normal angle to up vector
+			var angle: float = face.plane.normal.angle_to(up)
+			# discarding some brush faces by angle to up vector
+			if not is_equal_approx(angle, min_floor_angle):
+				if not is_equal_approx(angle, max_floor_angle):
+					if angle < min_floor_angle or angle > max_floor_angle:
+						continue
+
+			# calculating triangle weight based on angle to up vector
+			var angle_weight: float = 0.0
+			if not is_zero_approx(floor_angle_range):
+				angle_weight = (angle - min_floor_angle) / floor_angle_range
+			var weight: float = clampf(1.0 - angle_weight, 0.0, 1.0)
+			weight = float(1.0 if even_distribution else sqrt(weight))
+
+			var face_triangles: PackedVector3Array = face.get_triangles(Vector3.ZERO, true)
+			triangles.append_array(face_triangles)
+
+			for index in range(0, face_triangles.size(), 3):
+				normals.append(face.plane.normal)
+
+				# calculating triangle vectors and area
+				var a := face_triangles[index + 1] - face_triangles[index]
+				var b := face_triangles[index + 2] - face_triangles[index]
+				var area: float = get_triangle_area.call(a, b)
+
+				# appending weighted triangle area to the distribution
+				distribution.append(distribution[-1] + area * weight)
 
 	# creating random number generator with specified seed
 	var random_number_generator := RandomNumberGenerator.new()

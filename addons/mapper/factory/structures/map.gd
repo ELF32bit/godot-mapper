@@ -139,7 +139,9 @@ func get_entity_targets(entity: MapperEntity, destination_property: StringName, 
 
 func get_first_entity_target(entity: MapperEntity, destination_property: StringName, source_property: StringName, classname: String = "*", group_type: StringName = "") -> MapperEntity:
 	var targets := get_entity_targets(entity, destination_property, source_property, classname, group_type)
-	return targets[0] if targets.size() else null
+	if targets.size():
+		return targets[0]
+	return null
 
 
 func get_first_entity_target_recursively(entity: MapperEntity, destination_property: StringName, source_property: StringName, classname: String = "*", group_type: StringName = "") -> Array[MapperEntity]:

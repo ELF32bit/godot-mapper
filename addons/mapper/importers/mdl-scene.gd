@@ -81,7 +81,7 @@ func _import(source_file: String, save_path: String, options: Dictionary, platfo
 	if not mdl:
 		return ERR_PARSE_ERROR
 
-	var mdl_options := {}
+	var mdl_options: Dictionary = {}
 	mdl_options.merge(options.get("options", {}), true)
 	var settings := MapperSettings.new(mdl_options)
 	var factory := MapperFactory.new(settings)
