@@ -375,7 +375,9 @@ static func create_lightmap_gi(map: MapperMap, parent: Node, as_first_child: boo
 		map.source_file.get_file().get_basename(),
 		map.source_file.hash(),
 		map.factory.random_number_generator.randi()])
-	if ResourceSaver.save(LightmapGIData.new(), lightmap_gi_data_path) == OK:
+	if map.settings.options.get("__lightmap_external", false):
+		lightmap_gi.light_data = ResourceLoader.load(lightmap_gi_data_path, "LightmapGIData")
+	elif ResourceSaver.save(LightmapGIData.new(), lightmap_gi_data_path) == OK:
 		lightmap_gi.light_data = ResourceLoader.load(lightmap_gi_data_path, "LightmapGIData")
 	if as_first_child:
 		parent.move_child(lightmap_gi, 0)
