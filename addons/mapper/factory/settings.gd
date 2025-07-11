@@ -38,7 +38,7 @@ const TEXTURE_SUFFIXES := {
 	BaseMaterial3D.TEXTURE_FLOWMAP: "_anisotropy",
 	BaseMaterial3D.TEXTURE_AMBIENT_OCCLUSION: "_ao",
 	BaseMaterial3D.TEXTURE_HEIGHTMAP: "_heightmap",
-	BaseMaterial3D.TEXTURE_SUBSURFACE_SCATTERING: "_subsurf",
+	BaseMaterial3D.TEXTURE_SUBSURFACE_SCATTERING: "_subsurface",
 	BaseMaterial3D.TEXTURE_SUBSURFACE_TRANSMITTANCE: "_transmittance",
 	BaseMaterial3D.TEXTURE_BACKLIGHT: "_backlight",
 	BaseMaterial3D.TEXTURE_REFRACTION: "_refraction",
