@@ -244,3 +244,21 @@ func _init(options: Dictionary = {}) -> void:
 		if option is String or option is StringName:
 			self.set(option, options[option])
 	self.options = options.duplicate()
+
+
+func is_skip_entity_classname(classname: String) -> bool:
+	if not skip_entities_enabled:
+		return false
+	var skip_entity := false
+	for skip_classname in skip_entities_classnames:
+		if not skip_classname.begins_with("^"):
+			if classname.match(skip_classname):
+				skip_entity = true
+				break
+	if skip_entity:
+		for skip_classname in skip_entities_classnames:
+			if skip_classname.begins_with("^"):
+				if classname.match(skip_classname.trim_prefix("^")):
+					skip_entity = false
+					break
+	return skip_entity
