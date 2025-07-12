@@ -84,23 +84,6 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 		var path := settings.game_builders_directory.path_join(settings.post_build_script_name)
 		post_build_script = game_loader.load_script(path)
 
-	var is_skip_entity := func(entity_classname: String) -> bool:
-		if not settings.skip_entities_enabled:
-			return false
-		var skip_entity := false
-		for classname in settings.skip_entities_classnames:
-			if not classname.begins_with("^"):
-				if entity_classname.match(classname):
-					skip_entity = true
-					break
-		if skip_entity:
-			for classname in settings.skip_entities_classnames:
-				if classname.begins_with("^"):
-					if entity_classname.match(classname.trim_prefix("^")):
-						skip_entity = false
-						break
-		return skip_entity
-
 	var generate_structures := func() -> void:
 		var world_entity_extra_brush_structures: Array[MapperBrush] = []
 		var forward_rotation := MapperUtilities.get_forward_rotation(settings)
@@ -191,7 +174,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 			var entity_classname := entity_structure.get_classname_property(null)
 			if entity_classname != null:
 				# skipping certain entities from settings
-				if is_skip_entity.call(entity_classname):
+				if settings.is_skip_entity_classname(entity_classname):
 					continue
 
 				# creating map structure classnames dictionary
@@ -217,12 +200,17 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 			entity_structure.bind_angles_property("rotation")
 			entity_structure.bind_mangle_property("rotation")
 
+			var entity_structure_lightmap_scale: float = 1.0
+			if entity.brushes.size():
+				entity_structure_lightmap_scale = entity_structure.get_lightmap_scale_property(1.0)
+
 			for brush in entity.brushes:
 				var brush_structure := MapperBrush.new()
 				entity_structure.brushes.append(brush_structure)
 				brush_structures.append(brush_structure)
 				if is_world_entity_extra_brush_entity:
 					world_entity_extra_brush_structures.append(brush_structure)
+				brush_structure.lightmap_scale = entity_structure_lightmap_scale
 				brush_structure.factory = self
 
 				for face in brush.faces:
@@ -247,7 +235,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 		if settings.world_entity_extra_brush_entities_enabled and world_entity_extra_brush_structures.size() > 0:
 			var world_entity_structure: MapperEntity = null
 			var classname := settings.world_entity_classname
-			var skip_entity := is_skip_entity.call(classname)
+			var skip_entity := settings.is_skip_entity_classname(classname)
 
 			if tb_first_world_entity_structure and not skip_entity:
 				world_entity_structure = MapperEntity.new()
@@ -847,7 +835,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 	var generate_brush_lightmap_uvs := func(thread_index: int) -> void:
 		var brush := brush_structures[thread_index]
 		var transform := Transform3D.IDENTITY.translated(brush.center)
-		generate_lightmap_uv.call(brush.mesh, transform, 1.0)
+		generate_lightmap_uv.call(brush.mesh, transform, brush.lightmap_scale)
 
 	var generate_entity_bounds := func(thread_index: int) -> void:
 		var entity := entity_structures[thread_index]
@@ -926,7 +914,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 		var triangles := PackedVector3Array()
 		var convex_center := Vector3.ZERO
 		var potentially_convex := false
-		var shapes_amount := 0
+		var shapes_amount: int = 0
 
 		for brush in entity.brushes:
 			if not brush.shape or not brush.concave_shape:
