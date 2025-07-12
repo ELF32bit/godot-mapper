@@ -12,6 +12,7 @@ var group_target_sources: Dictionary
 var group_entities: Dictionary
 var groups: Dictionary
 
+var metadata: Dictionary
 var factory: MapperFactory
 var settings: MapperSettings # shortcut to factory settings for build scripts
 var loader: MapperLoader # shortcut to factory game loader for build scripts

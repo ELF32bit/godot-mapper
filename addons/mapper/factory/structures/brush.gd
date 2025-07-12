@@ -14,6 +14,7 @@ var occluder: ArrayOccluder3D
 var center: Vector3
 var aabb: AABB
 
+var metadata: Dictionary
 var factory: MapperFactory
 
 

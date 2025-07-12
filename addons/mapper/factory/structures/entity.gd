@@ -35,6 +35,7 @@ var parent: MapperEntity:
 		if is_valid_parent:
 			parent = value
 
+var metadata: Dictionary
 var factory: MapperFactory
 
 

@@ -20,6 +20,7 @@ var is_smooth_shaded := false
 var center: Vector3
 var skip := false
 
+var metadata: Dictionary
 var factory: MapperFactory
 
 
