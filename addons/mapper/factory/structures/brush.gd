@@ -4,10 +4,10 @@ var faces: Array[MapperFace]
 
 var surfaces: Dictionary
 var materials: Dictionary
+var lightmap_scale: float = 1.0
+var is_degenerate := false
 
 var mesh: ArrayMesh
-var is_degenerate := false
-var lightmap_scale: float = 1.0
 var concave_shape: ConcavePolygonShape3D
 var convex_shape: ConvexPolygonShape3D
 var shape: Shape3D
