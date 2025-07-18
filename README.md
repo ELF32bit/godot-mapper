@@ -1,5 +1,5 @@
 # Quake mapping plugin for Godot 4
-![Preview](screenshots/preview.png)
+![Demonstration](screenshots/demonstration.webp)
 Mapper plugin provides a way to manage game directories with map resources.<br>
 Construct Godot scenes from maps using your own scripts and run them without the plugin.<br>
 Organize map resources into game expansions by specifying alternative game directories.<br>
