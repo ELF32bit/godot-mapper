@@ -33,8 +33,25 @@ Scripts inside builders directory are used to construct map entities.<br>
 Entity classname property determines which build script the plugin will execute.<br>
 Build scripts ending with underscore can be used to construct many similar entities.<br>
 For example, trigger_.gd will be executed for trigger_once and trigger_multiple entities.<br>
+Create entity node or nodes, set a script with @export annotations and bind entity properties.<br>
+```GDScript
+# info_player_start.gd
+static func build(map: MapperMap, entity: MapperEntity) -> Node:
+	var entity_node := Marker3D.new()
+	entity_node.add_to_group("info_player_start", true)
+	return entity_node # origin and angles are assigned automatically
+```
+```GDScript
+# light_.gd
+static func build(map: MapperMap, entity: MapperEntity) -> Node:
+	var entity_node := OmniLight3D.new()
+	entity_node.set_script(preload("../scripts/light.gd"))
+	entity_node.omni_range = entity.get_unit_property("light", 300)
+	entity_node.light_color = entity.get_color_property("_color", Color.WHITE)
+	return entity_node # origin and angles are assigned automatically
+```
 
-#### MapperUtilities class provides smart build functions.
+#### MapperUtilities class provides smart build functions for brush entities.
 ```GDScript
 # func_breakable.gd will create individual brushes
 static func build(map: MapperMap, entity: MapperEntity) -> Node:
@@ -55,23 +72,6 @@ static func build(map: MapperMap, entity: MapperEntity) -> Node:
 # func_decal.gd will create an improvised decal from a brush
 static func build(map: MapperMap, entity: MapperEntity) -> Node:
 	return MapperUtilities.create_decal_entity(entity)
-```
-Create entity node or nodes, set a script with @export annotations and bind entity properties.<br>
-```GDScript
-# info_player_start.gd
-static func build(map: MapperMap, entity: MapperEntity) -> Node:
-	var entity_node := Marker3D.new()
-	entity_node.add_to_group("info_player_start", true)
-	return entity_node # origin and angles are assigned automatically
-```
-```GDScript
-# light_.gd
-static func build(map: MapperMap, entity: MapperEntity) -> Node:
-	var entity_node := OmniLight3D.new()
-	entity_node.set_script(preload("../scripts/light.gd"))
-	entity_node.omni_range = entity.get_unit_property("light", 300)
-	entity_node.light_color = entity.get_color_property("_color", Color.WHITE)
-	return entity_node # origin and angles are assigned automatically
 ```
 Entity linking information is also avaliable, but linked entities might not be constructed yet.<br>
 ```GDScript
@@ -172,24 +172,20 @@ entity.bind_int_property("hp", "health")
 ```
 Sometimes it's necessary to modify entity properties before assigning.<br>
 ```GDScript
-entity_node.set_script(preload("../scripts/monster_dog.gd"))
 entity_node.health = maxi(entity.get_int_property("hp", 100), 10)
 ```
 Complex entity properties such as signals and node paths can also be bound.<br>
 For example, trigger might need to send activation signals to nodes of other entities.<br>
 ```GDScript
-entity_node.set_script(preload("../scripts/trigger.gd")) # with "generic" signal
+# trigger_.gd
 entity.bind_signal_property("target", "targetname", "generic", "_on_generic_signal")
 entity.bind_signal_property("killtarget", "targetname", "generic", "queue_free")
 ```
 ```GDScript
-entity_node.set_script(preload("../scripts/path_corner.gd")) # with "targets" export
+# path_corner.gd
 entity.bind_node_path_array_property("target", "targetname", "targets", "path_corner")
 ```
-Other entity properties can be manually inserted into entity node properties.<br>
-```GDScript
-entity.node_properties["my_property"] = value
-```
+Other entity properties can be manually inserted into entity node properties dictionary.<br>
 Changing automatically assigned properties will adjust the pivot of an entity.<br>
 ```GDScript
 # func_turnable.gd
@@ -261,7 +257,7 @@ var noise2 := map.loader.load_sound("sounds/ambience/swamp2")
 var supershotgun := map.loader.load_mdl_raw("mdls/items/g_shot")
 ```
 Sub-maps are constructed using settings from the main map and stored inside a cache.<br>
-Instances of cached sub-maps will have unusable overlapping navigation regions.<br>
+Map options, stored in **map.settings**, can be temporarily overwritten for special sub-maps.<br>
 ```GDScript
 # misc_explobox.gd will construct sub-map or retrieve it from cache
 var explobox := map.loader.load_map_raw("maps/items/b_explob", true)
@@ -269,6 +265,13 @@ if explobox:
 	var explobox_instance := explobox.instantiate()
 	return explobox_instance
 ```
+```GDScript
+# check for this option in worldspawn.gd to disable unnecessary nodes
+map.settings.options["_map_is_item"] = true
+var explobox := map.loader.load_map_raw("maps/items/b_explob", true)
+map.settings.options["_map_is_item"] = false
+```
+Instances of cached sub-maps will have unusable overlapping navigation regions.<br>
 Caching can be disabled for loading sub-maps with unique navigation regions.<br>
 ```GDScript
 # __post.gd
