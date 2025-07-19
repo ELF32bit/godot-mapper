@@ -177,12 +177,12 @@ entity_node.health = maxi(entity.get_int_property("hp", 100), 10)
 Complex entity properties such as signals and node paths can also be bound.<br>
 For example, trigger might need to send activation signals to nodes of other entities.<br>
 ```GDScript
-# trigger_.gd
+# trigger_.gd will connect generic signal to the methods of targeted entities
 entity.bind_signal_property("target", "targetname", "generic", "_on_generic_signal")
 entity.bind_signal_property("killtarget", "targetname", "generic", "queue_free")
 ```
 ```GDScript
-# path_corner.gd
+# path_corner.gd will be storing other path_corner targets
 entity.bind_node_path_array_property("target", "targetname", "targets", "path_corner")
 ```
 Other entity properties can be manually inserted into entity node properties dictionary.<br>
