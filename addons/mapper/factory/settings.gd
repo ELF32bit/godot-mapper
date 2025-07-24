@@ -233,6 +233,7 @@ var options: Dictionary
 
 @export var mdls_frame_duration: float = 0.1
 @export var mdls_palette: MapperPaletteResource = null
+@export var mdls_skins_metadata_property: StringName = "skins"
 
 @export var game_property_converter: GDScript = DEFAULT_GAME_PROPERTY_CONVERTER
 @export var game_loader: GDScript = DEFAULT_GAME_LOADER

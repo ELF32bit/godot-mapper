@@ -1176,7 +1176,7 @@ func build_mdl(mdl: MapperMdlResource) -> PackedScene:
 	var material := game_loader.load_base_material()
 	if mdl.textures.size():
 		material.albedo_texture = mdl.textures[0]
-		material.set_meta("skins", mdl.textures)
+		material.set_meta(settings.mdls_skins_metadata_property, mdl.textures)
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 
 	var animation_nodes: Array[Node3D] = []
