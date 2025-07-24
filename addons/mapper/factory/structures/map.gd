@@ -8,7 +8,7 @@ var wads: Array[MapperWadResource]
 var materials: Dictionary
 var classnames: Dictionary
 var target_sources: Dictionary
-var group_target_sources: Dictionary
+var group_target_sources: Dictionary # hack: target sources limited to group
 var group_entities: Dictionary
 var groups: Dictionary
 
@@ -17,6 +17,13 @@ var factory: MapperFactory
 var settings: MapperSettings # shortcut to factory settings for build scripts
 var loader: MapperLoader # shortcut to factory game loader for build scripts
 var node: Node3D # shortcut to scene root for build scripts
+
+
+func get_first_world_entity() -> MapperEntity:
+	var world_entities: Array = classnames.get(settings.world_entity_classname, [])
+	if world_entities.size():
+		return world_entities[0]
+	return null
 
 
 func is_group_entity(entity: MapperEntity, group_type: StringName) -> bool:
@@ -129,7 +136,7 @@ func get_entity_targets(entity: MapperEntity, destination_property: StringName, 
 			# entities without classname, empty one, will not match here
 			if map_entity.get_classname_property("").match(classname):
 				targets.append(map_entity)
-	else: # will limit target sources to the local group, this can be useful for duplicating spotlights
+	else: # will limit target sources to the first group, this can be useful for duplicating spotlights
 		var entity_group := get_entity_group(entity, group_type)
 		bind_group_target_source_property(entity_group, group_type, source_property)
 		var entity_target_destination: String = entity.properties[destination_property]
