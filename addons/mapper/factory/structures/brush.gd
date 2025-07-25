@@ -101,7 +101,7 @@ func get_relative_point_penetration(point: Vector3, epsilon: float) -> Variant:
 	return min_distance / max_distance
 
 
-func generate_surface_distribution(surfaces: PackedStringArray, density: float, min_floor_angle: float = 0.0, max_floor_angle: float = 45.0, even_distribution: bool = false, world_space: bool = false, seed: int = 0, use_map_basis: bool = true) -> PackedVector3Array:
+func generate_surface_distribution(surfaces: PackedStringArray, density: float, min_floor_angle: float = 0.0, max_floor_angle: float = 45.0, even_distribution: bool = false, world_space: bool = false, seed: int = 0, _use_map_basis: bool = true) -> PackedVector3Array:
 	var triangles := PackedVector3Array()
 	var normals := PackedVector3Array()
 	var distribution := PackedFloat32Array([0.0])
@@ -130,7 +130,7 @@ func generate_surface_distribution(surfaces: PackedStringArray, density: float, 
 	var up := Vector3.UP
 	var forward := Vector3.FORWARD
 	var inverse_basis := Basis.IDENTITY
-	if use_map_basis:
+	if _use_map_basis:
 		up = MapperUtilities.get_up_vector(factory.settings)
 		forward = MapperUtilities.get_forward_vector(factory.settings)
 		var forward_rotation := MapperUtilities.get_forward_rotation(factory.settings)
@@ -236,7 +236,7 @@ func generate_surface_distribution(surfaces: PackedStringArray, density: float, 
 	return transform_array
 
 
-func generate_volume_distribution(density: float, min_penetration: float = 0.0, max_penetration: float = INF, basis: Basis = Basis.IDENTITY, world_space: bool = false, seed: int = 0, use_map_basis: bool = true) -> PackedVector3Array:
+func generate_volume_distribution(density: float, min_penetration: float = 0.0, max_penetration: float = INF, basis: Basis = Basis.IDENTITY, world_space: bool = false, seed: int = 0, _use_map_basis: bool = true) -> PackedVector3Array:
 	if not aabb.has_volume():
 		return PackedVector3Array()
 	var epsilon := factory.settings.epsilon / factory.settings.unit_size
@@ -262,7 +262,7 @@ func generate_volume_distribution(density: float, min_penetration: float = 0.0, 
 
 	var inverse_basis := basis
 	var forward_rotation := MapperUtilities.get_forward_rotation(factory.settings)
-	if use_map_basis:
+	if _use_map_basis:
 		inverse_basis = basis * Basis(forward_rotation).inverse()
 	var aabb_center := aabb.get_center()
 
@@ -278,7 +278,7 @@ func generate_volume_distribution(density: float, min_penetration: float = 0.0, 
 
 		# generating points inside aabb and discarding points outside of brush
 		var direction := Vector3(r1, r2, r3)
-		if use_map_basis:
+		if _use_map_basis:
 			direction = forward_rotation * direction
 			direction = direction.clamp(-Vector3.ONE, Vector3.ONE)
 		var point := aabb_center + direction * aabb.size / 2.0
