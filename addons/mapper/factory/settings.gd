@@ -119,10 +119,13 @@ var options: Dictionary
 @export var group_entity_classname: String = "func_group"
 @export var group_entity_type_property: StringName = "_tb_type"
 @export var group_entity_types: PackedStringArray = ["_tb_group", "_tb_layer"]
+@export var group_entity_name_property: StringName = "_tb_name"
 @export var group_entity_id_property: StringName = "_tb_id"
 
 @export var tb_layer_omit_from_export_enabled := true
 @export var tb_layer_omit_from_export_property := "_tb_layer_omit_from_export"
+@export var tb_layer_visibility_property: StringName = "_tb_layer_hidden"
+@export var tb_layer_locking_property: StringName = "_tb_layer_locked"
 
 @export var alternative_textures_metadata_property: StringName = "alternative_textures"
 @export var override_material_metadata_properties := {

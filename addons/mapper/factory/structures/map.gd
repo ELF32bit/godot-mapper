@@ -48,6 +48,13 @@ func get_entity_group(entity: MapperEntity, group_type: StringName = "_tb_group"
 	return groups[group_type][id]
 
 
+func get_entity_group_name(entity: MapperEntity, group_type: StringName = "_tb_group") -> String:
+	var entity_group := get_entity_group(entity, group_type)
+	if entity_group:
+		return entity_group.properties.get(settings.group_entity_name_property, "")
+	return ""
+
+
 func get_entity_group_recursively(entity: MapperEntity, group_type: StringName = "_tb_group", reverse: bool = false) -> Array[MapperEntity]:
 	var entity_groups: Array[MapperEntity] = []
 	var entity_groups_set: Dictionary = { entity: true }
@@ -92,7 +99,7 @@ func get_entity_group_entities(entity: MapperEntity, group_type: StringName = "_
 	return entity_group_entities
 
 
-func get_entity_tb_layer(entity: MapperEntity) -> MapperEntity:
+func get_entity_layer(entity: MapperEntity) -> MapperEntity:
 	if not settings.group_entity_enabled:
 		return null
 	if is_group_entity(entity, "_tb_layer"):
@@ -106,6 +113,29 @@ func get_entity_tb_layer(entity: MapperEntity) -> MapperEntity:
 		if entity_group_layer:
 			return entity_group_layer
 	return null
+
+
+func get_entity_layer_name(entity: MapperEntity) -> String:
+	var entity_layer := get_entity_layer(entity)
+	if entity_layer:
+		return entity_layer.properties.get(settings.group_entity_name_property, "")
+	return ""
+
+
+func get_entity_layer_visibility(entity: MapperEntity) -> bool:
+	var entity_layer := get_entity_layer(entity)
+	if entity_layer:
+		if entity_layer.get_int_property(settings.tb_layer_visibility_property, 0) != 0:
+			return false
+	return true
+
+
+func get_entity_layer_locking(entity: MapperEntity) -> bool:
+	var entity_layer := get_entity_layer(entity)
+	if entity_layer:
+		if entity_layer.get_int_property(settings.tb_layer_locking_property, 0) != 0:
+			return true
+	return false
 
 
 func bind_target_source_property(property: StringName) -> void:
