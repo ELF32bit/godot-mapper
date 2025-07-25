@@ -4,7 +4,7 @@ extends Resource
 const DEFAULT_GAME_LOADER: GDScript = preload("loaders/default.gd")
 const QUAKE_GAME_LOADER: GDScript = preload("loaders/quake.gd")
 
-const DEFAULT_GAME_PROPERTY_CONVERTER: GDScript = preload("properties/default.gd")
+const DEFAULT_GAME_PROPERTY_CONVERTER: GDScript = preload("properties/extended.gd")
 
 const SHADER_TEXTURE_SLOTS := {
 	BaseMaterial3D.TEXTURE_ALBEDO: "albedo_texture",
