@@ -326,7 +326,9 @@ static func create_navigation_region(map: MapperMap, parent: Node, automatic: bo
 			map.source_file.get_file().get_basename(),
 			map.source_file.hash(),
 			navigation_group_id])
-		if ResourceSaver.save(navigation_mesh, navigation_mesh_path) == OK:
+		if map.settings.options.get("__navmesh_external", false):
+			navigation_region.navmesh = ResourceLoader.load(navigation_mesh_path, "NavigationMesh")
+		elif ResourceSaver.save(navigation_mesh, navigation_mesh_path) == OK:
 			navigation_region.navmesh = ResourceLoader.load(navigation_mesh_path, "NavigationMesh")
 
 	return navigation_region
@@ -362,7 +364,9 @@ static func create_voxel_gi(map: MapperMap, parent: Node, aabb: AABB, scale: flo
 			map.source_file.get_file().get_basename(),
 			map.source_file.hash(),
 			map.factory.random_number_generator.randi()])
-		if ResourceSaver.save(VoxelGIData.new(), voxel_gi_data_path) == OK:
+		if map.settings.options.get("__voxel_data_external", false):
+			voxel_gi.data = ResourceLoader.load(voxel_gi_data_path, "VoxelGIData")
+		elif ResourceSaver.save(VoxelGIData.new(), voxel_gi_data_path) == OK:
 			voxel_gi.data = ResourceLoader.load(voxel_gi_data_path, "VoxelGIData")
 	return voxel_gi
 
