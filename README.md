@@ -170,9 +170,9 @@ Common entity properties such as origin, angle, angles (mangle) are already boun
 ```GDScript
 entity.bind_int_property("hp", "health")
 ```
-Sometimes it's necessary to modify entity properties before assigning.<br>
+Often it's necessary to modify entity properties before assigning.<br>
 ```GDScript
-entity_node.health = maxi(entity.get_int_property("hp", 100), 10)
+entity_node.health = clampi(entity.get_int_property("hp", 100), 10, 100)
 ```
 Complex entity properties such as signals and node paths can also be bound.<br>
 For example, trigger might need to send activation signals to nodes of other entities.<br>
@@ -192,6 +192,11 @@ Changing automatically assigned properties will adjust the pivot of an entity.<b
 var pivot_offset := Vector3.DOWN * entity.aabb.size.y / 2.0
 entity.node_properties["position"] = entity.center + pivot_offset
 return MapperUtilities.create_merged_brush_entity(entity, "AnimatableBody3D")
+```
+Some entities use different rotation modes for angles (mangle) property.
+```GDScript
+# light_.gd uses "PYR" (Pitch Yaw Roll) mode by default
+entity.bind_mangle_property("rotation", "YpR")
 ```
 
 ### 6. Assign navigation regions.
