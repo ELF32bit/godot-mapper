@@ -98,12 +98,12 @@ func get_angle_property(default: Variant = null) -> Variant:
 	return get_property("convert_angle", factory.settings.angle_property, default)
 
 
-func get_angles_property(default: Variant = null) -> Variant:
-	return get_property("convert_angles", factory.settings.angles_property, default)
+func get_angles_property(default: Variant = null, rotation_mode: String = "PYR") -> Variant:
+	return get_property("convert_angles_" + rotation_mode, factory.settings.angles_property, default)
 
 
-func get_mangle_property(default: Variant = null) -> Variant:
-	return get_property("convert_mangle", factory.settings.mangle_property, default)
+func get_mangle_property(default: Variant = null, rotation_mode: String = "PYR") -> Variant:
+	return get_property("convert_mangle_" + rotation_mode, factory.settings.mangle_property, default)
 
 
 func get_unit_property(property: StringName, default: Variant = null, convert_default: bool = true) -> Variant:
@@ -172,12 +172,12 @@ func bind_angle_property(node_property: StringName) -> void:
 	bind_property("convert_angle", factory.settings.angle_property, node_property)
 
 
-func bind_angles_property(node_property: StringName) -> void:
-	bind_property("convert_angles", factory.settings.angles_property, node_property)
+func bind_angles_property(node_property: StringName, rotation_mode: String = "PYR") -> void:
+	bind_property("convert_angles_" + rotation_mode, factory.settings.angles_property, node_property)
 
 
-func bind_mangle_property(node_property: StringName) -> void:
-	bind_property("convert_mangle", factory.settings.mangle_property, node_property)
+func bind_mangle_property(node_property: StringName, rotation_mode: String = "PYR") -> void:
+	bind_property("convert_mangle_" + rotation_mode, factory.settings.mangle_property, node_property)
 
 
 func bind_unit_property(property: StringName, node_property: StringName) -> void:

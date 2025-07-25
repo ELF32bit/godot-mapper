@@ -30,7 +30,7 @@ func convert_angle(line: String) -> Variant:
 	return null
 
 
-func convert_angles(line: String) -> Variant:
+func convert_angles(line: String, rotation_mode: String = "PYR") -> Variant:
 	var numbers := line.split_floats(" ", false)
 	if numbers.size() < 3:
 		return null
@@ -38,14 +38,39 @@ func convert_angles(line: String) -> Variant:
 	var forward := MapperUtilities.get_forward_vector(settings)
 	var forward_rotation := MapperUtilities.get_forward_rotation(settings)
 	var right := MapperUtilities.get_right_vector(settings)
-	var pitch := Quaternion(-right, deg_to_rad(numbers[0]))
-	var yaw := Quaternion(up, deg_to_rad(numbers[1]))
-	var roll := Quaternion(forward, deg_to_rad(numbers[2]))
+
+	var pitch_index := rotation_mode.findn("P")
+	var yaw_index := rotation_mode.findn("Y")
+	var roll_index := rotation_mode.findn("R")
+	var rotations := PackedFloat64Array([0.0, 0.0, 0.0])
+	rotations[0] = numbers[pitch_index] * (1.0 if rotation_mode[pitch_index] == "P" else -1.0)
+	rotations[1] = numbers[yaw_index] * (1.0 if rotation_mode[yaw_index] == "Y" else -1.0)
+	rotations[2] = numbers[roll_index] * (1.0 if rotation_mode[roll_index] == "R" else -1.0)
+
+	var pitch := Quaternion(-right, deg_to_rad(rotations[0]))
+	var yaw := Quaternion(up, deg_to_rad(rotations[1]))
+	var roll := Quaternion(forward, deg_to_rad(rotations[2]))
 	return (yaw * pitch * roll * forward_rotation).get_euler()
 
 
-func convert_mangle(line: String) -> Variant:
-	return convert_angles(line)
+func convert_angles_PYR(line: String) -> Variant:
+	return convert_angles(line, "PYR")
+
+
+func convert_angles_YpR(line: String) -> Variant:
+	return convert_angles(line, "YpR")
+
+
+func convert_mangle(line: String, rotation_mode: String = "PYR") -> Variant:
+	return convert_angles(line, rotation_mode)
+
+
+func convert_mangle_PYR(line: String) -> Variant:
+	return convert_angles(line, "PYR")
+
+
+func convert_mangle_YpR(line: String) -> Variant:
+	return convert_angles_YpR(line)
 
 
 func convert_unit(line: String) -> Variant:
