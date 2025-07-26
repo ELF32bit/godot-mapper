@@ -159,6 +159,8 @@ Generic textures are using complex naming pattern.<br>
 * texture+1-2.png
 * texture+2_albedo.png
 
+> Alternative textures are saved into material metadata.
+
 Quake textures with similar prefixes (+0, +1, +a, +b) can also be loaded.<br>
 Plugin supports multiple loading schemes for various resources.<br>
 Custom loader can be implemented for your own assets.<br>
