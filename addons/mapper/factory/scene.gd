@@ -1023,37 +1023,6 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 		if post_build_script and post_build_script.has_method("build"):
 			post_build_script.call("build", map_structure)
 
-	var generate_scene_signals := func() -> void:
-		for entity in entity_structures:
-			if not entity.node:
-				continue
-			for signal_parameters in entity.signals:
-				var destination_property: StringName = signal_parameters[0]
-				var source_property: StringName = signal_parameters[1]
-				var signal_name: StringName = signal_parameters[2]
-				var method: StringName = signal_parameters[3]
-				var classname: String = signal_parameters[4]
-				var flags: int = signal_parameters[5]
-
-				map_structure.bind_target_source_property(source_property)
-				if not entity.node.has_signal(signal_name):
-					continue
-				if not destination_property in entity.properties:
-					continue
-
-				for map_entity in map_structure.target_sources[source_property].get(entity.properties[destination_property], []):
-					if not map_entity.node:
-						continue
-					if not map_entity.node.has_method(method):
-						continue
-					if not map_entity.get_classname_property("").match(classname):
-						continue
-
-					var callable := Callable(map_entity.node, method)
-					if not entity.node.is_connected(signal_name, callable):
-						if entity.node.connect(signal_name, callable, flags | CONNECT_PERSIST) != OK:
-							push_warning("Failed connecting signal, something is wrong!")
-
 	var generate_scene_node_paths := func() -> void:
 		for entity in entity_structures:
 			if not entity.node:
@@ -1093,6 +1062,37 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 							if not node_path in new_node_paths:
 								new_node_paths.append(node_path)
 					entity.node.set(node_property, new_node_paths)
+
+	var generate_scene_signals := func() -> void:
+		for entity in entity_structures:
+			if not entity.node:
+				continue
+			for signal_parameters in entity.signals:
+				var destination_property: StringName = signal_parameters[0]
+				var source_property: StringName = signal_parameters[1]
+				var signal_name: StringName = signal_parameters[2]
+				var method: StringName = signal_parameters[3]
+				var classname: String = signal_parameters[4]
+				var flags: int = signal_parameters[5]
+
+				map_structure.bind_target_source_property(source_property)
+				if not entity.node.has_signal(signal_name):
+					continue
+				if not destination_property in entity.properties:
+					continue
+
+				for map_entity in map_structure.target_sources[source_property].get(entity.properties[destination_property], []):
+					if not map_entity.node:
+						continue
+					if not map_entity.node.has_method(method):
+						continue
+					if not map_entity.get_classname_property("").match(classname):
+						continue
+
+					var callable := Callable(map_entity.node, method)
+					if not entity.node.is_connected(signal_name, callable):
+						if entity.node.connect(signal_name, callable, flags | CONNECT_PERSIST) != OK:
+							push_warning("Failed connecting signal, something is wrong!")
 
 	var set_scene_tree_owner := func() -> void:
 		for node in scene_root.find_children("*", "", true, false):
@@ -1147,8 +1147,8 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 
 	factory.call(generate_entity_nodes, 16, "Generating entity nodes")
 	factory.call(generate_scene_tree, 17, "Generating scene tree")
-	factory.call(generate_scene_signals, 18, "Generating scene signals")
-	factory.call(generate_scene_node_paths, 19, "Generating scene node paths")
+	factory.call(generate_scene_node_paths, 18, "Generating scene node paths")
+	factory.call(generate_scene_signals, 19, "Generating scene signals")
 	factory.call(set_scene_tree_owner, 20, "Preparing to pack scene tree")
 	factory.call(pack_scene_tree, 21, "Packing scene tree")
 	if settings.print_progress:

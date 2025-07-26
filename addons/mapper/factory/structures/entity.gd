@@ -13,9 +13,9 @@ var aabb: AABB
 
 var node: Node # only valid after all build scripts executed
 var node_properties: Dictionary # stores converted properties
-var node_groups: PackedStringArray
-var signals: Array[Array] # gets filled automatically after binding
+var node_groups: PackedStringArray # stores future node groups
 var node_paths: Array[Array] # gets filled automatically after binding
+var signals: Array[Array] # gets filled automatically after binding
 var parent: MapperEntity:
 	set(value):
 		var hierarchy := { self: true }
@@ -60,12 +60,6 @@ func bind_property(method: StringName, property: StringName, node_property: Stri
 		node_properties[node_property] = value
 
 
-func bind_signal_property(property: StringName, target_source_property: StringName, signal_name: StringName, method: StringName, classname: String = "*", flags: int = 0) -> void:
-	var parameters: Array[Variant] = [property, target_source_property, signal_name, method, classname, flags]
-	if not parameters in signals:
-		signals.append(parameters)
-
-
 func bind_node_path_property(property: StringName, target_source_property: StringName, node_property: StringName, classname: String = "*") -> void:
 	var parameters: Array[Variant] = [property, target_source_property, node_property, classname, true]
 	if not parameters in node_paths:
@@ -76,6 +70,12 @@ func bind_node_path_array_property(property: StringName, target_source_property:
 	var parameters: Array[Variant] = [property, target_source_property, node_property, classname, false]
 	if not parameters in node_paths:
 		node_paths.append(parameters)
+
+
+func bind_signal_property(property: StringName, target_source_property: StringName, signal_name: StringName, method: StringName, classname: String = "*", flags: int = 0) -> void:
+	var parameters: Array[Variant] = [property, target_source_property, signal_name, method, classname, flags]
+	if not parameters in signals:
+		signals.append(parameters)
 
 
 func get_string_property(property: StringName, default: Variant = null) -> Variant:
