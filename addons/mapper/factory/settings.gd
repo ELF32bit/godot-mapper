@@ -240,7 +240,7 @@ var options: Dictionary
 
 @export var game_property_converter: GDScript = DEFAULT_GAME_PROPERTY_CONVERTER
 @export var game_loader: GDScript = DEFAULT_GAME_LOADER
-@export var random_number_generator_seed: int = 0
+@export var map_data_seed: int = 0
 
 
 func _init(options: Dictionary = {}) -> void:
