@@ -73,7 +73,7 @@ static func build(map: MapperMap, entity: MapperEntity) -> Node:
 static func build(map: MapperMap, entity: MapperEntity) -> Node:
 	return MapperUtilities.create_decal_entity(entity)
 ```
-Entity linking information is also avaliable, but linked entities might not be constructed yet.<br>
+Entity linking information is also available, but linked entities might not be constructed yet.<br>
 ```GDScript
 # light_.gd
 var entity_target := map.get_first_entity_target(entity,
