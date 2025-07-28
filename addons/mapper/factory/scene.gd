@@ -86,8 +86,8 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 
 	var generate_structures := func() -> void:
 		var world_entity_extra_brush_structures: Array[MapperBrush] = []
-		var forward_rotation := settings.get_forward_rotation()
-		var forward_rotation_euler := forward_rotation.get_euler()
+		var forward_rotation_euler := settings.get_forward_rotation().get_euler()
+		var tb_omit_property := settings.tb_layer_omit_from_export_property
 		var tb_first_world_entity_structure: MapperEntity = null
 		var tb_default_layer_omit_from_export := false
 
@@ -114,7 +114,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 				# also getting tb default layer omit from export from any world entity
 				if settings.tb_layer_omit_from_export_enabled:
 					if entity_classname == settings.world_entity_classname:
-						if entity_structure.get_int_property(settings.tb_layer_omit_from_export_property, 0) != 0:
+						if entity_structure.get_int_property(tb_omit_property, 0) != 0:
 							if tb_first_world_entity_structure == null:
 								tb_first_world_entity_structure = entity_structure
 							tb_default_layer_omit_from_export = true
@@ -135,31 +135,17 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 		if settings.group_entity_enabled and settings.tb_layer_omit_from_export_enabled:
 			tb_omit_from_export_entities.resize(all_entity_structures.size())
 			tb_omit_from_export_entities.fill(tb_default_layer_omit_from_export)
+
 			for entity_index in range(all_entity_structures.size()):
 				var entity_structure := all_entity_structures[entity_index]
 				if tb_first_world_entity_structure:
 					if entity_structure == tb_first_world_entity_structure:
 						continue
-
-				var property := settings.tb_layer_omit_from_export_property
-				if map_structure.is_group_entity(entity_structure, "_tb_layer"):
-					var omit := bool(entity_structure.get_int_property(property, 0) != 0)
-					tb_omit_from_export_entities[entity_index] = omit
+				var entity_structure_layer := map_structure.get_entity_layer(entity_structure)
+				if not entity_structure_layer:
 					continue
-
-				var entity_layer := map_structure.get_entity_group(entity_structure, "_tb_layer")
-				if entity_layer:
-					var omit := bool(entity_layer.get_int_property(property, 0) != 0)
-					tb_omit_from_export_entities[entity_index] = omit
-					continue
-
-				var entity_groups := map_structure.get_entity_group_recursively(entity_structure, "_tb_group", true)
-				if entity_groups.size() > 0:
-					var entity_group_layer := map_structure.get_entity_group(entity_groups[0], "_tb_layer")
-					if entity_group_layer:
-						var omit := bool(entity_group_layer.get_int_property(property, 0) != 0)
-						tb_omit_from_export_entities[entity_index] = omit
-						continue
+				var omit := bool(entity_structure_layer.get_int_property(tb_omit_property, 0) != 0)
+				tb_omit_from_export_entities[entity_index] = omit
 
 		for entity_index in range(map.entities.size()):
 			var entity := map.entities[entity_index]
@@ -200,6 +186,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 			entity_structure.bind_angles_property("rotation")
 			entity_structure.bind_mangle_property("rotation")
 
+			# obtaining entity lightmap scale for brushes
 			var entity_structure_lightmap_scale: float = 1.0
 			if entity.brushes.size():
 				entity_structure_lightmap_scale = entity_structure.get_lightmap_scale_property(1.0)
