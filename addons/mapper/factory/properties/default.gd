@@ -19,9 +19,9 @@ func convert_angle(line: String) -> Variant:
 	var line_strip := line.strip_edges()
 	if line_strip.is_valid_float():
 		var angle := line_strip.to_float()
-		var up := MapperUtilities.get_up_vector(settings)
-		var forward := MapperUtilities.get_forward_vector(settings)
-		var forward_rotation := MapperUtilities.get_forward_rotation(settings)
+		var up := settings.get_up_vector()
+		var forward := settings.get_forward_vector()
+		var forward_rotation := settings.get_forward_rotation()
 		if angle == -1:
 			return (Quaternion(forward, up) * forward_rotation).get_euler()
 		if angle == -2:
@@ -34,10 +34,10 @@ func convert_angles(line: String, rotation_mode: String = "PYR") -> Variant:
 	var numbers := line.split_floats(" ", false)
 	if numbers.size() < 3:
 		return null
-	var up := MapperUtilities.get_up_vector(settings)
-	var forward := MapperUtilities.get_forward_vector(settings)
-	var forward_rotation := MapperUtilities.get_forward_rotation(settings)
-	var right := MapperUtilities.get_right_vector(settings)
+	var up := settings.get_up_vector()
+	var forward := settings.get_forward_vector()
+	var forward_rotation := settings.get_forward_rotation()
+	var right := settings.get_right_vector()
 
 	var pitch_index := rotation_mode.findn("P")
 	var yaw_index := rotation_mode.findn("Y")

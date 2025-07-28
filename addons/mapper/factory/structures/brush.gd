@@ -131,9 +131,9 @@ func generate_surface_distribution(surfaces: PackedStringArray, density: float, 
 	var forward := Vector3.FORWARD
 	var inverse_basis := Basis.IDENTITY
 	if _use_map_basis:
-		up = MapperUtilities.get_up_vector(factory.settings)
-		forward = MapperUtilities.get_forward_vector(factory.settings)
-		var forward_rotation := MapperUtilities.get_forward_rotation(factory.settings)
+		up = factory.settings.get_up_vector()
+		forward = factory.settings.get_forward_vector()
+		var forward_rotation := factory.settings.get_forward_rotation()
 		inverse_basis = Basis(forward_rotation).inverse()
 	var up_plane := Plane(up, 0.0)
 
@@ -261,7 +261,7 @@ func generate_volume_distribution(density: float, min_penetration: float = 0.0, 
 	var offset := -center * float(not world_space)
 
 	var inverse_basis := basis
-	var forward_rotation := MapperUtilities.get_forward_rotation(factory.settings)
+	var forward_rotation := factory.settings.get_forward_rotation()
 	if _use_map_basis:
 		inverse_basis = basis * Basis(forward_rotation).inverse()
 	var aabb_center := aabb.get_center()

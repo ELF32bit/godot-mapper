@@ -86,7 +86,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 
 	var generate_structures := func() -> void:
 		var world_entity_extra_brush_structures: Array[MapperBrush] = []
-		var forward_rotation := MapperUtilities.get_forward_rotation(settings)
+		var forward_rotation := settings.get_forward_rotation()
 		var forward_rotation_euler := forward_rotation.get_euler()
 		var tb_first_world_entity_structure: MapperEntity = null
 		var tb_default_layer_omit_from_export := false

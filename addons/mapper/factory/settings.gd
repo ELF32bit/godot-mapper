@@ -266,3 +266,58 @@ func is_skip_entity_classname(classname: String) -> bool:
 					skip_entity = false
 					break
 	return skip_entity
+
+
+func get_up_vector() -> Vector3:
+	return basis.z.normalized()
+
+
+func get_up_axis_index() -> int:
+	return get_up_vector().abs().max_axis_index()
+
+
+func get_up_axis() -> Vector3:
+	var up_axis := Vector3.ZERO
+	var up_vector := get_up_vector()
+	var up_axis_index := get_up_axis_index()
+	up_axis[up_axis_index] = signf(up_vector[up_axis_index])
+	return up_axis
+
+
+func get_forward_vector() -> Vector3:
+	return basis.x.normalized()
+
+
+func get_forward_axis_index() -> int:
+	return get_forward_vector().abs().max_axis_index()
+
+
+func get_forward_axis() -> Vector3:
+	var forward_axis := Vector3.ZERO
+	var forward_vector := get_forward_vector()
+	var forward_axis_index := get_forward_axis_index()
+	forward_axis[forward_axis_index] = signf(forward_vector[forward_axis_index])
+	return forward_axis
+
+
+func get_forward_rotation() -> Quaternion:
+	var forward := get_forward_vector()
+	if forward.is_equal_approx(-Vector3.FORWARD):
+		return Quaternion(get_up_vector(), PI)
+	return Quaternion(Vector3.FORWARD, forward)
+
+
+func get_right_vector() -> Vector3:
+	return -basis.y.normalized()
+
+
+func get_right_axis_index() -> int:
+	return get_right_vector().abs().max_axis_index()
+
+
+func get_right_axis() -> Vector3:
+	var right_axis := Vector3.ZERO
+	var right_vector := get_right_vector()
+	var right_axis_index := get_right_axis_index()
+	right_axis[right_axis_index] = signf(right_vector[right_axis_index])
+	return right_axis

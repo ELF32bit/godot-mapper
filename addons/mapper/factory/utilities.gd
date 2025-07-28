@@ -23,61 +23,6 @@ static func is_equal_approximately(a: Vector3, b: Vector3, epsilon: float) -> bo
 	return true
 
 
-static func get_up_vector(settings: MapperSettings) -> Vector3:
-	return settings.basis.z.normalized()
-
-
-static func get_up_axis_index(settings: MapperSettings) -> int:
-	return get_up_vector(settings).abs().max_axis_index()
-
-
-static func get_up_axis(settings: MapperSettings) -> Vector3:
-	var up_axis := Vector3.ZERO
-	var up_vector := get_up_vector(settings)
-	var up_axis_index := get_up_axis_index(settings)
-	up_axis[up_axis_index] = signf(up_vector[up_axis_index])
-	return up_axis
-
-
-static func get_forward_vector(settings: MapperSettings) -> Vector3:
-	return settings.basis.x.normalized()
-
-
-static func get_forward_axis_index(settings: MapperSettings) -> int:
-	return get_forward_vector(settings).abs().max_axis_index()
-
-
-static func get_forward_axis(settings: MapperSettings) -> Vector3:
-	var forward_axis := Vector3.ZERO
-	var forward_vector := get_forward_vector(settings)
-	var forward_axis_index := get_forward_axis_index(settings)
-	forward_axis[forward_axis_index] = signf(forward_vector[forward_axis_index])
-	return forward_axis
-
-
-static func get_forward_rotation(settings: MapperSettings) -> Quaternion:
-	var forward := get_forward_vector(settings)
-	if forward.is_equal_approx(-Vector3.FORWARD):
-		return Quaternion(get_up_vector(settings), PI)
-	return Quaternion(Vector3.FORWARD, forward)
-
-
-static func get_right_vector(settings: MapperSettings) -> Vector3:
-	return -settings.basis.y.normalized()
-
-
-static func get_right_axis_index(settings: MapperSettings) -> int:
-	return get_right_vector(settings).abs().max_axis_index()
-
-
-static func get_right_axis(settings: MapperSettings) -> Vector3:
-	var right_axis := Vector3.ZERO
-	var right_vector := get_right_vector(settings)
-	var right_axis_index := get_right_axis_index(settings)
-	right_axis[right_axis_index] = signf(right_vector[right_axis_index])
-	return right_axis
-
-
 static func spread_transform_array(transform_array: PackedVector3Array, spread: float) -> void:
 	if transform_array.size() % 4 != 0 or spread <= 0.0:
 		return
