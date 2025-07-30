@@ -46,7 +46,7 @@ func _get_import_options(path: String, preset_index: int) -> Array[Dictionary]:
 		},
 		{
 			"name": "use_threads",
-			"default_value": false,
+			"default_value": true,
 		},
 	]
 
