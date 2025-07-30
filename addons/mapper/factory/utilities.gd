@@ -257,20 +257,18 @@ static func create_navigation_region(map: MapperMap, parent: Node, automatic: bo
 	parent.add_child(navigation_region, map.settings.readable_node_names)
 
 	var navigation_mesh := NavigationMesh.new()
-	var navigation_group_id := map.factory.random_number_generator.randi()
 	navigation_mesh.geometry_parsed_geometry_type = NavigationMesh.PARSED_GEOMETRY_BOTH
 	navigation_mesh.geometry_source_geometry_mode = NavigationMesh.SOURCE_GEOMETRY_GROUPS_EXPLICIT
-	navigation_mesh.geometry_source_group_name = "navigation-%s" % navigation_group_id
+	var navigation_group_id := hash("%s+%s" % [map.source_file.hash(), map.factory.random_number_generator.randi()])
+	navigation_mesh.geometry_source_group_name = "navigation-%s" % [navigation_group_id]
 
 	if automatic:
 		navigation_region.navmesh = navigation_mesh
 		navigation_region.ready.connect(navigation_region.bake_navigation_mesh, CONNECT_PERSIST | CONNECT_DEFERRED)
 	else:
 		var map_data_directory := map.settings.game_directory.path_join(map.settings.game_map_data_directory)
-		var navigation_mesh_path := map_data_directory.path_join("%s-%s-%s.NavigationMesh.res" % [
-			map.source_file.get_file().get_basename(),
-			map.source_file.hash(),
-			navigation_group_id])
+		var navigation_mesh_path := map_data_directory.path_join("%s-%s.NavigationMesh.res" % [
+			map.source_file.get_file().get_basename(), navigation_group_id])
 		if map.settings.options.get("__navmesh_external", false):
 			navigation_region.navmesh = ResourceLoader.load(navigation_mesh_path, "NavigationMesh")
 		elif ResourceSaver.save(navigation_mesh, navigation_mesh_path) == OK:
@@ -305,10 +303,9 @@ static func create_voxel_gi(map: MapperMap, parent: Node, aabb: AABB, scale: flo
 		voxel_gi.ready.connect(voxel_gi.bake, CONNECT_PERSIST)
 	else:
 		var map_data_directory := map.settings.game_directory.path_join(map.settings.game_map_data_directory)
-		var voxel_gi_data_path := map_data_directory.path_join("%s-%s-%s.VoxelGIData.res" % [
-			map.source_file.get_file().get_basename(),
-			map.source_file.hash(),
-			map.factory.random_number_generator.randi()])
+		var voxel_gi_id := hash("%s+%s" % [map.source_file.hash(), map.factory.random_number_generator.randi()])
+		var voxel_gi_data_path := map_data_directory.path_join("%s-%s.VoxelGIData.res" % [
+			map.source_file.get_file().get_basename(), voxel_gi_id])
 		if map.settings.options.get("__voxel_data_external", false):
 			voxel_gi.data = ResourceLoader.load(voxel_gi_data_path, "VoxelGIData")
 		elif ResourceSaver.save(VoxelGIData.new(), voxel_gi_data_path) == OK:
@@ -320,10 +317,9 @@ static func create_lightmap_gi(map: MapperMap, parent: Node, as_first_child: boo
 	var lightmap_gi := LightmapGI.new()
 	parent.add_child(lightmap_gi, map.settings.readable_node_names)
 	var map_data_directory := map.settings.game_directory.path_join(map.settings.game_map_data_directory)
-	var lightmap_gi_data_path := map_data_directory.path_join("%s-%s-%s.LightmapGIData.lmbake" % [
-		map.source_file.get_file().get_basename(),
-		map.source_file.hash(),
-		map.factory.random_number_generator.randi()])
+	var lightmap_gi_id := hash("%s+%s" % [map.source_file.hash(), map.factory.random_number_generator.randi()])
+	var lightmap_gi_data_path := map_data_directory.path_join("%s-%s.LightmapGIData.lmbake" % [
+		map.source_file.get_file().get_basename(), lightmap_gi_id])
 	if map.settings.options.get("__lightmap_external", false):
 		lightmap_gi.light_data = ResourceLoader.load(lightmap_gi_data_path, "LightmapGIData")
 	elif ResourceSaver.save(LightmapGIData.new(), lightmap_gi_data_path) == OK:

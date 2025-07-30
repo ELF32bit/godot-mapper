@@ -52,10 +52,12 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 		push_error("Error building map %s, factory settings are missing." % [map.name])
 		return null
 
-	game_loader.custom_wads.assign(wads)
-	game_loader.random_number_generator.seed = settings.map_data_seed
-	random_number_generator.seed = settings.map_data_seed
 	var inverse_basis := settings.basis.inverse()
+	var map_data_seed := map.source_file.hash() + settings.map_data_seed
+
+	game_loader.custom_wads.assign(wads)
+	game_loader.random_number_generator.seed = map_data_seed
+	random_number_generator.seed = map_data_seed
 	progress = 0.0
 	build_time = 0
 
