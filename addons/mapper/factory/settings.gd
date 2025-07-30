@@ -123,9 +123,10 @@ var options: Dictionary
 @export var group_entity_id_property: StringName = "_tb_id"
 
 @export var tb_layer_omit_from_export_enabled := true
-@export var tb_layer_omit_from_export_property := "_tb_layer_omit_from_export"
+@export var tb_layer_omit_from_export_property: StringName = "_tb_layer_omit_from_export"
 @export var tb_layer_visibility_property: StringName = "_tb_layer_hidden"
 @export var tb_layer_locking_property: StringName = "_tb_layer_locked"
+@export var tb_layer_index_property: StringName = "_tb_layer_sort_index"
 
 @export var alternative_textures_metadata_property: StringName = "alternative_textures"
 @export var override_material_metadata_properties := {

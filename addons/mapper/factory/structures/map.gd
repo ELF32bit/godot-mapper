@@ -122,6 +122,13 @@ func get_entity_layer_name(entity: MapperEntity) -> String:
 	return ""
 
 
+func get_entity_layer_index(entity: MapperEntity) -> Variant:
+	var entity_layer := get_entity_layer(entity)
+	if entity_layer:
+		return entity_layer.get_int_property(settings.tb_layer_index_property, null)
+	return null
+
+
 func get_entity_layer_visibility(entity: MapperEntity) -> bool:
 	var entity_layer := get_entity_layer(entity)
 	if entity_layer:
