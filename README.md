@@ -30,10 +30,10 @@ Organize map resources into game expansions by specifying alternative game direc
 
 ### 2. Construct map entities with build scripts.
 Scripts inside builders directory are used to construct map entities.<br>
-Entity classname property determines which build script the plugin will execute.<br>
+Entity **classname** property determines which build script the plugin will execute.<br>
 Build scripts ending with underscore can be used to construct many similar entities.<br>
-For example, trigger_.gd will be executed for trigger_once and trigger_multiple entities.<br>
-Create entity node or nodes, set a script with @export annotations and bind entity properties.<br>
+For example, **trigger_.gd** will be executed for **trigger_once** and **trigger_multiple** entities.<br>
+Create entity node or nodes, set a script with **@export** annotations and bind entity properties.<br>
 ```GDScript
 # info_player_start.gd
 static func build(map: MapperMap, entity: MapperEntity) -> Node:
@@ -87,9 +87,9 @@ Post build script named __post.gd can be executed after all entity nodes are con
 
 ### 3. Define map override materials with additional metadata.
 Materials support the same naming pattern with underscore as build scripts.<br>
-Moreover, material named WOOD_.tres will also apply to WOOD1, WOOD2, etc.<br>
+Moreover, material named **WOOD_.tres** will also apply to **WOOD1**, **WOOD2**, **WOOD123**, etc.<br>
 Shader materials that use standard texture parameters will be assigned provided textures.<br>
-For example, albedo_texture or normal_texture uniforms inside a shader.<br>
+For example, **albedo_texture** or **normal_texture** uniforms inside a shader.<br>
 
 #### Material metadata can affect how nodes of uniform brushes are generated.
 * ```mesh_disabled``` set to true will hide MeshInstance3D.<br>
