@@ -186,6 +186,7 @@ entity.bind_signal_property("killtarget", "targetname", "generic", "queue_free")
 ```GDScript
 # path_corner.gd will be storing other path_corner targets
 entity.bind_node_path_array_property("target", "targetname", "targets", "path_corner")
+entity.bind_node_path_property("target", "targetname", "target", "path_corner")
 ```
 Other entity properties can be manually inserted into entity node properties dictionary.<br>
 Changing automatically assigned properties will adjust the pivot of an entity.<br>
