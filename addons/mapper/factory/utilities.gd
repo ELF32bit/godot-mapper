@@ -41,7 +41,6 @@ static func spread_transform_array(transform_array: PackedVector3Array, spread: 
 			spread_transform_array.append(transform_array[index1 + 1])
 			spread_transform_array.append(transform_array[index1 + 2])
 			spread_transform_array.append(transform_array[index1 + 3])
-
 	transform_array.clear()
 	transform_array.append_array(spread_transform_array)
 
@@ -169,14 +168,14 @@ static func rotate_transform_array(transform_array: PackedVector3Array, snap_ang
 		transform_array[index + 3] += offset_direction
 
 
-static func erase_transform_array(transform_array: PackedVector3Array, position: Vector3, radius: float, hardness: float = 1.0, seed: int = 0) -> void:
+static func erase_transform_array(transform_array: PackedVector3Array, position: Vector3, radius: float, hardness: float = 1.0, seed: int = 0) -> PackedVector3Array:
 	if transform_array.size() % 4 != 0:
-		return
+		return PackedVector3Array([])
 
 	radius = clampf(radius, 0.0, INF)
 	hardness = clampf(hardness, 0.0, 1.0)
 	if is_zero_approx(radius) or is_zero_approx(hardness):
-		return
+		return PackedVector3Array([])
 	var hardness_remap := (hardness - 0.5) * 2.0
 	var hardness_factor := 1.0 + minf(hardness_remap, 0.0)
 
@@ -184,25 +183,36 @@ static func erase_transform_array(transform_array: PackedVector3Array, position:
 	random_number_generator.seed = seed
 
 	var erased_transform_array := PackedVector3Array()
+	var painted_transform_array := PackedVector3Array()
 	for index in range(0, transform_array.size(), 4):
 		var distance := (transform_array[index + 3] - position).length()
 		if distance <= radius:
 			var probability := 1.0 - clampf(distance / radius, 0.0, 1.0)
 			var gradient := pow(probability, 1.0 - hardness_remap)
 			probability = lerpf(0.0, gradient, hardness_factor)
+
+			var is_painted := false
 			if is_equal_approx(probability, 1.0):
+				is_painted = true
+			if not is_painted:
+				if not is_zero_approx(probability):
+					if random_number_generator.randf() <= probability:
+						is_painted = true
+			if is_painted:
+				painted_transform_array.append(transform_array[index + 0])
+				painted_transform_array.append(transform_array[index + 1])
+				painted_transform_array.append(transform_array[index + 2])
+				painted_transform_array.append(transform_array[index + 3])
 				continue
-			if not is_zero_approx(probability):
-				if random_number_generator.randf() <= probability:
-					continue
 
 		erased_transform_array.append(transform_array[index + 0])
 		erased_transform_array.append(transform_array[index + 1])
 		erased_transform_array.append(transform_array[index + 2])
 		erased_transform_array.append(transform_array[index + 3])
-
 	transform_array.clear()
 	transform_array.append_array(erased_transform_array)
+
+	return painted_transform_array
 
 
 static func change_node_type(node: Node, classname: StringName) -> Node:

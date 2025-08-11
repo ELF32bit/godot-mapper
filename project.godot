@@ -14,6 +14,10 @@ config/name="Mapper Plugin"
 config/version="1.0"
 config/features=PackedStringArray("4.2", "Mobile")
 
+[editor]
+
+import/use_multiple_threads=false
+
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/mapper/plugin.cfg")
