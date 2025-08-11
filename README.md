@@ -301,3 +301,10 @@ Adjust plugin configuration inside **importers/map-scene.gd** file.<br>
 Disable **editor/import/use_multiple_threads** for older versions of Godot.<br>
 Restart Godot if the plugin types fail to parse during the first launch.<br>
 Disable ```lightmap_unwrap``` setting if the freezes are consistent.<br>
+
+### Compiling Godot with a safe `lightmap_unwrap`.
+**XAtlas** library is used internally to unwrap meshes with multiple threads.<br>
+Download engine source code and change **thirdparty/xatlas/xatlas.cpp**.<br>
+```C++
+#define XA_MULTITHREADED 1 // -> 0
+```
