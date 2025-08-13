@@ -84,3 +84,11 @@ func get_triangles(origin: Vector3 = Vector3.ZERO, with_center: bool = true) -> 
 		triangles[triangle_index * 3 - 1] = vertices[triangle_index + 1]
 
 	return triangles
+
+
+func get_texture_size() -> Vector2:
+	var texture := material.base.get_texture(BaseMaterial3D.TEXTURE_ALBEDO)
+	if not texture:
+		return Vector2.ONE
+	var texture_size := texture.get_size()
+	return texture_size * (1.0 / factory.settings.unit_size)

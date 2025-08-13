@@ -646,12 +646,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 				surface_tools[material_name].set_material(material)
 
 			# face base material always exists storing albedo texture
-			var texture := face_material.base.get_texture(BaseMaterial3D.TEXTURE_ALBEDO)
-			var texture_size := Vector2.ONE
-			if texture:
-				texture_size = texture.get_size()
-			texture_size *= (1.0 / settings.unit_size)
-
+			var texture_size := face.get_texture_size()
 			var uvs := PackedVector2Array()
 			uvs.resize(vertices.size())
 			if vertices.size() != face_vertices.size():
