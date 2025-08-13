@@ -100,7 +100,7 @@ var options: Dictionary
 @export var lightmap_scale_property: StringName = "_lmscale"
 
 @export var skip_material_enabled := true
-@export var skip_material: String = "skip"
+@export var skip_material_name: String = "skip"
 @export var skip_material_aliases: PackedStringArray = []
 @export var skip_material_affects_collision := true
 

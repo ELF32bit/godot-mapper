@@ -282,7 +282,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 
 		if settings.skip_material_enabled:
 			var material_file := face.material_name.get_file()
-			if material_file.matchn(settings.skip_material):
+			if material_file.matchn(settings.skip_material_name):
 				face.skip = true
 			else:
 				for skip_material_alias in settings.skip_material_aliases:

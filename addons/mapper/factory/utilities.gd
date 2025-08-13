@@ -170,12 +170,12 @@ static func rotate_transform_array(transform_array: PackedVector3Array, snap_ang
 
 static func erase_transform_array(transform_array: PackedVector3Array, position: Vector3, radius: float, hardness: float = 1.0, seed: int = 0) -> PackedVector3Array:
 	if transform_array.size() % 4 != 0:
-		return PackedVector3Array([])
+		return PackedVector3Array()
 
 	radius = clampf(radius, 0.0, INF)
 	hardness = clampf(hardness, 0.0, 1.0)
 	if is_zero_approx(radius) or is_zero_approx(hardness):
-		return PackedVector3Array([])
+		return PackedVector3Array()
 	var hardness_remap := (hardness - 0.5) * 2.0
 	var hardness_factor := 1.0 + minf(hardness_remap, 0.0)
 
