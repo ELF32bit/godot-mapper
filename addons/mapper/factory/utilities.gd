@@ -648,8 +648,7 @@ static func create_brush_entity(entity: MapperEntity, node_class: StringName = "
 		if entity.factory.settings.planes_metadata_property_enabled:
 			var planes: Array[Array] = []
 			for brush in entity.brushes:
-				if not brush.is_degenerate:
-					planes.append(brush.get_planes(entity.factory.settings.skip_material_affects_collision))
+				planes.append(brush.get_planes(entity.factory.settings.skip_material_affects_collision))
 			node.set_meta(entity.factory.settings.planes_metadata_property, planes)
 		return node
 
@@ -715,8 +714,7 @@ static func create_merged_brush_entity(entity: MapperEntity, node_class: StringN
 		if entity.factory.settings.planes_metadata_property_enabled:
 			var planes: Array[Array] = []
 			for brush in entity.brushes:
-				if not brush.is_degenerate:
-					planes.append(brush.get_planes(entity.factory.settings.skip_material_affects_collision))
+				planes.append(brush.get_planes(entity.factory.settings.skip_material_affects_collision))
 			node.set_meta(entity.factory.settings.planes_metadata_property, planes)
 		return node
 
