@@ -521,6 +521,9 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 				if not material.get_texture(slot):
 					continue
 				match slot:
+					BaseMaterial3D.TEXTURE_METALLIC:
+						material.metallic = 1.0
+						material.metallic_specular = 0.5
 					BaseMaterial3D.TEXTURE_EMISSION:
 						material.set_feature(BaseMaterial3D.FEATURE_EMISSION, true)
 					BaseMaterial3D.TEXTURE_NORMAL:
