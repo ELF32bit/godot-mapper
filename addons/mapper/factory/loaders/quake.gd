@@ -46,6 +46,29 @@ func load_base_material() -> BaseMaterial3D:
 	return material
 
 
+func load_texture(texture: String, wads: Array[MapperWadResource] = []) -> Texture2D:
+	var adjusted_texture := texture
+	var filename := texture.get_file()
+	var directory := texture.trim_suffix(filename)
+	if filename.length() > 1 and filename[0] in "*{":
+		adjusted_texture = directory + filename.trim_prefix(filename[0])
+
+	for extension in settings.game_texture_extensions:
+		var file := adjusted_texture + "." + extension
+		var path := settings.game_directory.path_join(file)
+		if ResourceLoader.exists(path, "Texture2D"):
+			return load(path)
+		for alternative_game_directory in settings.alternative_game_directories:
+			var alternative_path := alternative_game_directory.path_join(file)
+			if ResourceLoader.exists(alternative_path, "Texture2D"):
+				return load(alternative_path)
+	var wad_texture := texture.to_lower().get_file()
+	for wad in wads:
+		if wad_texture in wad.textures:
+			return wad.textures[wad_texture]
+	return null
+
+
 func load_animated_texture(texture: String, wads: Array[MapperWadResource] = []) -> Texture2D:
 	var filename := texture.get_file()
 	var directory := texture.trim_suffix(filename)
