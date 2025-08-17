@@ -534,12 +534,14 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 						material.set_feature(BaseMaterial3D.FEATURE_CLEARCOAT, true)
 					BaseMaterial3D.TEXTURE_FLOWMAP:
 						material.set_feature(BaseMaterial3D.FEATURE_ANISOTROPY, true)
+						material.anisotropy = 1.0
 					BaseMaterial3D.TEXTURE_AMBIENT_OCCLUSION:
 						material.set_feature(BaseMaterial3D.FEATURE_AMBIENT_OCCLUSION, true)
 					BaseMaterial3D.TEXTURE_HEIGHTMAP:
 						material.set_feature(BaseMaterial3D.FEATURE_HEIGHT_MAPPING, true)
 					BaseMaterial3D.TEXTURE_SUBSURFACE_SCATTERING:
 						material.set_feature(BaseMaterial3D.FEATURE_SUBSURFACE_SCATTERING, true)
+						material.subsurf_scatter_strength = 1.0
 					BaseMaterial3D.TEXTURE_SUBSURFACE_TRANSMITTANCE:
 						material.set_feature(BaseMaterial3D.FEATURE_SUBSURFACE_TRANSMITTANCE, true)
 					BaseMaterial3D.TEXTURE_BACKLIGHT:
