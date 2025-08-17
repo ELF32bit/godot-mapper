@@ -76,10 +76,6 @@ func load_base_material() -> BaseMaterial3D:
 
 
 func load_texture(texture: String, wads: Array[MapperWadResource] = []) -> Texture2D:
-	var wad_texture := texture.to_lower().get_file()
-	for wad in wads:
-		if wad_texture in wad.textures:
-			return wad.textures[wad_texture]
 	for extension in settings.game_texture_extensions:
 		var file := texture + "." + extension
 		var path := settings.game_directory.path_join(file)
@@ -89,6 +85,10 @@ func load_texture(texture: String, wads: Array[MapperWadResource] = []) -> Textu
 			var alternative_path := alternative_game_directory.path_join(file)
 			if ResourceLoader.exists(alternative_path, "Texture2D"):
 				return load(alternative_path)
+	var wad_texture := texture.to_lower().get_file()
+	for wad in wads:
+		if wad_texture in wad.textures:
+			return wad.textures[wad_texture]
 	return null
 
 
