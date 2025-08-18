@@ -303,14 +303,26 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 		var epsilon := settings.epsilon
 
 		# finding face vertices forming convex hull by intersecting face planes
-		for face1 in brush.faces:
-			for face2 in brush.faces:
-				for face3 in brush.faces:
-					var vertex: Variant = face1.plane.intersect_3(face2.plane, face3.plane)
-					if vertex != null:
-						if brush.has_point(vertex, epsilon):
-							if not face1.has_vertex(vertex, epsilon):
-								face1.vertices.append(vertex)
+		if not settings.use_experimental_brush_algorithm:
+			for face1 in brush.faces:
+				for face2 in brush.faces:
+					for face3 in brush.faces:
+						var vertex: Variant = face1.plane.intersect_3(face2.plane, face3.plane)
+						if vertex != null:
+							if brush.has_point(vertex, epsilon):
+								if not face1.has_vertex(vertex, epsilon):
+									face1.vertices.append(vertex)
+		else:
+			var planes: Array[Plane] = []
+			planes.resize(brush.faces.size())
+			for face_index in range(brush.faces.size()):
+				planes[face_index] = brush.faces[face_index].plane
+			var vertices := Geometry3D.compute_convex_mesh_points(planes)
+			for face in brush.faces:
+				for vertex in vertices:
+					if face.plane.has_point(vertex, epsilon):
+						if not face.has_vertex(vertex, epsilon):
+							face.vertices.append(vertex)
 
 		# removing brush faces that failed to form triangles
 		for index in range(brush.faces.size() - 1, -1, -1):
