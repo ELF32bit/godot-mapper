@@ -234,6 +234,7 @@ var options: Dictionary
 
 @export var warn_about_degenerate_brushes := true
 @export var print_progress := false
+@export var print_progress_verbose := true
 
 @export var mdls_frame_duration: float = 0.1
 @export var mdls_palette: MapperPaletteResource = null
