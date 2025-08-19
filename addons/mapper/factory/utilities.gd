@@ -545,6 +545,7 @@ static func create_brush(entity: MapperEntity, brush: MapperBrush, node_class: S
 	var node := ClassDB.instantiate(node_class)
 	var properties := entity.factory.settings.override_material_metadata_properties
 	var has_collision := ClassDB.is_parent_class(node_class, "CollisionObject3D")
+	var is_lightmap_scene := bool(entity.factory.settings.options.get("__lightmap_scene", false))
 	node.position = brush.center
 	var has_children := false
 
@@ -567,7 +568,7 @@ static func create_brush(entity: MapperEntity, brush: MapperBrush, node_class: S
 		instance.gi_mode = brush.get_uniform_property(properties.gi_mode, MeshInstance3D.GI_MODE_STATIC)
 		instance.ignore_occlusion_culling = brush.get_uniform_property(properties.ignore_occlusion, false)
 
-	if collision_shape and has_collision and brush.shape:
+	if collision_shape and has_collision and brush.shape and not is_lightmap_scene:
 		var instance := CollisionShape3D.new()
 		instance.position = brush.center
 		add_global_child(instance, node, entity.factory.settings)
@@ -578,7 +579,7 @@ static func create_brush(entity: MapperEntity, brush: MapperBrush, node_class: S
 		node.collision_layer = brush.get_uniform_property(properties.collision_layer, 1)
 		node.collision_mask = brush.get_uniform_property(properties.collision_mask, 1)
 
-	if occluder_instance and brush.occluder:
+	if occluder_instance and brush.occluder and not is_lightmap_scene:
 		var instance := OccluderInstance3D.new()
 		instance.position = brush.center
 		add_global_child(instance, node, entity.factory.settings)
@@ -668,6 +669,7 @@ static func create_merged_brush_entity(entity: MapperEntity, node_class: StringN
 
 	var node: Node3D = ClassDB.instantiate(node_class)
 	var has_collision := ClassDB.is_parent_class(node_class, "CollisionObject3D")
+	var is_lightmap_scene := bool(entity.factory.settings.options.get("__lightmap_scene", false))
 	apply_entity_transform(entity, node)
 	var has_children := false
 
@@ -690,14 +692,14 @@ static func create_merged_brush_entity(entity: MapperEntity, node_class: StringN
 
 		instance.cast_shadow = int(entity.is_casting_shadow())
 
-	if collision_shape and has_collision and entity.shape:
+	if collision_shape and has_collision and entity.shape and not is_lightmap_scene:
 		var instance := CollisionShape3D.new()
 		instance.position = entity.center
 		add_global_child(instance, node, entity.factory.settings)
 		instance.shape = entity.shape
 		has_children = true
 
-	if occluder_instance and entity.occluder:
+	if occluder_instance and entity.occluder and not is_lightmap_scene:
 		var instance := OccluderInstance3D.new()
 		instance.position = entity.center
 		add_global_child(instance, node, entity.factory.settings)
