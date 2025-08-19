@@ -83,7 +83,7 @@ if entity_target:
 	entity_target.center # stores brush entity AABB center
 	entity_target.node # is most likely missing
 ```
-Post build script named __post.gd can be executed after all entity nodes are constructed.<br>
+Post build script named **__post.gd** can be executed after all entity nodes are constructed.<br>
 
 ### 3. Define map override materials with additional metadata.
 Materials support the same naming pattern with underscore as build scripts.<br>
@@ -144,6 +144,7 @@ for brush in entity.brushes:
 
 ### 4. Animated textures and material alternative textures.
 Generic textures are using complex naming pattern.<br>
+Unlike in the examples below, a consistent naming is required.<br>
 
 #### Animated texture with 3 frames, possibly followed by PBR suffix.
 * texture-0.png
