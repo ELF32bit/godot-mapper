@@ -17,6 +17,8 @@ Organize map resources into game expansions by specifying alternative game direc
 * Texture WAD (WAD2, WAD3) and Palette support.
 * Basic MDL (IDPO version 6) support.
 
+> Requires compiling Godot editor with **XA_MULTITHREADED 0** for lightmapping.
+
 ## Usage
 ### 1. Create game directory with map resources.
 * game/builders for entity build scripts.
@@ -186,8 +188,8 @@ entity.bind_signal_property("killtarget", "targetname", "generic", "queue_free")
 ```
 ```GDScript
 # path_corner.gd will be storing other path_corner targets
-entity.bind_node_path_array_property("target", "targetname", "targets", "path_corner")
-entity.bind_node_path_property("target", "targetname", "target", "path_corner")
+entity.bind_node_path_array_property("target", "targetname", "_targets", "path_corner")
+entity.bind_node_path_property("target", "targetname", "_target", "path_corner")
 ```
 Other entity properties can be manually inserted into entity node properties dictionary.<br>
 Changing automatically assigned properties will adjust the pivot of an entity.<br>
@@ -213,8 +215,8 @@ MapperUtilities.add_to_navigation_region(entity_node, navigation_region)
 
 # func_detail entities will affect worldspawn navigation region
 for map_entity in map.classnames.get("func_detail", []):
-	# same as map_entity.node_groups.append("my_entity_group_name")
 	MapperUtilities.add_entity_to_navigation_region(map_entity, navigation_region)
+	map_entity.node_groups.append("func_detail") # equivalent method
 ```
 Assignment of node groups happens after entity node is constructed.<br>
 
@@ -278,7 +280,7 @@ if explobox:
 # check for this option in worldspawn.gd to disable unnecessary nodes
 map.settings.options["_map_is_item"] = true
 var explobox := map.loader.load_map_raw("maps/items/b_explob", true)
-map.settings.options["_map_is_item"] = false
+map.settings.options.erase("_map_is_item")
 ```
 Instances of cached sub-maps will have unusable overlapping navigation regions.<br>
 Caching can be disabled for loading sub-maps with unique navigation regions.<br>
@@ -295,13 +297,14 @@ for index in range(100):
 	island_prefab_instance.position += Vector3(randf(), 0.0, randf()) * 1000.0
 ```
 Maps can also load themselves recursively, allowing a form of fractal generation.<br>
+Special `__loading_depth` option is available for sub-maps in **map.settings**.<br>
 
 ## Examples
 Check out provided examples to get a hang on API.<br>
 Adjust plugin configuration inside **importers/map-scene.gd** file.<br>
 Disable **editor/import/use_multiple_threads** for older versions of Godot.<br>
 Restart Godot if the plugin types fail to parse during the first launch.<br>
-Disable ```lightmap_unwrap``` setting if the freezes are consistent.<br>
+Disable `lightmap_unwrap` setting if the freezes are consistent.<br>
 
 ### Compiling Godot with a safe `lightmap_unwrap`.
 **XAtlas** library is used internally to unwrap meshes with multiple threads.<br>
@@ -309,3 +312,9 @@ Download engine source code and change **thirdparty/xatlas/xatlas.cpp**.<br>
 ```C++
 #define XA_MULTITHREADED 1 // -> 0
 ```
+
+### Baking lightmaps in large scenes.
+Godot editor can't open scenes with too many nodes, which is necessary for baking.<br>
+Maps can be constructed with a special `__lightmap_scene` option that reduces nodes.<br>
+Furthermore, `skip_entities_classnames` list setting can remove unnecessary point entities.<br>
+After baking the lightmap, a full map must be constructed with `__lightmap_external` option.<br>
