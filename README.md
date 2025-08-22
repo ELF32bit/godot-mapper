@@ -17,7 +17,7 @@ Organize map resources into game expansions by specifying alternative game direc
 * Texture WAD (WAD2, WAD3) and Palette support.
 * Basic MDL (IDPO version 6) support.
 
-> Requires compiling Godot editor with **XA_MULTITHREADED 0** for lightmapping.
+> Requires compiling Godot editor with **`XA_MULTITHREADED 0`** for lightmapping.
 
 ## Usage
 ### 1. Create game directory with map resources.
