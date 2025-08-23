@@ -141,11 +141,6 @@ var options: Dictionary
 	"occluder_mask": "occluder_mask",
 }
 
-@export var aabb_metadata_property_enabled := false
-@export var aabb_metadata_property: StringName = "aabb"
-@export var planes_metadata_property_enabled := false
-@export var planes_metadata_property: StringName = "planes"
-
 @export var game_directory: String = "":
 	set(value):
 		if not value.is_empty() and value.is_absolute_path():
