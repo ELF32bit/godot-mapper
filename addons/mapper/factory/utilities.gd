@@ -763,29 +763,52 @@ static func create_csg_brush_entity(entity: MapperEntity, brushes: Array[MapperB
 				return null
 
 	var node: Node3D = ClassDB.instantiate(node_class)
+	var properties := entity.factory.settings.override_material_metadata_properties
 	var has_collision := ClassDB.is_parent_class(node_class, "CollisionObject3D")
 	var is_lightmap_scene := bool(entity.factory.settings.options.get("__lightmap_scene", false))
 	apply_entity_transform(entity, node)
 	var has_children := false
 
-	var csg_combiner := CSGCombiner3D.new()
-	csg_combiner.position = entity.center
+	var csg_mesh_combiner := CSGCombiner3D.new()
+	var csg_shape_combiner := CSGCombiner3D.new()
+	var csg_occluder_combiner := CSGCombiner3D.new()
+
+	csg_mesh_combiner.position = entity.center
+	csg_shape_combiner.position = entity.center
+	csg_occluder_combiner.position = entity.center
 	for brush in brushes:
 		if brush.is_degenerate:
 			continue
-		var csg_mesh := CSGMesh3D.new()
-		csg_mesh.mesh = brush.mesh
-		csg_mesh.position = brush.center
-		add_global_child(csg_mesh, csg_combiner, entity.factory.settings)
+		if not brush.get_uniform_property(properties.mesh_disabled, false):
+			var csg_mesh := CSGMesh3D.new()
+			csg_mesh.mesh = brush.mesh
+			csg_mesh.position = brush.center
+			add_global_child(csg_mesh, csg_mesh_combiner, entity.factory.settings)
+		if not brush.get_uniform_property(properties.collision_disabled, false):
+			var csg_mesh := CSGMesh3D.new()
+			csg_mesh.mesh = brush.mesh
+			csg_mesh.position = brush.center
+			add_global_child(csg_mesh, csg_shape_combiner, entity.factory.settings)
+		if not brush.get_uniform_property(properties.occluder_disabled, false):
+			var csg_mesh := CSGMesh3D.new()
+			csg_mesh.mesh = brush.mesh
+			csg_mesh.position = brush.center
+			add_global_child(csg_mesh, csg_occluder_combiner, entity.factory.settings)
 
 	var csg_mesh: ArrayMesh = null
-	if csg_combiner.has_method("bake_static_mesh"):
-		csg_mesh = csg_combiner.call("bake_static_mesh")
+	if csg_mesh_combiner.has_method("bake_static_mesh"):
+		csg_mesh = csg_mesh_combiner.call("bake_static_mesh")
 	var csg_shape: ConcavePolygonShape3D = null
-	if csg_combiner.has_method("bake_collision_shape"):
-		csg_shape = csg_combiner.call("bake_collision_shape")
+	if csg_shape_combiner.has_method("bake_collision_shape"):
+		csg_shape = csg_shape_combiner.call("bake_collision_shape")
+	var csg_occluder_mesh: ArrayMesh = null
+	if csg_occluder_combiner.has_method("bake_static_mesh"):
+		csg_occluder_mesh = csg_occluder_combiner.call("bake_static_mesh")
 	var csg_occluder: ArrayOccluder3D = null
-	csg_combiner.free()
+
+	csg_mesh_combiner.free()
+	csg_shape_combiner.free()
+	csg_occluder_combiner.free()
 
 	if csg_mesh and entity.factory.settings.lightmap_unwrap:
 		var transform := Transform3D.IDENTITY.translated(entity.center)
@@ -804,10 +827,11 @@ static func create_csg_brush_entity(entity: MapperEntity, brushes: Array[MapperB
 			var surface_name: String = surfaces.get(surface_material, "")
 			csg_mesh.surface_set_name(surface_index, surface_name)
 
-	if csg_mesh and entity.factory.settings.occlusion_culling:
+	if csg_occluder_mesh and entity.factory.settings.occlusion_culling:
 		var surface_tool := SurfaceTool.new()
-		for surface_index in range(csg_mesh.get_surface_count()):
-			surface_tool.append_from(csg_mesh, surface_index, Transform3D.IDENTITY)
+		for surface_index in range(csg_occluder_mesh.get_surface_count()):
+			surface_tool.append_from(csg_occluder_mesh, surface_index, Transform3D.IDENTITY)
+		surface_tool.index()
 		var arrays := surface_tool.commit_to_arrays()
 		if arrays[Mesh.ARRAY_VERTEX] and arrays[Mesh.ARRAY_INDEX]:
 			var occluder := ArrayOccluder3D.new()
@@ -853,13 +877,20 @@ static func create_csg_brush_entity(entity: MapperEntity, brushes: Array[MapperB
 		entity.node_properties.erase("scale")
 
 		if entity.factory.settings.aabb_metadata_property_enabled:
-			var aabb := brushes[0].aabb
-			for brush_index in range(1, brushes.size()):
-				aabb = aabb.merge(brushes[brush_index].aabb)
+			var aabb := AABB()
+			for brush in brushes:
+				if brush.get_uniform_property(properties.collision_disabled, false):
+					continue
+				if not aabb.has_surface():
+					aabb = brush.aabb
+				else:
+					aabb = aabb.merge(brush.aabb)
 			node.set_meta(entity.factory.settings.aabb_metadata_property, aabb)
 		if entity.factory.settings.planes_metadata_property_enabled:
 			var planes: Array[Array] = []
 			for brush in brushes:
+				if brush.get_uniform_property(properties.collision_disabled, false):
+					continue
 				planes.append(brush.get_planes(false))
 			node.set_meta(entity.factory.settings.planes_metadata_property, planes)
 		return node
