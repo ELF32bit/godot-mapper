@@ -310,6 +310,7 @@ Disable `lightmap_unwrap` setting if the freezes are consistent.<br>
 **XAtlas** library is used internally to unwrap meshes with multiple threads.<br>
 Download engine source code and change **thirdparty/xatlas/xatlas.cpp**.<br>
 ```C++
+// thirdparty/xatlas/xatlas.cpp#L72
 #define XA_MULTITHREADED 1 // -> 0
 ```
 
@@ -318,3 +319,19 @@ Godot editor can't open scenes with too many nodes, which is necessary for bakin
 Maps can be constructed with a special `__lightmap_scene` option that reduces nodes.<br>
 Furthermore, `skip_entities_classnames` list setting can remove unnecessary point entities.<br>
 After baking the lightmap, a full map must be constructed with `__lightmap_external` option.<br>
+
+### Using CSG merged brush entities.
+Since Godot v4.5+ CSG meshes can serve as an alternative to BSP compilers.<br>
+Map brushes can be merged via boolean operations, achieving a similar result.<br>
+Enabling such functionality currently requires modifying the source code.<br>
+```C++
+// modules/csg/csg_shape.cpp#L736
+Ref<ArrayMesh> CSGShape3D::bake_static_mesh() {
+	Ref<ArrayMesh> baked_mesh;
+	// -> update_shape();
+	if (is_root_shape() && root_mesh.is_valid()) {
+		baked_mesh = root_mesh;
+	}
+	return baked_mesh;
+}
+```
