@@ -543,9 +543,9 @@ static func create_brush(entity: MapperEntity, brush: MapperBrush, node_class: S
 		return null
 
 	var node := ClassDB.instantiate(node_class)
-	var properties := entity.factory.settings.override_material_metadata_properties
 	var has_collision := ClassDB.is_parent_class(node_class, "CollisionObject3D")
 	var is_lightmap_scene := bool(entity.factory.settings.options.get("__lightmap_scene", false))
+	var properties := entity.factory.settings.override_material_metadata_properties
 	node.position = brush.center
 	var has_children := false
 
@@ -718,9 +718,9 @@ static func create_csg_merged_brush_entity(entity: MapperEntity, brushes: Array[
 				return null
 
 	var node: Node3D = ClassDB.instantiate(node_class)
-	var properties := entity.factory.settings.override_material_metadata_properties
 	var has_collision := ClassDB.is_parent_class(node_class, "CollisionObject3D")
 	var is_lightmap_scene := bool(entity.factory.settings.options.get("__lightmap_scene", false))
+	var properties := entity.factory.settings.override_material_metadata_properties
 	apply_entity_transform(entity, node)
 	var has_children := false
 
