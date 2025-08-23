@@ -657,7 +657,7 @@ static func create_brush_entity(entity: MapperEntity, node_class: StringName = "
 	return null
 
 
-static func create_merged_brush_entity(entity: MapperEntity, node_class: StringName, mesh_instance: bool = true, collision_shape: bool = true, occluder_instance: bool = true) -> Node3D:
+static func create_merged_brush_entity(entity: MapperEntity, node_class: StringName = "StaticBody3D", mesh_instance: bool = true, collision_shape: bool = true, occluder_instance: bool = true) -> Node3D:
 	if not entity.aabb.has_surface():
 		return null
 	if not ClassDB.class_exists(node_class):
@@ -744,6 +744,128 @@ static func create_decal_entity(entity: MapperEntity) -> Decal:
 	node.modulate = material.albedo_color
 
 	return node
+
+
+static func create_csg_brush_entity(entity: MapperEntity, brushes: Array[MapperBrush], node_class: StringName = "StaticBody3D", mesh_instance: bool = true, collision_shape: bool = true, occluder_instance: bool = true) -> Node3D:
+	if not brushes.size():
+		return null
+	if not ClassDB.class_exists(node_class):
+		return null
+	if not ClassDB.can_instantiate(node_class):
+		return null
+	if not ClassDB.is_parent_class(node_class, "Node3D"):
+		return null
+
+	for brush in brushes:
+		for face in brush.faces:
+			if face.skip:
+				push_warning("CSG brush entity requires skip material to be disabled.")
+				return null
+
+	var node: Node3D = ClassDB.instantiate(node_class)
+	var has_collision := ClassDB.is_parent_class(node_class, "CollisionObject3D")
+	var is_lightmap_scene := bool(entity.factory.settings.options.get("__lightmap_scene", false))
+	apply_entity_transform(entity, node)
+	var has_children := false
+
+	var csg_combiner := CSGCombiner3D.new()
+	csg_combiner.position = entity.center
+	for brush in brushes:
+		if brush.is_degenerate:
+			continue
+		var csg_mesh := CSGMesh3D.new()
+		csg_mesh.mesh = brush.mesh
+		csg_mesh.position = brush.center
+		add_global_child(csg_mesh, csg_combiner, entity.factory.settings)
+
+	var csg_mesh: ArrayMesh = null
+	if csg_combiner.has_method("bake_static_mesh"):
+		csg_mesh = csg_combiner.call("bake_static_mesh")
+	var csg_shape: ConcavePolygonShape3D = null
+	if csg_combiner.has_method("bake_collision_shape"):
+		csg_shape = csg_combiner.call("bake_collision_shape")
+	var csg_occluder: ArrayOccluder3D = null
+	csg_combiner.free()
+
+	if csg_mesh and entity.factory.settings.lightmap_unwrap:
+		var transform := Transform3D.IDENTITY.translated(entity.center)
+		var lightmap_scale: float = entity.get_lightmap_scale_property(1.0)
+		var texel_size := entity.factory.settings.lightmap_texel_size / lightmap_scale
+		lightmap_unwrap(csg_mesh, transform, texel_size)
+
+	if csg_mesh:
+		var surfaces: Dictionary = {}
+		for brush in brushes:
+			for material_name in brush.materials:
+				surfaces[brush.materials[material_name].base] = material_name
+				surfaces[brush.materials[material_name].override] = material_name
+		for surface_index in range(csg_mesh.get_surface_count()):
+			var surface_material := csg_mesh.surface_get_material(surface_index)
+			var surface_name: String = surfaces.get(surface_material, "")
+			csg_mesh.surface_set_name(surface_index, surface_name)
+
+	if csg_mesh and entity.factory.settings.occlusion_culling:
+		var surface_tool := SurfaceTool.new()
+		for surface_index in range(csg_mesh.get_surface_count()):
+			surface_tool.append_from(csg_mesh, surface_index, Transform3D.IDENTITY)
+		var arrays := surface_tool.commit_to_arrays()
+		if arrays[Mesh.ARRAY_VERTEX] and arrays[Mesh.ARRAY_INDEX]:
+			var occluder := ArrayOccluder3D.new()
+			occluder.set_arrays(arrays[Mesh.ARRAY_VERTEX], arrays[Mesh.ARRAY_INDEX])
+			csg_occluder = occluder
+
+	if mesh_instance and csg_mesh and not is_lightmap_scene:
+		var instance := MeshInstance3D.new()
+		instance.position = entity.center
+		add_global_child(instance, node, entity.factory.settings)
+		instance.mesh = csg_mesh
+		has_children = true
+
+		if entity.factory.settings.store_base_materials:
+			var materials: Dictionary = {}
+			for brush in brushes:
+				materials.merge(brush.materials, false)
+			for surface_index in range(csg_mesh.get_surface_count()):
+				var surface_name := csg_mesh.surface_get_name(surface_index)
+				var material: MapperMaterial = materials.get(surface_name, null)
+				if material and material.override:
+					instance.set_surface_override_material(surface_index, material.override)
+
+		instance.cast_shadow = int(entity.is_casting_shadow())
+
+	if collision_shape and has_collision and csg_shape and not is_lightmap_scene:
+		var instance := CollisionShape3D.new()
+		instance.position = entity.center
+		add_global_child(instance, node, entity.factory.settings)
+		instance.shape = csg_shape
+		has_children = true
+
+	if occluder_instance and csg_occluder and not is_lightmap_scene:
+		var instance := OccluderInstance3D.new()
+		instance.position = entity.center
+		add_global_child(instance, node, entity.factory.settings)
+		instance.occluder = csg_occluder
+		has_children = true
+
+	if has_children:
+		entity.node_properties.erase("position")
+		entity.node_properties.erase("rotation")
+		entity.node_properties.erase("scale")
+
+		if entity.factory.settings.aabb_metadata_property_enabled:
+			var aabb := brushes[0].aabb
+			for brush_index in range(1, brushes.size()):
+				aabb = aabb.merge(brushes[brush_index].aabb)
+			node.set_meta(entity.factory.settings.aabb_metadata_property, aabb)
+		if entity.factory.settings.planes_metadata_property_enabled:
+			var planes: Array[Array] = []
+			for brush in brushes:
+				planes.append(brush.get_planes(false))
+			node.set_meta(entity.factory.settings.planes_metadata_property, planes)
+		return node
+
+	node.free()
+	return null
 
 
 static func create_reset_animation(animation_player: AnimationPlayer, animation_library: AnimationLibrary) -> void:
