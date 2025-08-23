@@ -741,6 +741,27 @@ static func create_csg_merged_brush_entity(entity: MapperEntity, brushes: Array[
 			csg_mesh = csg_mesh_combiner.call("bake_static_mesh")
 		csg_mesh_combiner.free()
 
+	var has_shadow_mesh := false
+	var csg_shadow_mesh: ArrayMesh = null
+	if mesh_instance and entity.factory.settings.shadow_meshes:
+		var csg_shadow_mesh_combiner := CSGCombiner3D.new()
+		csg_shadow_mesh_combiner.position = entity.center
+		for brush in brushes:
+			if brush.is_degenerate:
+				continue
+			if brush.get_uniform_property(properties.mesh_disabled, false):
+				continue
+			if not brush.get_uniform_property(properties.cast_shadow, true):
+				has_shadow_mesh = true
+				continue
+			var csg := CSGMesh3D.new()
+			csg.mesh = brush.mesh
+			csg.position = brush.center
+			add_global_child(csg, csg_shadow_mesh_combiner, entity.factory.settings)
+		if csg_shadow_mesh_combiner.has_method("bake_static_mesh"):
+			csg_shadow_mesh = csg_shadow_mesh_combiner.call("bake_static_mesh")
+		csg_shadow_mesh_combiner.free()
+
 	var csg_shape: ConcavePolygonShape3D = null
 	if collision_shape and has_collision and not is_lightmap_scene:
 		var csg_shape_combiner := CSGCombiner3D.new()
@@ -760,7 +781,7 @@ static func create_csg_merged_brush_entity(entity: MapperEntity, brushes: Array[
 
 	var csg_occluder_mesh: ArrayMesh = null
 	var csg_occluder: ArrayOccluder3D = null
-	if occluder_instance and not is_lightmap_scene:
+	if occluder_instance and entity.factory.settings.occlusion_culling and not is_lightmap_scene:
 		var csg_occluder_combiner := CSGCombiner3D.new()
 		csg_occluder_combiner.position = entity.center
 		for brush in brushes:
@@ -792,8 +813,40 @@ static func create_csg_merged_brush_entity(entity: MapperEntity, brushes: Array[
 			var surface_material := csg_mesh.surface_get_material(surface_index)
 			var surface_name: String = surfaces.get(surface_material, "")
 			csg_mesh.surface_set_name(surface_index, surface_name)
+		if has_shadow_mesh:
+			var surface_tools: Array[SurfaceTool] = []
+			surface_tools.resize(csg_mesh.get_surface_count())
+			surface_tools.fill(null)
 
-	if csg_occluder_mesh and entity.factory.settings.occlusion_culling:
+			for surface_index in range(csg_mesh.get_surface_count()):
+				var surface_name := csg_mesh.surface_get_name(surface_index)
+				for shadow_surface_index in range(csg_shadow_mesh.get_surface_count()):
+					var shadow_surface_material := csg_shadow_mesh.surface_get_material(shadow_surface_index)
+					var shadow_surface_name: String = surfaces.get(shadow_surface_material, "")
+					if surface_name == shadow_surface_name and not surface_name.is_empty():
+						surface_tools[surface_index] = SurfaceTool.new()
+						surface_tools[surface_index].append_from(csg_shadow_mesh, shadow_surface_index, Transform3D.IDENTITY)
+						break
+				if surface_tools[surface_index] == null:
+					surface_tools[surface_index] = SurfaceTool.new()
+					surface_tools[surface_index].begin(Mesh.PRIMITIVE_TRIANGLES)
+					var triangle := PackedVector3Array()
+					triangle.resize(3) # hacking shadow mesh by inserting empty triangle
+					triangle.fill(Vector3.ZERO)
+					surface_tools[surface_index].add_triangle_fan(triangle)
+			for surface_tool in surface_tools:
+				surface_tool.index()
+
+			if not csg_mesh.shadow_mesh:
+				csg_mesh.shadow_mesh = ArrayMesh.new()
+			var flags := Mesh.ARRAY_FORMAT_VERTEX | Mesh.ARRAY_FORMAT_INDEX
+			for surface_index in range(csg_mesh.get_surface_count()):
+				var surface_name := csg_mesh.surface_get_name(surface_index)
+				csg_mesh.shadow_mesh = surface_tools[surface_index].commit(csg_mesh.shadow_mesh, flags)
+				var new_surface_index := csg_mesh.shadow_mesh.get_surface_count() - 1
+				csg_mesh.shadow_mesh.surface_set_name(new_surface_index, surface_name)
+
+	if csg_occluder_mesh:
 		var surface_tool := SurfaceTool.new()
 		for surface_index in range(csg_occluder_mesh.get_surface_count()):
 			surface_tool.append_from(csg_occluder_mesh, surface_index, Transform3D.IDENTITY)
@@ -804,7 +857,7 @@ static func create_csg_merged_brush_entity(entity: MapperEntity, brushes: Array[
 			occluder.set_arrays(arrays[Mesh.ARRAY_VERTEX], arrays[Mesh.ARRAY_INDEX])
 			csg_occluder = occluder
 
-	if mesh_instance and csg_mesh:
+	if csg_mesh:
 		var instance := MeshInstance3D.new()
 		instance.position = entity.center
 		add_global_child(instance, node, entity.factory.settings)
@@ -823,14 +876,14 @@ static func create_csg_merged_brush_entity(entity: MapperEntity, brushes: Array[
 
 		instance.cast_shadow = int(entity.is_casting_shadow())
 
-	if collision_shape and has_collision and csg_shape and not is_lightmap_scene:
+	if csg_shape:
 		var instance := CollisionShape3D.new()
 		instance.position = entity.center
 		add_global_child(instance, node, entity.factory.settings)
 		instance.shape = csg_shape
 		has_children = true
 
-	if occluder_instance and csg_occluder and not is_lightmap_scene:
+	if csg_occluder:
 		var instance := OccluderInstance3D.new()
 		instance.position = entity.center
 		add_global_child(instance, node, entity.factory.settings)
