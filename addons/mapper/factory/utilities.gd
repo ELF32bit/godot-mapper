@@ -701,29 +701,7 @@ static func create_merged_brush_entity(entity: MapperEntity, node_class: StringN
 	return null
 
 
-static func create_decal_entity(entity: MapperEntity) -> Decal:
-	if not entity.is_decal():
-		return null
-
-	var node := Decal.new()
-	apply_entity_transform(entity, node, true)
-	node.basis = node.basis.orthonormalized()
-	node.quaternion = Quaternion(node.basis.y, node.basis.z) * node.quaternion
-	node.extents = (node.basis.inverse() * entity.aabb.size).abs() / 2.0
-
-	var material_name := entity.brushes[0].mesh.surface_get_name(0)
-	var material: BaseMaterial3D = entity.brushes[0].materials[material_name].base
-	node.texture_albedo = material.get_texture(BaseMaterial3D.TEXTURE_ALBEDO)
-	node.texture_normal = material.get_texture(BaseMaterial3D.TEXTURE_NORMAL)
-	node.texture_orm = material.get_texture(BaseMaterial3D.TEXTURE_ORM)
-	node.texture_emission = material.get_texture(BaseMaterial3D.TEXTURE_EMISSION)
-	node.emission_energy = material.emission_intensity # BUG: different property names
-	node.modulate = material.albedo_color
-
-	return node
-
-
-static func create_csg_brush_entity(entity: MapperEntity, brushes: Array[MapperBrush], node_class: StringName = "StaticBody3D", mesh_instance: bool = true, collision_shape: bool = true, occluder_instance: bool = true) -> Node3D:
+static func create_csg_merged_brush_entity(entity: MapperEntity, brushes: Array[MapperBrush], node_class: StringName = "StaticBody3D", mesh_instance: bool = true, collision_shape: bool = true, occluder_instance: bool = true) -> Node3D:
 	if not brushes.size():
 		return null
 	if not ClassDB.class_exists(node_class):
@@ -736,7 +714,7 @@ static func create_csg_brush_entity(entity: MapperEntity, brushes: Array[MapperB
 	for brush in brushes:
 		for face in brush.faces:
 			if face.skip:
-				push_warning("CSG brush entity requires skip material to be disabled.")
+				push_warning("CSG merged brush entity does not support skip material.")
 				return null
 
 	var node: Node3D = ClassDB.instantiate(node_class)
@@ -746,46 +724,57 @@ static func create_csg_brush_entity(entity: MapperEntity, brushes: Array[MapperB
 	apply_entity_transform(entity, node)
 	var has_children := false
 
-	var csg_mesh_combiner := CSGCombiner3D.new()
-	var csg_shape_combiner := CSGCombiner3D.new()
-	var csg_occluder_combiner := CSGCombiner3D.new()
-
-	csg_mesh_combiner.position = entity.center
-	csg_shape_combiner.position = entity.center
-	csg_occluder_combiner.position = entity.center
-	for brush in brushes:
-		if brush.is_degenerate:
-			continue
-		if not brush.get_uniform_property(properties.mesh_disabled, false):
-			var csg_mesh := CSGMesh3D.new()
-			csg_mesh.mesh = brush.mesh
-			csg_mesh.position = brush.center
-			add_global_child(csg_mesh, csg_mesh_combiner, entity.factory.settings)
-		if not brush.get_uniform_property(properties.collision_disabled, false):
-			var csg_mesh := CSGMesh3D.new()
-			csg_mesh.mesh = brush.mesh
-			csg_mesh.position = brush.center
-			add_global_child(csg_mesh, csg_shape_combiner, entity.factory.settings)
-		if not brush.get_uniform_property(properties.occluder_disabled, false):
-			var csg_mesh := CSGMesh3D.new()
-			csg_mesh.mesh = brush.mesh
-			csg_mesh.position = brush.center
-			add_global_child(csg_mesh, csg_occluder_combiner, entity.factory.settings)
-
 	var csg_mesh: ArrayMesh = null
-	if csg_mesh_combiner.has_method("bake_static_mesh"):
-		csg_mesh = csg_mesh_combiner.call("bake_static_mesh")
-	var csg_shape: ConcavePolygonShape3D = null
-	if csg_shape_combiner.has_method("bake_collision_shape"):
-		csg_shape = csg_shape_combiner.call("bake_collision_shape")
-	var csg_occluder_mesh: ArrayMesh = null
-	if csg_occluder_combiner.has_method("bake_static_mesh"):
-		csg_occluder_mesh = csg_occluder_combiner.call("bake_static_mesh")
-	var csg_occluder: ArrayOccluder3D = null
+	if mesh_instance:
+		var csg_mesh_combiner := CSGCombiner3D.new()
+		csg_mesh_combiner.position = entity.center
+		for brush in brushes:
+			if brush.is_degenerate:
+				continue
+			if brush.get_uniform_property(properties.mesh_disabled, false):
+				continue
+			var csg := CSGMesh3D.new()
+			csg.mesh = brush.mesh
+			csg.position = brush.center
+			add_global_child(csg, csg_mesh_combiner, entity.factory.settings)
+		if csg_mesh_combiner.has_method("bake_static_mesh"):
+			csg_mesh = csg_mesh_combiner.call("bake_static_mesh")
+		csg_mesh_combiner.free()
 
-	csg_mesh_combiner.free()
-	csg_shape_combiner.free()
-	csg_occluder_combiner.free()
+	var csg_shape: ConcavePolygonShape3D = null
+	if collision_shape and has_collision and not is_lightmap_scene:
+		var csg_shape_combiner := CSGCombiner3D.new()
+		csg_shape_combiner.position = entity.center
+		for brush in brushes:
+			if brush.is_degenerate:
+				continue
+			if brush.get_uniform_property(properties.collision_disabled, false):
+				continue
+			var csg := CSGMesh3D.new()
+			csg.mesh = brush.mesh
+			csg.position = brush.center
+			add_global_child(csg, csg_shape_combiner, entity.factory.settings)
+		if csg_shape_combiner.has_method("bake_collision_shape"):
+			csg_shape = csg_shape_combiner.call("bake_collision_shape")
+		csg_shape_combiner.free()
+
+	var csg_occluder_mesh: ArrayMesh = null
+	var csg_occluder: ArrayOccluder3D = null
+	if occluder_instance and not is_lightmap_scene:
+		var csg_occluder_combiner := CSGCombiner3D.new()
+		csg_occluder_combiner.position = entity.center
+		for brush in brushes:
+			if brush.is_degenerate:
+				continue
+			if brush.get_uniform_property(properties.occluder_disabled, false):
+				continue
+			var csg := CSGMesh3D.new()
+			csg.mesh = brush.mesh
+			csg.position = brush.center
+			add_global_child(csg, csg_occluder_combiner, entity.factory.settings)
+		if csg_occluder_combiner.has_method("bake_static_mesh"):
+			csg_occluder_mesh = csg_occluder_combiner.call("bake_static_mesh")
+		csg_occluder_combiner.free()
 
 	if csg_mesh and entity.factory.settings.lightmap_unwrap:
 		var transform := Transform3D.IDENTITY.translated(entity.center)
@@ -815,7 +804,7 @@ static func create_csg_brush_entity(entity: MapperEntity, brushes: Array[MapperB
 			occluder.set_arrays(arrays[Mesh.ARRAY_VERTEX], arrays[Mesh.ARRAY_INDEX])
 			csg_occluder = occluder
 
-	if mesh_instance and csg_mesh and not is_lightmap_scene:
+	if mesh_instance and csg_mesh:
 		var instance := MeshInstance3D.new()
 		instance.position = entity.center
 		add_global_child(instance, node, entity.factory.settings)
@@ -856,6 +845,28 @@ static func create_csg_brush_entity(entity: MapperEntity, brushes: Array[MapperB
 
 	node.free()
 	return null
+
+
+static func create_decal_entity(entity: MapperEntity) -> Decal:
+	if not entity.is_decal():
+		return null
+
+	var node := Decal.new()
+	apply_entity_transform(entity, node, true)
+	node.basis = node.basis.orthonormalized()
+	node.quaternion = Quaternion(node.basis.y, node.basis.z) * node.quaternion
+	node.extents = (node.basis.inverse() * entity.aabb.size).abs() / 2.0
+
+	var material_name := entity.brushes[0].mesh.surface_get_name(0)
+	var material: BaseMaterial3D = entity.brushes[0].materials[material_name].base
+	node.texture_albedo = material.get_texture(BaseMaterial3D.TEXTURE_ALBEDO)
+	node.texture_normal = material.get_texture(BaseMaterial3D.TEXTURE_NORMAL)
+	node.texture_orm = material.get_texture(BaseMaterial3D.TEXTURE_ORM)
+	node.texture_emission = material.get_texture(BaseMaterial3D.TEXTURE_EMISSION)
+	node.emission_energy = material.emission_intensity # BUG: different property names
+	node.modulate = material.albedo_color
+
+	return node
 
 
 static func create_reset_animation(animation_player: AnimationPlayer, animation_library: AnimationLibrary) -> void:
