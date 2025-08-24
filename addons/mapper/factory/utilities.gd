@@ -737,8 +737,9 @@ static func create_csg_merged_brush_entity(entity: MapperEntity, brushes: Array[
 			csg.mesh = brush.mesh
 			csg.position = brush.center
 			add_global_child(csg, csg_mesh_combiner, entity.factory.settings)
-		if csg_mesh_combiner.has_method("bake_static_mesh"):
-			csg_mesh = csg_mesh_combiner.call("bake_static_mesh")
+		if csg_mesh_combiner.get_child_count() > 0:
+			if csg_mesh_combiner.has_method("bake_static_mesh"):
+				csg_mesh = csg_mesh_combiner.call("bake_static_mesh")
 		csg_mesh_combiner.free()
 
 	var has_shadow_mesh := false
@@ -758,8 +759,9 @@ static func create_csg_merged_brush_entity(entity: MapperEntity, brushes: Array[
 			csg.mesh = brush.mesh
 			csg.position = brush.center
 			add_global_child(csg, csg_shadow_mesh_combiner, entity.factory.settings)
-		if csg_shadow_mesh_combiner.has_method("bake_static_mesh"):
-			csg_shadow_mesh = csg_shadow_mesh_combiner.call("bake_static_mesh")
+		if csg_shadow_mesh_combiner.get_child_count() > 0:
+			if csg_shadow_mesh_combiner.has_method("bake_static_mesh"):
+				csg_shadow_mesh = csg_shadow_mesh_combiner.call("bake_static_mesh")
 		csg_shadow_mesh_combiner.free()
 
 	var csg_shape: ConcavePolygonShape3D = null
@@ -775,8 +777,9 @@ static func create_csg_merged_brush_entity(entity: MapperEntity, brushes: Array[
 			csg.mesh = brush.mesh
 			csg.position = brush.center
 			add_global_child(csg, csg_shape_combiner, entity.factory.settings)
-		if csg_shape_combiner.has_method("bake_collision_shape"):
-			csg_shape = csg_shape_combiner.call("bake_collision_shape")
+		if csg_shape_combiner.get_child_count() > 0:
+			if csg_shape_combiner.has_method("bake_collision_shape"):
+				csg_shape = csg_shape_combiner.call("bake_collision_shape")
 		csg_shape_combiner.free()
 
 	var csg_occluder_mesh: ArrayMesh = null
@@ -793,8 +796,9 @@ static func create_csg_merged_brush_entity(entity: MapperEntity, brushes: Array[
 			csg.mesh = brush.mesh
 			csg.position = brush.center
 			add_global_child(csg, csg_occluder_combiner, entity.factory.settings)
-		if csg_occluder_combiner.has_method("bake_static_mesh"):
-			csg_occluder_mesh = csg_occluder_combiner.call("bake_static_mesh")
+		if csg_occluder_combiner.get_child_count() > 0:
+			if csg_occluder_combiner.has_method("bake_static_mesh"):
+				csg_occluder_mesh = csg_occluder_combiner.call("bake_static_mesh")
 		csg_occluder_combiner.free()
 
 	if csg_mesh and entity.factory.settings.lightmap_unwrap:
@@ -820,7 +824,7 @@ static func create_csg_merged_brush_entity(entity: MapperEntity, brushes: Array[
 
 			for surface_index in range(csg_mesh.get_surface_count()):
 				var surface_name := csg_mesh.surface_get_name(surface_index)
-				for shadow_surface_index in range(csg_shadow_mesh.get_surface_count()):
+				for shadow_surface_index in range(csg_shadow_mesh.get_surface_count() if csg_shadow_mesh else 0):
 					var shadow_surface_material := csg_shadow_mesh.surface_get_material(shadow_surface_index)
 					var shadow_surface_name: String = surfaces.get(shadow_surface_material, "")
 					if surface_name == shadow_surface_name and not surface_name.is_empty():
