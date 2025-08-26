@@ -731,7 +731,7 @@ static func create_csg_merged_brush_entity(entity: MapperEntity, brushes: Array[
 		for brush in brushes:
 			if brush.is_degenerate:
 				continue
-			if brush.get_uniform_property(properties.mesh_disabled, false):
+			if brush.get_uniform_property(properties.mesh_disabled, false, true):
 				continue
 			var csg := CSGMesh3D.new()
 			csg.mesh = brush.mesh
@@ -750,9 +750,9 @@ static func create_csg_merged_brush_entity(entity: MapperEntity, brushes: Array[
 		for brush in brushes:
 			if brush.is_degenerate:
 				continue
-			if brush.get_uniform_property(properties.mesh_disabled, false):
+			if brush.get_uniform_property(properties.mesh_disabled, false, true):
 				continue
-			if not brush.get_uniform_property(properties.cast_shadow, true):
+			if not brush.get_uniform_property(properties.cast_shadow, true, true):
 				has_shadow_mesh = true
 				continue
 			var csg := CSGMesh3D.new()
@@ -771,7 +771,7 @@ static func create_csg_merged_brush_entity(entity: MapperEntity, brushes: Array[
 		for brush in brushes:
 			if brush.is_degenerate:
 				continue
-			if brush.get_uniform_property(properties.collision_disabled, false):
+			if brush.get_uniform_property(properties.collision_disabled, false, true):
 				continue
 			var csg := CSGMesh3D.new()
 			csg.mesh = brush.mesh
@@ -790,7 +790,7 @@ static func create_csg_merged_brush_entity(entity: MapperEntity, brushes: Array[
 		for brush in brushes:
 			if brush.is_degenerate:
 				continue
-			if brush.get_uniform_property(properties.occluder_disabled, false):
+			if brush.get_uniform_property(properties.occluder_disabled, false, true):
 				continue
 			var csg := CSGMesh3D.new()
 			csg.mesh = brush.mesh
