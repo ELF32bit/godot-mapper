@@ -590,11 +590,6 @@ static func create_brush(entity: MapperEntity, brush: MapperBrush, node_class: S
 		instance.bake_mask = brush.get_uniform_property(properties.occluder_mask, 0xFFFFFFFF)
 
 	if has_children:
-		var uniform_material_properties := brush.get_uniform_property_list()
-		var reserved_properies := properties.values()
-		for uniform_property in uniform_material_properties:
-			if not uniform_property in reserved_properies:
-				node.set_meta(uniform_property, brush.get_uniform_property(uniform_property))
 		return node
 
 	node.free()
