@@ -50,7 +50,7 @@ static func build(map: MapperMap, entity: MapperEntity) -> Node:
 	entity_node.set_script(preload("../scripts/light.gd"))
 	entity_node.omni_range = entity.get_unit_property("light", 300)
 	entity_node.light_color = entity.get_color_property("_color", Color.WHITE)
-	return entity_node # origin and angles are assigned automatically
+	return entity_node # origin is assigned automatically (refer to 5. for angles)
 ```
 
 #### MapperUtilities class provides smart build functions for brush entities.
@@ -321,7 +321,7 @@ Furthermore, `skip_entities_classnames` list setting can remove unnecessary poin
 After baking the lightmap, a full map must be constructed with `__lightmap_external` option.<br>
 
 ### Using CSG merged brush entities.
-Since Godot v4.5+ CSG meshes can serve as an alternative to BSP compilers.<br>
+Since Godot v4.4+ CSG meshes can serve as an alternative to BSP compilers.<br>
 Map brushes can be merged via boolean operations, achieving a similar result.<br>
 Enabling such functionality currently requires modifying the source code.<br>
 ```C++
