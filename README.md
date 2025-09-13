@@ -144,6 +144,8 @@ for brush in entity.brushes:
 	MapperUtilities.add_global_child(liquid_area, entity_node, map.settings)
 ```
 
+> CSG merged brush entities use **brush.metadata** overwrites to re-enable disabled nodes.
+
 ### 4. Animated textures and material alternative textures.
 Generic textures are using complex naming pattern.<br>
 Unlike in the examples below, a consistent naming is required.<br>
@@ -236,7 +238,7 @@ MapperUtilities.scale_transform_array(grass_transform_array,
 MapperUtilities.rotate_transform_array(grass_transform_array,
 	Vector3(-1.0, 0.0, -1.0)) # rotates around up vector without snap
 ```
-An example of using point entities to erase grass.<br>
+An example of using point entities to erase grass, painting is also possible!<br>
 ```GDScript
 for map_entity in map.classnames.get("info_eraser", []):
 	var position = map_entity.get_origin_property(null)
