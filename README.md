@@ -322,7 +322,7 @@ Maps can be constructed with a special `__lightmap_scene` option that reduces no
 Furthermore, `skip_entities_classnames` list setting can remove unnecessary point entities.<br>
 After baking the lightmap, a full map must be constructed with `__lightmap_external` option.<br>
 
-> For large map coordinates, it's also recommended to compile Godot with `precision=double`.
+> For large map coordinates, it's also recommended to compile Godot with **`precision=double`**.
 
 ### Using CSG merged brush entities.
 Since Godot v4.4+ CSG meshes can serve as an alternative to BSP compilers.<br>
