@@ -1178,7 +1178,7 @@ func build_mdl(mdl: MapperMdlResource) -> PackedScene:
 	# creating simple mdl material with first texture
 	var material := game_loader.load_base_material()
 	if mdl.textures.size():
-		material.albedo_texture = mdl.textures[0]
+		material.albedo_texture = mdl.textures[settings.mdls_skin % mdl.textures.size()]
 		material.set_meta(settings.mdls_skins_metadata_property, mdl.textures)
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 
@@ -1276,7 +1276,9 @@ func build_mdl(mdl: MapperMdlResource) -> PackedScene:
 			var animation := Animation.new()
 			var first_frame: int = animation_frames[0]
 			var last_frame: int = animation_frames[-1]
-			animation.length = float(last_frame - first_frame) * settings.mdls_frame_duration
+			var frames := float(last_frame - first_frame + int(first_frame != last_frame))
+			animation.length = frames * settings.mdls_frame_duration
+			animation.loop_mode = Animation.LOOP_LINEAR
 
 			for animation_node in animation_nodes:
 				var track_index := animation.add_track(Animation.TYPE_VALUE)
@@ -1290,7 +1292,7 @@ func build_mdl(mdl: MapperMdlResource) -> PackedScene:
 					var key_value: bool = (animations[animation_name][frame] == animation_node)
 					animation.track_insert_key(track_index, key_time, key_value)
 
-			#MapperUtilities.remove_repeating_animation_keys(animation)
+			MapperUtilities.remove_repeating_animation_keys(animation)
 			animation_library.add_animation(animation_name, animation)
 		MapperUtilities.create_reset_animation(animation_player, animation_library)
 
