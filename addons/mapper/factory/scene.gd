@@ -542,6 +542,8 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 						material.set_feature(BaseMaterial3D.FEATURE_EMISSION, true)
 					BaseMaterial3D.TEXTURE_NORMAL:
 						material.set_feature(BaseMaterial3D.FEATURE_NORMAL_MAPPING, true)
+					#BaseMaterial3D.TEXTURE_BENT_NORMAL:
+					#	material.set_feature(BaseMaterial3D.FEATURE_BENT_NORMAL_MAPPING, true)
 					BaseMaterial3D.TEXTURE_RIM:
 						material.set_feature(BaseMaterial3D.FEATURE_RIM, true)
 					BaseMaterial3D.TEXTURE_CLEARCOAT:
