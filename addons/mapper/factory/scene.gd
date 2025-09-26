@@ -990,24 +990,23 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 			for entity in map_structure.classnames[classname]:
 				if class_builder.has_method("build"):
 					entity.node = class_builder.call("build", map_structure, entity)
-				if not entity.node:
-					continue
 
-				# setting node properties on created node
-				for node_property in entity.node_properties:
-					# checking node name property before setting
-					if node_property == "name":
-						var name: Variant = entity.node_properties[node_property]
-						if name is String or name is StringName:
-							if name.validate_node_name().strip_edges().is_empty():
-								continue
-					entity.node.set(node_property, entity.node_properties[node_property])
-
-		# setting entity groups after creating all nodes
+		# setting bound entity properties and groups after creating all nodes
 		for entity in map_structure.entities:
-			if entity.node:
-				for group_name in entity.node_groups:
-					entity.node.add_to_group(group_name, true)
+			if not entity.node:
+				continue
+
+			for node_property in entity.node_properties:
+				# checking node name property before setting
+				if node_property == "name":
+					var name: Variant = entity.node_properties[node_property]
+					if name is String or name is StringName:
+						if name.validate_node_name().strip_edges().is_empty():
+							continue
+				entity.node.set(node_property, entity.node_properties[node_property])
+
+			for group_name in entity.node_groups:
+				entity.node.add_to_group(group_name, true)
 
 	var generate_scene_tree := func() -> void:
 		for classname in map_structure.classnames:
