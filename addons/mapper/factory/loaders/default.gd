@@ -51,16 +51,28 @@ func load_material(material: String) -> Material:
 	material = validate_material_name(material)
 	if material.is_empty():
 		return null
+
+	var is_multimaterial := false
+	var material_resource: Material = null
 	for matching_path in generate_matching_paths(material):
 		for extension in settings.game_material_extensions:
 			var file := matching_path + "." + extension
 			var path := settings.game_directory.path_join(file)
 			if ResourceLoader.exists(path, "Material"):
-				return load(path)
+				material_resource = load(path)
+				if material_resource and not is_multimaterial and settings.reference_override_materials:
+					material_resource.set_meta("__mapper_reference", true)
+				return material_resource
+
 			for alternative_game_directory in settings.alternative_game_directories:
 				var alternative_path := alternative_game_directory.path_join(file)
 				if ResourceLoader.exists(alternative_path, "Material"):
-					return load(alternative_path)
+					material_resource = load(alternative_path)
+					if material_resource and not is_multimaterial and settings.reference_override_materials:
+						material_resource.set_meta("__mapper_reference", true)
+					return material_resource
+
+		is_multimaterial = true
 	return null
 
 

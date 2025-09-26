@@ -573,7 +573,10 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 			var override_material: Material = game_loader.load_material(path)
 
 			if override_material:
-				override_material = override_material.duplicate()
+				if override_material.get_meta("__mapper_reference", false):
+					override_material.remove_meta("__mapper_reference")
+				else:
+					override_material = override_material.duplicate()
 				map_structure.materials[material].base = base_material
 				map_structure.materials[material].override = override_material
 			else:

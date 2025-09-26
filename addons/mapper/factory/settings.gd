@@ -80,6 +80,7 @@ var options: Dictionary
 
 @export var store_base_materials := true
 @export var base_materials_texture_filter := BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+@export var reference_override_materials := false
 @export var store_unique_animated_textures := false
 @export var animated_textures_frame_duration: float = 0.2
 @export var shader_texture_slots := SHADER_TEXTURE_SLOTS

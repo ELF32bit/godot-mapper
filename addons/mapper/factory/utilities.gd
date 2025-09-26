@@ -297,7 +297,7 @@ static func add_entity_to_navigation_region(entity: MapperEntity, navigation_reg
 		entity.node_groups.append(navigation_region.navmesh.geometry_source_group_name)
 
 
-static func create_voxel_gi(map: MapperMap, parent: Node, aabb: AABB, scale: float = 1.2, as_first_child: bool = true, automatic: bool = false) -> VoxelGI:
+static func create_voxel_gi(map: MapperMap, parent: Node, aabb: AABB, scale: float = 1.25, as_first_child: bool = true, automatic: bool = false) -> VoxelGI:
 	if not aabb.has_surface():
 		return null
 

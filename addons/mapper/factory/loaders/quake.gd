@@ -4,14 +4,11 @@ extends MapperLoader
 func validate_material_name(material: String) -> String:
 	var filename := material.get_file()
 	var directory := material.trim_suffix(filename)
-
 	if filename.length() > 2 and filename[0] == "+":
 		if filename[1].to_lower() in "0123456789abcdefghij":
 			return directory + filename.trim_prefix(filename[0] + filename[1])
-
 	if filename.length() > 1 and filename[0] in "*{":
 		return directory + filename.trim_prefix(filename[0])
-
 	return material
 
 
@@ -20,16 +17,27 @@ func load_material(material: String) -> Material:
 	if material.is_empty():
 		return null
 
+	var is_multimaterial := false
+	var material_resource: Material = null
 	for matching_path in generate_matching_paths(material):
 		for extension in settings.game_material_extensions:
 			var file := matching_path + "." + extension
 			var path := settings.game_directory.path_join(file)
 			if ResourceLoader.exists(path, "Material"):
-				return load(path)
+				material_resource = load(path)
+				if material_resource and not is_multimaterial and settings.reference_override_materials:
+					material_resource.set_meta("__mapper_reference", true)
+				return material_resource
+
 			for alternative_game_directory in settings.alternative_game_directories:
 				var alternative_path := alternative_game_directory.path_join(file)
 				if ResourceLoader.exists(alternative_path, "Material"):
-					return load(alternative_path)
+					material_resource = load(alternative_path)
+					if material_resource and not is_multimaterial and settings.reference_override_materials:
+						material_resource.set_meta("__mapper_reference", true)
+					return material_resource
+
+		is_multimaterial = true
 	return null
 
 
