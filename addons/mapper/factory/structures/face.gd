@@ -88,6 +88,11 @@ func get_triangles(origin: Vector3 = Vector3.ZERO, with_center: bool = true) -> 
 
 func get_texture_size() -> Vector2:
 	var texture := material.base.get_texture(BaseMaterial3D.TEXTURE_ALBEDO)
+	if not texture and material.override:
+		if material.override is BaseMaterial3D:
+			texture = material.override.get_texture(BaseMaterial3D.TEXTURE_ALBEDO)
+		elif material.override is ShaderMaterial:
+			texture = material.override.get_shader_parameter(factory.settings.shader_texture_slots[BaseMaterial3D.TEXTURE_ALBEDO])
 	if not texture:
 		return Vector2.ONE
 	var texture_size := texture.get_size()
