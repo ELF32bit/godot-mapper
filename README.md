@@ -1,5 +1,5 @@
 # Quake mapping plugin for Godot 4
-![Demonstration](screenshots/demonstration.webp)
+![Demonstration](screenshots/demonstration.webp)<br>
 Mapper plugin provides a way to manage game directories with map resources.<br>
 Construct Godot scenes from maps using your own scripts and run them without the plugin.<br>
 Organize map resources into game expansions by specifying alternative game directories.<br>
@@ -13,7 +13,7 @@ Organize map resources into game expansions by specifying alternative game direc
 * Automatic loading of PBR textures, animated textures and shader material textures.
 * Effortless brush entity construction and animation using plugin functions.
 * Safe entity property parsing and binding, entity linking and grouping.
-* **Ability to scatter grass on textures and barycentric wireframes!**
+* **Ability to scatter grass on textures and [barycentric wireframes](https://github.com/ELF32bit/godot-mapper/blob/main/mapping/generic/shaders/wireframe.gdshader)!**
 * Texture WAD (WAD2, WAD3) and Palette support.
 * Basic MDL (IDPO version 6) support.
 
@@ -25,7 +25,7 @@ Organize map resources into game expansions by specifying alternative game direc
 * game/materials for override materials with additional metadata.
 * game/textures for textures with possible PBR or animation names.
 * game/sounds for loading sounds with any of the supported extensions.
-* game/maps for maps, also maps might embed each other in entity properties.
+* game/maps for maps and possibly sub-maps defined in entity properties.
 * game/mapdata for automatically generated lightmaps and navigation data.
 * game/wads for texture WADs defined in map files.
 * game/mdls for animated models.
@@ -81,9 +81,9 @@ Entity linking information is also available, but linked entities might not be c
 var entity_target := map.get_first_entity_target(entity,
 	"target", "targetname", "info_null")
 if entity_target:
-	entity_target.get_origin_property(null) # is available
-	entity_target.center # stores brush entity AABB center
-	entity_target.node # is most likely missing
+	entity_target.get_origin_property(null) # for point entities
+	entity_target.center # or default to AABB center for brush entities
+	entity_target.node # is most likely missing!
 ```
 Post build script named **__post.gd** can be executed after all entity nodes are constructed.<br>
 
@@ -91,32 +91,33 @@ Post build script named **__post.gd** can be executed after all entity nodes are
 Materials support the same naming pattern with underscore as build scripts.<br>
 Moreover, material named **WOOD_.tres** will also apply to **WOOD1**, **WOOD2**, **WOOD123**, etc.<br>
 Shader materials that use standard texture parameters will be assigned provided textures.<br>
-For example, **albedo_texture** or **normal_texture** uniforms inside a shader.<br>
+For example, **albedo_texture** or **normal_texture** parameters inside a shader.<br>
 
 #### Material metadata can affect how nodes of uniform brushes are generated.
-* ```mesh_disabled``` set to true will hide MeshInstance3D.<br>
+* ```mesh_disabled``` set to True will hide MeshInstance3D.
 
 > Meshes of uniform brushes will not be merged into entity mesh.
 
-* ```cast_shadow``` set to false will disable shadow casting on MeshInstance3D.<br>
+* ```cast_shadow``` set to False will disable shadow casting on MeshInstance3D.
 
 > Meshes of uniform brushes will be excluded from entity shadow mesh.
 
 * ```gi_mode``` will set MeshInstance3D gi_mode to the specified mode.
-* ```ignore_occlusion``` will disable occlusion culling for MeshInstance3D.
-* ```collision_disabled``` set to true will disable CollisionShape3D.
+* ```ignore_occlusion``` set to True will disable MeshInstance3D culling.
+* ```collision_disabled``` set to True will disable CollisionShape3D.
 
 > Shapes of uniform brushes will not be merged into entity collision shape.
 
 * ```collision_layer``` will set CollisionObject3D layer to the specified layer.
 * ```collision_mask``` will set CollisionObject3D mask to the specified mask.
-* ```occluder_disabled``` set to true will hide OccluderInstance3D.
+* ```occluder_disabled``` set to True will hide OccluderInstance3D.
 
 > Occluders of uniform brushes will not be merged into entity occluder.
 
 * ```occluder_mask``` will set OccluderInstance3D mask to the specified mask.
 
-Material metadata can be used to filter out special brushes.<br>
+Material metadata can be used to filter out special brushes from merged entities.<br>
+Special **SKIP** material does not break the uniformity of such brushes.<br>
 ```GDScript
 # WATER_.tres material
 metadata/liquid = 1
@@ -177,7 +178,7 @@ Common entity properties such as origin, angle, angles (mangle) are already boun
 ```GDScript
 entity.bind_int_property("hp", "health")
 ```
-Often it's necessary to modify entity properties before assigning.<br>
+Often it's necessary to validate or modify entity properties before assigning.<br>
 ```GDScript
 entity_node.health = clampi(entity.get_int_property("hp", 100), 10, 100)
 ```
@@ -189,11 +190,11 @@ entity.bind_signal_property("target", "targetname", "generic", "_on_generic_sign
 entity.bind_signal_property("killtarget", "targetname", "generic", "queue_free")
 ```
 ```GDScript
-# path_corner.gd will be storing other path_corner targets
+# path_corner.gd will be storing node paths to path_corner targets
 entity.bind_node_path_array_property("target", "targetname", "_targets", "path_corner")
 entity.bind_node_path_property("target", "targetname", "_target", "path_corner")
 ```
-Other entity properties can be manually inserted into entity node properties dictionary.<br>
+Other entity properties can be manually inserted into node properties dictionary.<br>
 Changing automatically assigned properties will adjust the pivot of an entity.<br>
 ```GDScript
 # func_turnable.gd
@@ -207,7 +208,7 @@ Some entities use different rotation modes for angles (mangle) property.
 entity.bind_mangle_property("rotation", "YpR")
 ```
 
-### 6. Assign navigation regions.
+### 6. Assign navigation regions and bind node groups.
 Various entities might affect navigation regions differently.<br>
 Use entity node groups to manage entity navigation groups.<br>
 ```GDScript
@@ -218,13 +219,13 @@ MapperUtilities.add_to_navigation_region(entity_node, navigation_region)
 # func_detail entities will affect worldspawn navigation region
 for map_entity in map.classnames.get("func_detail", []):
 	MapperUtilities.add_entity_to_navigation_region(map_entity, navigation_region)
-	map_entity.node_groups.append("func_detail") # equivalent method
+	map_entity.node_groups.append("func_detail") # equivalent method!
 ```
 Assignment of node groups happens after entity node is constructed.<br>
 
 ### 7. Generate surface and volume distributions.
 Distributions are stored as transform arrays with basis and origin.<br>
-MapperUtilities class provides functions for working with transform arrays.<br>
+**MapperUtilities** class provides functions for working with transform arrays.<br>
 Spread function filters out nearby points, rotation function takes snap angles.<br>
 ```GDScript
 # worldspawn.gd
@@ -236,7 +237,7 @@ MapperUtilities.spread_transform_array(grass_transform_array, 0.25)
 MapperUtilities.scale_transform_array(grass_transform_array,
 	Vector3(1.0, 1.0, 1.0), Vector3(1.5, 2.0, 1.5))
 MapperUtilities.rotate_transform_array(grass_transform_array,
-	Vector3(-1.0, 0.0, -1.0)) # rotates around up vector without snap
+	Vector3(-1.0, 0.0, -1.0)) # rotates around up vector without snapping
 ```
 An example of using point entities to erase grass, painting is also possible!<br>
 ```GDScript
@@ -247,7 +248,7 @@ for map_entity in map.classnames.get("info_eraser", []):
 	var local_position := Vector3(position) - entity.center
 	var radius = map_entity.get_unit_property("radius", 300.0)
 	var hardness = map_entity.get_float_property("hardness", 1.0)
-	MapperUtilities.erase_transform_array(
+	var painted_transform_array := MapperUtilities.erase_transform_array(
 		grass_transform_array, local_position, radius, hardness)
 
 var grass_multimesh_instance := MapperUtilities.create_multimesh_instance(
