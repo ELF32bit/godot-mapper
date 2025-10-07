@@ -84,16 +84,16 @@ func _import(source_file: String, save_path: String, options: Dictionary, platfo
 
 	var map_options: Dictionary = {}
 	match options.get("game", 0):
-		0:
+		0: # Generic
 			map_options["game_directory"] = "res://mapping/generic"
 			map_options["alternative_game_directories"] = ["res://mapping/quake"]
 			map_options["game_loader"] = MapperSettings.DEFAULT_GAME_LOADER
-		1:
+		1: # Quake
 			map_options["game_directory"] = "res://mapping/quake"
 			map_options["game_loader"] = MapperSettings.QUAKE_GAME_LOADER
 			map_options["skip_material_affects_collision"] = false
 			map_options["prefer_static_lighting"] = true
-		_:
+		_: # Custom
 			pass
 	map_options.merge(options.get("options", {}), true)
 
