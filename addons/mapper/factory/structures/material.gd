@@ -13,10 +13,13 @@ func get_material() -> Material:
 	return (override if override else base)
 
 
-func get_metadata() -> Dictionary:
-	var metadata: Dictionary = {}
+func get_metadata(property: StringName, default: Variant = null) -> Variant:
 	if not override:
-		return metadata
-	for property in override.get_meta_list():
-		metadata[property] = override.get_meta(property, null)
-	return metadata
+		return default
+	return override.get_meta(property, default)
+
+
+func get_metadata_list() -> PackedStringArray:
+	if not override:
+		return PackedStringArray()
+	return override.get_meta_list()

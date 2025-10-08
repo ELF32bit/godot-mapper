@@ -1,18 +1,18 @@
 class_name MapperSettings
 extends Resource
 
+const DEFAULT_GAME_LOADER: GDScript = preload("loaders/default.gd")
+const QUAKE_GAME_LOADER: GDScript = preload("loaders/quake.gd")
+
+const DEFAULT_GAME_PROPERTY_CONVERTER: GDScript = preload("properties/default.gd")
+
 const MAX_ENTITY_GROUP_DEPTH: int = 256
 const MAX_ENTITY_TARGET_DEPTH: int = 4096
 const MAX_ENTITY_PARENT_DEPTH: int = 256
 const MAX_MATERIAL_TEXTURES: int = 1024
 const MAX_MAP_LOADING_DEPTH: int = 8
 
-const DEFAULT_GAME_LOADER: GDScript = preload("loaders/default.gd")
-const QUAKE_GAME_LOADER: GDScript = preload("loaders/quake.gd")
-
-const DEFAULT_GAME_PROPERTY_CONVERTER: GDScript = preload("properties/default.gd")
-
-## Shader material texture parameters recognized by the plugin.
+## Shader texture parameters recognized by the plugin.
 const SHADER_TEXTURE_SLOTS := {
 	BaseMaterial3D.TEXTURE_ALBEDO: "albedo_texture",
 	BaseMaterial3D.TEXTURE_METALLIC: "metallic_texture",
@@ -114,7 +114,6 @@ var options: Dictionary
 @export var base_materials_texture_filter := BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 ## If true, will reference simple override materials, instead of copying.
 @export var reference_override_materials := false
-
 @export var store_unique_animated_textures := false
 @export var animated_textures_frame_duration: float = 0.2
 @export var shader_texture_slots := SHADER_TEXTURE_SLOTS
@@ -176,6 +175,7 @@ var options: Dictionary
 	"collision_mask": "collision_mask",
 	"occluder_disabled": "occluder_disabled",
 	"occluder_mask": "occluder_mask",
+	"mass_density": "mass_density",
 }
 
 @export var game_directory: String = "":
@@ -233,7 +233,7 @@ var options: Dictionary
 @export var game_map_data_directory: String = "mapdata":
 	set(value):
 		if not value.is_empty() and value.is_relative_path():
-			game_maps_directory = value.trim_suffix("/")
+			game_map_data_directory = value.trim_suffix("/")
 		else:
 			push_error("Invalid game map data directory, must be relative path.")
 
@@ -247,7 +247,7 @@ var options: Dictionary
 @export var game_mdls_directory: String = "mdls":
 	set(value):
 		if not value.is_empty() and value.is_relative_path():
-			game_wads_directory = value.trim_suffix("/")
+			game_mdls_directory = value.trim_suffix("/")
 		else:
 			push_error("Invalid game mdls directory, must be relative path.")
 

@@ -89,8 +89,31 @@ func get_texture_size() -> Vector2:
 		if material.override is BaseMaterial3D:
 			texture = material.override.get_texture(BaseMaterial3D.TEXTURE_ALBEDO)
 		elif material.override is ShaderMaterial:
-			texture = material.override.get_shader_parameter(factory.settings.shader_texture_slots[BaseMaterial3D.TEXTURE_ALBEDO])
+			texture = material.override.get_shader_parameter(
+				factory.settings.shader_texture_slots[BaseMaterial3D.TEXTURE_ALBEDO])
 	if not texture:
 		return Vector2.ONE
 	var texture_size := texture.get_size()
 	return texture_size * (1.0 / factory.settings.unit_size)
+
+
+func get_aabb(origin: Vector3 = Vector3.ZERO) -> AABB:
+	var vertices := get_vertices(origin, false)
+	var aabb := AABB()
+	if vertices.size():
+		aabb = AABB(vertices[0], Vector3.ZERO)
+	for vertex_index in range(1, vertices.size()):
+		aabb = aabb.expand(vertices[vertex_index])
+	return aabb
+
+
+func get_area() -> float:
+	var triangles := get_triangles(Vector3.ZERO, true)
+	var get_triangle_area := func(a: Vector3, b: Vector3) -> float:
+		return a.length() * b.length() * sin(a.angle_to(b)) / 2.0
+	var area: float = 0.0
+	for index in range(0, triangles.size(), 3):
+		var a := triangles[index + 1] - triangles[index]
+		var b := triangles[index + 2] - triangles[index]
+		area += get_triangle_area.call(a, b)
+	return area

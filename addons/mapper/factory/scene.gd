@@ -937,7 +937,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 
 #12. Generating entity meshes
 	var generate_entity_meshes := func(thread_index: int) -> void:
-		var metadata_properties := settings.override_material_metadata_properties
+		var properties := settings.override_material_metadata_properties
 		var entity := entity_structures[thread_index]
 		var surface_tools: Dictionary = {}
 		var shadow_mesh_surface_tools: Dictionary = {}
@@ -947,9 +947,9 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 		for brush in entity.brushes:
 			if not brush.mesh:
 				continue
-			if brush.get_uniform_property(metadata_properties.mesh_disabled, false):
+			if brush.get_uniform_property(properties.mesh_disabled, false):
 				continue
-			var cast_shadow := brush.get_uniform_property(metadata_properties.cast_shadow, true)
+			var cast_shadow := brush.get_uniform_property(properties.cast_shadow, true)
 			has_shadow_mesh = bool(true if not cast_shadow else has_shadow_mesh)
 
 			var offset := Transform3D.IDENTITY.translated(brush.center - entity.center)
@@ -1001,7 +1001,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 
 #13. Generating entity shapes
 	var generate_entity_shapes := func(thread_index: int) -> void:
-		var metadata_properties := settings.override_material_metadata_properties
+		var properties := settings.override_material_metadata_properties
 		var entity := entity_structures[thread_index]
 		var points := PackedVector3Array()
 		var triangles := PackedVector3Array()
@@ -1012,7 +1012,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 		for brush in entity.brushes:
 			if not brush.shape or not brush.concave_shape:
 				continue
-			if brush.get_uniform_property(metadata_properties.collision_disabled, false):
+			if brush.get_uniform_property(properties.collision_disabled, false):
 				continue
 			shapes_amount += 1
 			var offset := Transform3D.IDENTITY.translated(brush.center - entity.center)
@@ -1034,7 +1034,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 
 #14. Generating entity occluders
 	var generate_entity_occluders := func(thread_index: int) -> void:
-		var metadata_properties := settings.override_material_metadata_properties
+		var properties := settings.override_material_metadata_properties
 		var entity := entity_structures[thread_index]
 		var vertices := PackedVector3Array()
 		var indices := PackedInt32Array()
@@ -1042,7 +1042,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 		for brush in entity.brushes:
 			if not brush.occluder:
 				continue
-			if brush.get_uniform_property(metadata_properties.occluder_disabled, false):
+			if brush.get_uniform_property(properties.occluder_disabled, false):
 				continue
 			var last_vertices_size := vertices.size()
 			vertices.append_array(brush.occluder.vertices)

@@ -256,6 +256,34 @@ func is_decal() -> bool:
 	return bool(aabb.has_volume() and brushes.size() == 1 and brushes[0].is_uniform())
 
 
+func get_surface_area(from_mesh: bool = true) -> float:
+	var area: float = 0.0
+	for brush in brushes:
+		area += brush.get_surface_area(from_mesh)
+	return area
+
+
+func get_surfaces_area(surfaces: PackedStringArray) -> float:
+	var area: float = 0.0
+	for brush in brushes:
+		area += brush.get_surfaces_area(surfaces)
+	return area
+
+
+func get_volume(from_aabb: bool = true) -> float:
+	var volume: float = 0.0
+	for brush in brushes:
+		volume += brush.get_volume(from_aabb)
+	return volume
+
+
+func get_mass(from_aabb: bool = true) -> float:
+	var mass: float = 0.0
+	for brush in brushes:
+		mass += brush.get_mass(from_aabb)
+	return mass
+
+
 func generate_surface_distribution(surfaces: PackedStringArray, density: float, min_floor_angle: float = 0.0, max_floor_angle: float = 45.0, even_distribution: bool = false, world_space: bool = false, seed: int = 0, _use_map_basis: bool = true) -> PackedVector3Array:
 	var transform_array := PackedVector3Array()
 	var mutex := Mutex.new()

@@ -115,6 +115,9 @@ For example, **albedo_texture** or **normal_texture** parameters inside a shader
 > Occluders of uniform brushes will not be merged into entity occluder.
 
 * ```occluder_mask``` will set OccluderInstance3D mask to the specified mask.
+* ```mass_density``` will affect material contribution to RigidBody3D mass.
+
+> Multi-material mass density requires `__mass_approximate` option set to False.
 
 Material metadata can be used to filter out special brushes from merged entities.<br>
 Special **SKIP** material does not break the uniformity of such brushes.<br>

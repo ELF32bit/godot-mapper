@@ -67,6 +67,16 @@ func get_uniform_property_list() -> PackedStringArray:
 	return override_material.get_meta_list()
 
 
+func get_matching_surfaces(surfaces: PackedStringArray) -> PackedStringArray:
+	var matching_brush_surfaces := PackedStringArray()
+	for brush_surface in self.surfaces:
+		for surface in surfaces:
+			if brush_surface.matchn(surface):
+				matching_brush_surfaces.append(brush_surface)
+				break
+	return matching_brush_surfaces
+
+
 func get_min_point_penetration(point: Vector3, epsilon: float) -> Variant:
 	var min_distance: float = INF
 	for face in faces:
@@ -101,6 +111,56 @@ func get_relative_point_penetration(point: Vector3, epsilon: float) -> Variant:
 	if max_distance == null:
 		return null
 	return min_distance / max_distance
+
+
+func get_surface_area(from_mesh: bool = true) -> float:
+	var properties := factory.settings.override_material_metadata_properties
+	if from_mesh and get_uniform_property(properties.mesh_disabled, false):
+		return 0.0
+	var area: float = 0.0
+	for face in faces:
+		if face.skip and from_mesh:
+			continue
+		area += face.get_area()
+	return area
+
+
+func get_surfaces_area(surfaces: PackedStringArray) -> float:
+	var area: float = 0.0
+	for brush_surface in get_matching_surfaces(surfaces):
+		for face in self.surfaces[brush_surface]:
+			area += face.get_area()
+	return area
+
+
+func get_volume(from_aabb: bool = true) -> float:
+	if from_aabb:
+		return aabb.get_volume()
+	var volume: float = 0.0
+	for face in faces:
+		var face_area := face.get_area()
+		var distance := absf(face.plane.distance_to(center))
+		volume += (distance * face_area) / 3.0
+	return volume
+
+
+func get_mass(from_aabb: bool = true) -> float:
+	var properties := factory.settings.override_material_metadata_properties
+	if get_uniform_property(properties.mesh_disabled, false):
+		return 0.0
+	var scale: float = factory.settings.options.get("__mass_scale", 10.0)
+	if from_aabb:
+		var density: float = get_uniform_property(properties.mass_density, 1.0)
+		return density * aabb.get_volume() * scale
+	var mass: float = 0.0
+	for face in faces:
+		if face.skip:
+			continue
+		var face_area := face.get_area()
+		var distance := absf(face.plane.distance_to(center))
+		var density: float = face.material.get_metadata(properties.mass_density, 1.0)
+		mass += density * (distance * face_area) / 3.0
+	return mass * scale
 
 
 func generate_surface_distribution(surfaces: PackedStringArray, density: float, min_floor_angle: float = 0.0, max_floor_angle: float = 45.0, even_distribution: bool = false, world_space: bool = false, seed: int = 0, _use_map_basis: bool = true) -> PackedVector3Array:
@@ -144,14 +204,7 @@ func generate_surface_distribution(surfaces: PackedStringArray, density: float, 
 		return a.length() * b.length() * sin(a.angle_to(b)) / 2.0
 
 	# collecting triangles and normals from matching brush surfaces
-	var matching_brush_surfaces := PackedStringArray()
-	for brush_surface in self.surfaces:
-		for surface in surfaces:
-			if brush_surface.matchn(surface):
-				matching_brush_surfaces.append(brush_surface)
-				break
-
-	for brush_surface in matching_brush_surfaces:
+	for brush_surface in get_matching_surfaces(surfaces):
 		for face in self.surfaces[brush_surface]:
 			# calculating face normal angle to up vector
 			var angle: float = face.plane.normal.angle_to(up)
