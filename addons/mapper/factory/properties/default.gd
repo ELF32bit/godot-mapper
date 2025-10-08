@@ -57,12 +57,20 @@ func convert_angles_PYR(line: String) -> Variant:
 	return convert_angles(line, "PYR")
 
 
+func convert_angles_YpR(line: String) -> Variant:
+	return convert_angles(line, "YpR")
+
+
 func convert_mangle(line: String, rotation_mode: String = "PYR") -> Variant:
 	return convert_angles(line, rotation_mode)
 
 
 func convert_mangle_PYR(line: String) -> Variant:
 	return convert_mangle(line, "PYR")
+
+
+func convert_mangle_YpR(line: String) -> Variant:
+	return convert_mangle(line, "YpR")
 
 
 func convert_unit(line: String) -> Variant:

@@ -110,6 +110,7 @@ func generate_surface_distribution(surfaces: PackedStringArray, density: float, 
 
 	# clamping input values and converting angles to radians
 	var max_density := factory.settings.max_distribution_density
+	density = density * factory.settings.distribution_density_scale
 	if max_density >= 1.0:
 		density = clampf(density, 0.0, pow(max_density, 2.0))
 	elif max_density > 0.0:
@@ -245,6 +246,7 @@ func generate_volume_distribution(density: float, min_penetration: float = 0.0, 
 
 	# clamping density and penetration range values
 	var max_density := factory.settings.max_distribution_density
+	density = density * factory.settings.distribution_density_scale
 	if max_density >= 1.0:
 		density = clampf(density, 0.0, pow(max_density, 3.0))
 	elif max_density > 0.0:

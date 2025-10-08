@@ -1,11 +1,18 @@
 class_name MapperSettings
 extends Resource
 
+const MAX_ENTITY_GROUP_DEPTH: int = 256
+const MAX_ENTITY_TARGET_DEPTH: int = 4096
+const MAX_ENTITY_PARENT_DEPTH: int = 256
+const MAX_MATERIAL_TEXTURES: int = 1024
+const MAX_MAP_LOADING_DEPTH: int = 8
+
 const DEFAULT_GAME_LOADER: GDScript = preload("loaders/default.gd")
 const QUAKE_GAME_LOADER: GDScript = preload("loaders/quake.gd")
 
-const DEFAULT_GAME_PROPERTY_CONVERTER: GDScript = preload("properties/extended.gd")
+const DEFAULT_GAME_PROPERTY_CONVERTER: GDScript = preload("properties/default.gd")
 
+## Shader material texture parameters recognized by the plugin.
 const SHADER_TEXTURE_SLOTS := {
 	BaseMaterial3D.TEXTURE_ALBEDO: "albedo_texture",
 	BaseMaterial3D.TEXTURE_METALLIC: "metallic_texture",
@@ -25,9 +32,10 @@ const SHADER_TEXTURE_SLOTS := {
 	BaseMaterial3D.TEXTURE_DETAIL_MASK: "detail_mask",
 	BaseMaterial3D.TEXTURE_DETAIL_ALBEDO: "detail_albedo",
 	BaseMaterial3D.TEXTURE_DETAIL_NORMAL: "detail_normal",
-	BaseMaterial3D.TEXTURE_ORM: "orm_texture"
+	BaseMaterial3D.TEXTURE_ORM: "orm_texture",
 }
 
+## PBR texture suffixes recognized by the plugin. Currently one word only.
 const TEXTURE_SUFFIXES := {
 	BaseMaterial3D.TEXTURE_ALBEDO: "_albedo",
 	BaseMaterial3D.TEXTURE_METALLIC: "_metallic",
@@ -47,40 +55,66 @@ const TEXTURE_SUFFIXES := {
 	BaseMaterial3D.TEXTURE_DETAIL_MASK: "_dmask",
 	BaseMaterial3D.TEXTURE_DETAIL_ALBEDO: "_dalbedo",
 	BaseMaterial3D.TEXTURE_DETAIL_NORMAL: "_dnormal",
-	BaseMaterial3D.TEXTURE_ORM: "_orm"
+	BaseMaterial3D.TEXTURE_ORM: "_orm",
 }
 
-const MAX_ENTITY_GROUP_DEPTH: int = 256
-const MAX_ENTITY_TARGET_DEPTH: int = 4096
-const MAX_ENTITY_PARENT_DEPTH: int = 256
-const MAX_MATERIAL_TEXTURES: int = 1024
-const MAX_MAP_LOADING_DEPTH: int = 8
-
+## Stores settings overrides and custom options.
 var options: Dictionary
 
+## Can provide 25-50% increase in speed.
+## If enabled, make sure that the map import plugin is single threaded.
 @export var use_threads := false
+## If disabled, can slightly increase the speed of distribution generation.
+## The resulting scene file will have a different hash after every reimport.
 @export var force_deterministic := true
 
-@export var basis := Basis(Vector3(0.0, 0.0, -1.0), Vector3(-1.0, 0.0, 0.0), Vector3(0.0, 1.0, 0.0))
+## Map coordinate system. Can also be used to rotate the entire map.
+@export var basis := Basis(
+	Vector3(0.0, 0.0, -1.0),
+	Vector3(-1.0, 0.0, 0.0),
+	Vector3(0.0, 1.0, 0.0))
 
+## Size of Godot unit in map units.
 @export var unit_size: float = 32.0
-@export var epsilon: float = 1e-03
+## Comparison epsilon in map units. Make sure to divide it by unit size.
+@export var epsilon: float = 0.001
+## Grid snap can dramatically improve numerical precision and representation.
 @export var grid_snap_enabled := true
+## Grid snap step in map units. Make sure to divide it by unit size.
 @export var grid_snap_step: float = 0.125
 
-@export var readable_node_names := true
+## If false, will not unwrap geometry for lightmaps.
+## Make sure to compile Godot editor with `XA_MULTITHREADED 0` or disable.
 @export var lightmap_unwrap := true
+## Controls the size of each texel on the baked lightmap.
 @export var lightmap_texel_size: float = 0.5
-@export var occlusion_culling := true
-@export var shadow_meshes := true # BUG: does not work with forward+ rendering
-@export var store_barycentric_coordinates := true # instead of vertex colors
-@export var use_advanced_barycentric_coordinates := true # with alpha values
-@export var prefer_static_lighting := true # preference for build scripts
-@export var max_distribution_density: float = 4.0 # per axis
+## Preference for build scripts. Use it to control GI mode of dynamic entities.
+@export var prefer_static_lighting := true
 
+## If false, can slightly increase the speed of scene generation.
+@export var readable_node_names := true
+## If false, occluder instances will not be generated.
+@export var occlusion_culling := true
+## If false, entity shadow meshes will not be generated.
+## Currently does not work with Forward+ rendering, recommended to disable.
+@export var shadow_meshes := true # BUG: does not work with Forward+ rendering
+
+## If false, will not store barycentric coordinates as vertex colors.
+@export var store_barycentric_coordinates := true
+## If false, will store basic barycentric coordinates without alpha modes.
+@export var use_advanced_barycentric_coordinates := true
+
+## Max surface (^2) and volume (^3) distribution density per axis.
+@export var max_distribution_density: float = 4.0
+## Global distribution density multiplier for optimization.
+@export var distribution_density_scale: float = 1.0
+
+## If false, will free up surface material override slots on mesh instances.
 @export var store_base_materials := true
 @export var base_materials_texture_filter := BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+## If true, will reference simple override materials, instead of copying.
 @export var reference_override_materials := false
+
 @export var store_unique_animated_textures := false
 @export var animated_textures_frame_duration: float = 0.2
 @export var shader_texture_slots := SHADER_TEXTURE_SLOTS

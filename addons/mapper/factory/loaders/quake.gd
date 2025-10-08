@@ -12,37 +12,6 @@ func validate_material_name(material: String) -> String:
 	return material
 
 
-func load_material(material: String) -> Material:
-	material = validate_material_name(material)
-	if material.is_empty():
-		return null
-
-	var is_multimaterial := false
-	var material_resource: Material = null
-	for matching_path in generate_matching_paths(material):
-		for extension in settings.game_material_extensions:
-			var file := matching_path + "." + extension
-			var path := settings.game_directory.path_join(file)
-			if ResourceLoader.exists(path, "Material"):
-				material_resource = load(path)
-				if settings.reference_override_materials:
-					if material_resource and not is_multimaterial:
-						material_resource.set_meta("_mapper_reference", true)
-				return material_resource
-
-			for alternative_game_directory in settings.alternative_game_directories:
-				var alternative_path := alternative_game_directory.path_join(file)
-				if ResourceLoader.exists(alternative_path, "Material"):
-					material_resource = load(alternative_path)
-					if settings.reference_override_materials:
-						if material_resource and not is_multimaterial:
-							material_resource.set_meta("_mapper_reference", true)
-					return material_resource
-
-		is_multimaterial = true
-	return null
-
-
 func load_base_material() -> BaseMaterial3D:
 	var material := StandardMaterial3D.new()
 	material.texture_filter = settings.base_materials_texture_filter

@@ -74,15 +74,12 @@ func get_normals(with_center: bool = false) -> PackedVector3Array:
 
 func get_triangles(origin: Vector3 = Vector3.ZERO, with_center: bool = true) -> PackedVector3Array:
 	var vertices := get_vertices(origin, with_center)
-
 	var triangles := PackedVector3Array()
 	triangles.resize(3 * (vertices.size() - 2))
-
 	for triangle_index in range(1, vertices.size() - 1):
 		triangles[triangle_index * 3 - 3] = vertices[0]
 		triangles[triangle_index * 3 - 2] = vertices[triangle_index]
 		triangles[triangle_index * 3 - 1] = vertices[triangle_index + 1]
-
 	return triangles
 
 

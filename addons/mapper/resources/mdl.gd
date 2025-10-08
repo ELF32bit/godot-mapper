@@ -53,9 +53,11 @@ static func load_from_file(path: String, palette: MapperPaletteResource = null) 
 
 	var ident := file.get_32()
 	if ident != 1330660425:
+		push_error("MDL has wrong ident %s, expected %s." % [ident, "IDPO"])
 		return null
 	var version := file.get_32()
 	if version != 6:
+		push_error("MDL has wrong version %s, expected %s." % [version, 6])
 		return null
 
 	var mdl := MapperMdlResource.new()
@@ -77,24 +79,27 @@ static func load_from_file(path: String, palette: MapperPaletteResource = null) 
 
 	var texture_amount := file.get_32()
 	if texture_amount > MAX_TEXTURES:
+		push_error("MDL texture amount %s exceeds the expected amount %s." % [texture_amount, MAX_TEXTURES])
 		return null
 	var texture_width := file.get_32()
-	if texture_width == 0 or texture_width > 4096:
-		return null
 	var texture_height := file.get_32()
-	if texture_height == 0 or texture_height > 4096:
+	if texture_width == 0 or texture_height == 0 or texture_width > 4096 or texture_height > 4096:
+		push_error("MDL texture has invalid size: %sx%s." % [texture_width, texture_height])
 		return null
 	mdl.texture_size = Vector2i(texture_width, texture_height)
 	var texture_size := texture_width * texture_height
 
 	var vertices_amount := file.get_32()
 	if vertices_amount > MAX_VERTICES:
+		push_error("MDL vertices amount %s exceeds the expected amount %s." % [vertices_amount, MAX_VERTICES])
 		return null
 	var triangles_amount := file.get_32()
 	if triangles_amount > MAX_TRIANGLES:
+		push_error("MDL triangles amount %s exceeds the expected amount %s." % [triangles_amount, MAX_TRIANGLES])
 		return null
 	var frames_amount := file.get_32()
 	if frames_amount > MAX_FRAMES:
+		push_error("MDL frames amount %s exceeds the expected amount %s." % [frames_amount, MAX_FRAMES])
 		return null
 	var texture_coordinates_amount := vertices_amount
 
