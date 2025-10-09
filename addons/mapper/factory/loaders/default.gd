@@ -136,20 +136,22 @@ func load_animated_texture(texture: String, wads: Array[MapperWadResource] = [])
 			var animated_texture: AnimatedTexture = null
 			if settings.store_unique_animated_textures:
 				animated_texture = AnimatedTexture.new()
-			else:
-				if frames in animated_texture_cache:
-					return animated_texture_cache[frames]
-				animated_texture_cache[frames] = AnimatedTexture.new()
-				animated_texture = animated_texture_cache[frames]
-
-			animated_texture.frames = frames.size()
-			animated_texture.one_shot = false
-			for frame in range(animated_texture.frames):
-				animated_texture.set_frame_texture(frame, frames[frame])
-				animated_texture.set_frame_duration(frame, settings.animated_textures_frame_duration)
+			elif frames in animated_texture_cache:
+				return animated_texture_cache[frames]
 
 			var reference_texture := load_resource(texture_name, "AnimatedTexture")
-			if reference_texture and reference_texture is AnimatedTexture:
+			if animated_texture != null or not settings.reference_override_materials:
+				if animated_texture == null:
+					animated_texture_cache[frames] = AnimatedTexture.new()
+					animated_texture = animated_texture_cache[frames]
+				animated_texture.frames = frames.size()
+				animated_texture.one_shot = false
+				for frame in range(animated_texture.frames):
+					animated_texture.set_frame_texture(frame, frames[frame])
+					animated_texture.set_frame_duration(frame, settings.animated_textures_frame_duration)
+				if not (reference_texture and reference_texture is AnimatedTexture):
+					return animated_texture
+
 				animated_texture.pause = reference_texture.pause
 				animated_texture.one_shot = reference_texture.one_shot
 				animated_texture.speed_scale = reference_texture.speed_scale
@@ -157,7 +159,16 @@ func load_animated_texture(texture: String, wads: Array[MapperWadResource] = [])
 					for frame in range(reference_texture.frames):
 						var duration: float = reference_texture.get_frame_duration(frame)
 						animated_texture.set_frame_duration(frame, duration)
+				return animated_texture
 
+			if not (reference_texture and reference_texture is AnimatedTexture):
+				animated_texture_cache[frames] = AnimatedTexture.new()
+			else:
+				animated_texture_cache[frames] = reference_texture
+			animated_texture = animated_texture_cache[frames]
+			animated_texture.frames = frames.size()
+			for frame in range(animated_texture.frames):
+				animated_texture.set_frame_texture(frame, frames[frame])
 			return animated_texture
 
 	return load_texture(texture, wads)
