@@ -200,6 +200,10 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 			_skip_omit_entities.call(all_entity_structures, omit_world_entity_structure)
 
 		var world_entity_extra_brush_structures: Array[MapperBrush] = []
+		var world_entity_extra_brush_entities_classnames: Dictionary = {}
+		for classname in settings.world_entity_extra_brush_entities_classnames:
+			world_entity_extra_brush_entities_classnames[classname] = true
+
 		for entity_index in range(map.entities.size()):
 			var entity := map.entities[entity_index]
 			var is_world_entity_extra_brush_entity := false
@@ -207,43 +211,51 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 			if entity_structure.metadata.get("__tb_omit", false):
 				continue
 
+			# skipping certain entities from settings
 			var entity_classname := entity_structure.get_classname_property(null)
+			var is_skipped_entity := false
 			if entity_classname != null:
-				# skipping certain entities from settings
-				if settings.is_skip_entity_classname(entity_classname):
-					continue
-				# creating map structure classnames dictionary
+				is_skipped_entity = settings.is_skip_entity_classname(entity_classname)
+			elif settings.skip_entities_enabled and settings.skip_entities_without_classname:
+				is_skipped_entity = true
+
+			# creating map structure classnames dictionary
+			if not is_skipped_entity and entity_classname != null:
 				if not entity_classname in map_structure.classnames:
 					map_structure.classnames[entity_classname] = []
 				map_structure.classnames[entity_classname].append(entity_structure)
-				# marking world entity extra brush entities
-				if settings.world_entity_extra_brush_entities_enabled:
-					if entity_classname in settings.world_entity_extra_brush_entities_classnames:
-						is_world_entity_extra_brush_entity = true
-			elif settings.skip_entities_enabled:
-				if settings.skip_entities_without_classname:
-					continue
+
+			# marking world entity extra brush entities
+			if settings.world_entity_extra_brush_entities_enabled and entity_classname != null:
+				if entity_classname in world_entity_extra_brush_entities_classnames:
+					is_world_entity_extra_brush_entity = true
 
 			# obtaining entity lightmap scale and binding common properties
 			var entity_lightmap_scale: float = 1.0
 			if entity.brushes.size():
 				entity_lightmap_scale = entity_structure.get_lightmap_scale_property(1.0)
 			_bind_common_entity_properties.call(entity_structure)
-			entity_structures.append(entity_structure)
+			if not is_skipped_entity:
+				entity_structures.append(entity_structure)
+			elif is_world_entity_extra_brush_entity:
+				entity_structure.metadata["_extra_entity"] = true
 
 			for brush in entity.brushes:
 				var brush_structure := MapperBrush.new()
 				entity_structure.brushes.append(brush_structure)
-				brush_structures.append(brush_structure)
 				if is_world_entity_extra_brush_entity:
 					world_entity_extra_brush_structures.append(brush_structure)
+					brush_structures.append(brush_structure)
+				elif not is_skipped_entity:
+					brush_structures.append(brush_structure)
 				brush_structure.lightmap_scale = entity_lightmap_scale
 				brush_structure.factory = self
 
 				for face in brush.faces:
 					var face_structure := MapperFace.new()
 					brush_structure.faces.append(face_structure)
-					face_structures.append(face_structure)
+					if not is_skipped_entity or is_world_entity_extra_brush_entity:
+						face_structures.append(face_structure)
 
 					face_structure.point1 = face.point1
 					face_structure.point2 = face.point2
@@ -268,6 +280,10 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 			for entity_structure in entity_structures:
 				if entity_structure.is_smooth_shaded():
 					smooth_entity_structures.append(entity_structure)
+			for entity_structure in all_entity_structures:
+				if entity_structure.metadata.get("_extra_entity", false):
+					if entity_structure.is_smooth_shaded():
+						smooth_entity_structures.append(entity_structure)
 
 #2. Generating faces
 	var generate_faces := func(thread_index: int) -> void:

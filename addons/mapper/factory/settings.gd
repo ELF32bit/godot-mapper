@@ -108,6 +108,7 @@ var options: Dictionary
 @export var max_distribution_density: float = 4.0
 ## Global distribution density multiplier for optimization.
 @export var distribution_density_scale: float = 1.0
+@export var mass_scale: float = 10.0
 
 ## If false, will free up surface material override slots on mesh instances.
 @export var store_base_materials := true

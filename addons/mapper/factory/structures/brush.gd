@@ -148,7 +148,7 @@ func get_mass(from_aabb: bool = true) -> float:
 	var properties := factory.settings.override_material_metadata_properties
 	if get_uniform_property(properties.mesh_disabled, false):
 		return 0.0
-	var scale: float = factory.settings.options.get("__mass_scale", 10.0)
+	var scale: float = factory.settings.mass_scale
 	if from_aabb:
 		var density: float = get_uniform_property(properties.mass_density, 1.0)
 		return density * aabb.get_volume() * scale
