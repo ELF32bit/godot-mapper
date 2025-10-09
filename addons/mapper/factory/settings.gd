@@ -273,6 +273,7 @@ var options: Dictionary
 @export var warn_about_degenerate_brushes := true
 @export var use_experimental_brush_algorithm := false
 
+@export var mdls_autoplay: String = ""
 @export var mdls_frame_duration: float = 0.1
 @export var mdls_palette: MapperPaletteResource = null
 @export var mdls_skins_metadata_property: StringName = "skins"

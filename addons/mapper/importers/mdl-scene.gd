@@ -49,6 +49,7 @@ func _get_import_options(path: String, preset_index: int) -> Array[Dictionary]:
 				{
 					"name": "options",
 					"default_value": {
+						"mdls_autoplay": "",
 						"mdls_skin": 0,
 					},
 				},
