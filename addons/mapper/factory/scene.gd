@@ -1264,15 +1264,19 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 	factory.call(load_materials_and_textures, 7, "Loading materials and textures")
 	factory.call(parallel_task.bind(generate_brush_geometry, brush_structures.size(), 4), 8, "Generating brush geometry")
 	factory.call(parallel_task.bind(generate_entity_bounds, entity_structures.size(), 0), 9, "Generating entity bounds")
-	factory.call(parallel_task.bind(generate_entity_meshes, entity_structures.size(), 0), 10, "Generating entity meshes")
-	factory.call(parallel_task.bind(generate_entity_shapes, entity_structures.size(), 2), 11, "Generating entity shapes")
+
+	if settings.merge_entity_brushes:
+		factory.call(parallel_task.bind(generate_entity_meshes, entity_structures.size(), 0), 10, "Generating entity meshes")
+		factory.call(parallel_task.bind(generate_entity_shapes, entity_structures.size(), 2), 11, "Generating entity shapes")
 
 	if settings.occlusion_culling:
 		factory.call(parallel_task.bind(generate_brush_occluders, brush_structures.size(), 0), 12, "Generating brush occluders")
+	if settings.occlusion_culling and settings.merge_entity_brushes:
 		factory.call(parallel_task.bind(generate_entity_occluders, entity_structures.size(), 0), 13, "Generating entity occluders")
 
 	if settings.lightmap_unwrap:
 		factory.call(parallel_task.bind(generate_brush_lightmap_uvs, brush_structures.size(), 0), 14, "Unwrapping brushes for lightmaps")
+	if settings.lightmap_unwrap and settings.merge_entity_brushes:
 		factory.call(parallel_task.bind(generate_entity_lightmap_uvs, entity_structures.size(), 0), 15, "Unwrapping entities for lightmaps")
 
 	factory.call(generate_entity_nodes, 16, "Generating entity nodes")

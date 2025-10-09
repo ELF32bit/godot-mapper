@@ -93,21 +93,23 @@ var options: Dictionary
 
 ## If false, can slightly increase the speed of scene generation.
 @export var readable_node_names := true
-## If false, occluder instances will not be generated.
-@export var occlusion_culling := true
-## If false, entity shadow meshes will not be generated.
-## Currently does not work with Forward+ rendering, recommended to disable.
-@export var shadow_meshes := true # BUG: does not work with Forward+ rendering
-
 ## If false, will not store barycentric coordinates as vertex colors.
 @export var store_barycentric_coordinates := true
 ## If false, will store basic barycentric coordinates without alpha modes.
 @export var use_advanced_barycentric_coordinates := true
+## If false, will not generate merged brush entities.
+@export var merge_entity_brushes := true
+## If false, entity shadow meshes will not be generated.
+## Currently does not work with Forward+ rendering, recommended to disable.
+@export var shadow_meshes := true # BUG: does not work with Forward+ rendering
+## If false, occluder instances will not be generated.
+@export var occlusion_culling := true
 
 ## Max surface (^2) and volume (^3) distribution density per axis.
 @export var max_distribution_density: float = 4.0
 ## Global distribution density multiplier for optimization.
 @export var distribution_density_scale: float = 1.0
+## Global mass multiplier for rigid bodies.
 @export var mass_scale: float = 10.0
 
 ## If false, will free up surface material override slots on mesh instances.
