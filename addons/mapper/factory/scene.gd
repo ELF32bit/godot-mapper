@@ -633,6 +633,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 			var path := settings.game_materials_directory.path_join(material)
 			var base_material: BaseMaterial3D = game_loader.load_base_material()
 			var override_material: Material = game_loader.load_material(path)
+			var properties := settings.override_material_metadata_properties
 
 			# loading base and override materials
 			if override_material:
@@ -646,11 +647,20 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 				if not is_referenced:
 					override_material = override_material.duplicate()
 
+				# also loading physics material from metadata
+				var physics_material: PhysicsMaterial = null
+				if override_material.has_meta(properties.physics_material):
+					physics_material = override_material.get_meta(properties.physics_material, null)
+				if physics_material and not is_referenced:
+					physics_material = physics_material.duplicate()
+
 				map_structure.materials[material].base = base_material
 				map_structure.materials[material].override = override_material
+				map_structure.materials[material].physics = physics_material
 			else:
 				map_structure.materials[material].base = base_material
 				map_structure.materials[material].override = null
+				map_structure.materials[material].physics = null
 
 			# loading material slot textures
 			var slot_textures: Dictionary = {}

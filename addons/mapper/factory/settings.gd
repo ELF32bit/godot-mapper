@@ -178,6 +178,7 @@ var options: Dictionary
 	"collision_mask": "collision_mask",
 	"occluder_disabled": "occluder_disabled",
 	"occluder_mask": "occluder_mask",
+	"physics_material": "physics_material",
 	"mass_density": "mass_density",
 }
 

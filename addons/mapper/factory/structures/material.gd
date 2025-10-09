@@ -2,11 +2,13 @@ class_name MapperMaterial
 
 var base: BaseMaterial3D
 var override: Material
+var physics: PhysicsMaterial
 
 
-func _init(base: BaseMaterial3D = null, override: Material = null) -> void:
+func _init(base: BaseMaterial3D = null, override: Material = null, physics: PhysicsMaterial = null) -> void:
 	self.base = base
 	self.override = override
+	self.physics = physics
 
 
 func get_material() -> Material:
