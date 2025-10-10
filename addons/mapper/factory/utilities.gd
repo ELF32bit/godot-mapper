@@ -593,9 +593,8 @@ static func create_brush(entity: MapperEntity, brush: MapperBrush, node_class: S
 		instance.bake_mask = brush.get_uniform_property(properties.occluder_mask, 0xFFFFFFFF)
 
 	if has_children:
-		if (is_static_body or is_rigid_body) and brush.is_uniform():
-			var surface_name := brush.mesh.surface_get_name(0)
-			node.physics_material_override = brush.materials[surface_name].physics
+		if is_static_body or is_rigid_body:
+			node.physics_material_override = brush.get_uniform_physics_material()
 		if is_rigid_body:
 			var mass := brush.get_mass(use_approximate_mass)
 			if mass > 0.0: node.mass = mass

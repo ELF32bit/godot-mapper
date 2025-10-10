@@ -18,7 +18,9 @@ func get_material() -> Material:
 func get_metadata(property: StringName, default: Variant = null) -> Variant:
 	if not override:
 		return default
-	return override.get_meta(property, default)
+	if override.has_meta(property):
+		return override.get_meta(property, default)
+	return default
 
 
 func get_metadata_list() -> PackedStringArray:

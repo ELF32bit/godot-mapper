@@ -51,20 +51,21 @@ func get_uniform_property(property: StringName, default: Variant = null, _metada
 	if not is_uniform():
 		return default
 	var surface_name := mesh.surface_get_name(0)
-	var override_material: Material = materials[surface_name].override
-	if not override_material:
-		return default
-	return override_material.get_meta(property, default)
+	return materials[surface_name].get_metadata(property, default)
 
 
 func get_uniform_property_list() -> PackedStringArray:
 	if not is_uniform():
 		return PackedStringArray()
 	var surface_name := mesh.surface_get_name(0)
-	var override_material: Material = materials[surface_name].override
-	if not override_material:
-		return PackedStringArray()
-	return override_material.get_meta_list()
+	return materials[surface_name].get_metadata_list()
+
+
+func get_uniform_physics_material() -> PhysicsMaterial:
+	if not is_uniform():
+		return null
+	var surface_name := mesh.surface_get_name(0)
+	return materials[surface_name].physics
 
 
 func get_matching_surfaces(surfaces: PackedStringArray) -> PackedStringArray:
