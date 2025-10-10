@@ -125,28 +125,37 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 			if type_index != -1 and id != null:
 				map_structure.groups[group_entity_types[type_index]][id] = entity_structure
 
-	# getting default world entity that declares omit from export (only for TB maps)
-	var _get_omit_world_entity := func(all_entity_structures: Array[MapperEntity]) -> MapperEntity:
+	# getting the first world entity and default layer omit from export (only for TB maps)
+	var _tb_omit := bool(settings.tb_layer_omit_from_export_enabled and settings.group_entity_enabled)
+	var _get_first_world_entity_structure := func(all_entity_structures: Array[MapperEntity]) -> MapperEntity:
+		var first_world_entity_structure: MapperEntity = null
 		var world_entity_classname := settings.world_entity_classname
 		var tb_omit_property := settings.tb_layer_omit_from_export_property
 		for entity_structure in all_entity_structures:
 			var entity_classname = entity_structure.get_classname_property(null)
-			if entity_classname == world_entity_classname:
-				if entity_structure.get_int_property(tb_omit_property, 0) != 0:
-					return entity_structure
-		return null
+			if not entity_classname == world_entity_classname:
+				continue
+			if first_world_entity_structure == null:
+				first_world_entity_structure = entity_structure
+			if not _tb_omit:
+				return first_world_entity_structure
+			if entity_structure.get_int_property(tb_omit_property, 0) != 0:
+				first_world_entity_structure.metadata["__tb_omit"] = true
+				return first_world_entity_structure
+		return first_world_entity_structure
 
 	# skipping entities from TB layers that declare omit from export (only for TB maps)
-	var _skip_omit_entities := func(all_entity_structures: Array[MapperEntity], omit_world_entity_structure: MapperEntity) -> void:
+	var _skip_omit_entities := func(all_entity_structures: Array[MapperEntity], first_world_entity_structure: MapperEntity) -> void:
 		var tb_omit_property := settings.tb_layer_omit_from_export_property
+		var tb_default_layer_omit := false
+		if first_world_entity_structure:
+			if first_world_entity_structure.metadata.get("__tb_omit", false):
+				tb_default_layer_omit = true
 		for entity_index in range(all_entity_structures.size()):
 			var entity_structure := all_entity_structures[entity_index]
-			if entity_structure == omit_world_entity_structure:
-				entity_structure.metadata["__tb_omit"] = true
-				continue
 			var entity_structure_layer := map_structure.get_entity_layer(entity_structure)
 			if not entity_structure_layer:
-				if omit_world_entity_structure:
+				if tb_default_layer_omit:
 					entity_structure.metadata["__tb_omit"] = true
 				continue
 			if entity_structure_layer.get_int_property(tb_omit_property, 0) != 0:
@@ -162,14 +171,17 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 		entity_structure.bind_mangle_property("rotation")
 
 	# generating and adding extra brushes to the first world entity
-	var _generate_world_entity_structure := func(extra_brush_structures: Array[MapperBrush], omit_structure: MapperEntity) -> void:
+	var _generate_world_entity_structure := func(first_structure: MapperEntity, extra_brush_structures: Array[MapperBrush]) -> void:
+		var tb_default_layer_omit := false
 		var world_entity_structure: MapperEntity = null
 		var world_entity_classname := settings.world_entity_classname
 		var is_skipped_entity := settings.is_skip_entity_classname(world_entity_classname)
+		if first_structure and first_structure.metadata.get("__tb_omit", false):
+			tb_default_layer_omit = true
 		# duplicating omit entity or using an existing world entity
-		if omit_structure and not is_skipped_entity:
+		if tb_default_layer_omit and not is_skipped_entity:
 			world_entity_structure = MapperEntity.new()
-			world_entity_structure.properties = omit_structure.properties.duplicate()
+			world_entity_structure.properties = first_structure.properties.duplicate()
 			world_entity_structure.brushes.append_array(extra_brush_structures)
 			world_entity_structure.factory = self
 			# adding new world entity to the map structure classnames dictionary
@@ -193,11 +205,11 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 		if settings.group_entity_enabled:
 			_generate_map_groups.call(all_entity_structures)
 
-		# preparing to skip entities from TB layers
-		var omit_world_entity_structure: MapperEntity = null
-		if settings.group_entity_enabled and settings.tb_layer_omit_from_export_enabled:
-			omit_world_entity_structure = _get_omit_world_entity.call(all_entity_structures)
-			_skip_omit_entities.call(all_entity_structures, omit_world_entity_structure)
+		# getting the first world entity and skipping entities from TB layers
+		var first_world_entity_structure: MapperEntity = null
+		first_world_entity_structure = _get_first_world_entity_structure.call(all_entity_structures)
+		if _tb_omit:
+			_skip_omit_entities.call(all_entity_structures, first_world_entity_structure)
 
 		var world_entity_extra_brush_structures: Array[MapperBrush] = []
 		var world_entity_extra_brush_entities_classnames: Dictionary = {}
@@ -228,7 +240,8 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 			# marking world entity extra brush entities
 			if settings.world_entity_extra_brush_entities_enabled and entity_classname != null:
 				if entity_classname in world_entity_extra_brush_entities_classnames:
-					is_world_entity_extra_brush_entity = true
+					if entity_structure != first_world_entity_structure:
+						is_world_entity_extra_brush_entity = true
 
 			# obtaining entity lightmap scale and binding common properties
 			var entity_lightmap_scale: float = 1.0
@@ -273,8 +286,8 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 		# adding extra brushes to the first world entity entity
 		if settings.world_entity_extra_brush_entities_enabled:
 			if world_entity_extra_brush_structures.size() > 0:
-				_generate_world_entity_structure.call(world_entity_extra_brush_structures,
-					omit_world_entity_structure)
+				_generate_world_entity_structure.call(first_world_entity_structure,
+					world_entity_extra_brush_structures)
 
 		if settings.smooth_shading_property_enabled:
 			for entity_structure in entity_structures:
