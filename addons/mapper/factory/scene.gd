@@ -1409,8 +1409,13 @@ func build_mdl(mdl: MapperMdlResource) -> PackedScene:
 		var animation_library := AnimationLibrary.new()
 		animation_player.add_animation_library("", animation_library)
 		animation_player.autoplay = "RESET"
-		if not settings.mdls_autoplay.is_empty():
+
+		if not settings.mdls_autoplay.is_empty() and settings.mdls_autoplay in animations:
 			animation_player.autoplay = settings.mdls_autoplay
+			if animations[settings.mdls_autoplay].size():
+				for node in animation_nodes:
+					node.visible = false
+				animations[settings.mdls_autoplay][1].visible = true
 
 		for animation_name in animations:
 			var animation_frames: Array = animations[animation_name].keys()
