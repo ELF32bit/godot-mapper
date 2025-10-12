@@ -388,6 +388,9 @@ func generate_matching_paths(path: String) -> PackedStringArray:
 
 	if not path.is_empty():
 		paths.append(path)
+	if settings.post_build_script_enabled:
+		if filename == settings.post_build_script_name:
+			return paths
 	while not filename.is_empty():
 		var suffix: String = right.call(filename, "_")
 		filename = filename.rstrip("0123456789")
