@@ -634,7 +634,6 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 			BaseMaterial3D.TEXTURE_DETAIL_ALBEDO | BaseMaterial3D.TEXTURE_DETAIL_NORMAL:
 				material.set_feature(BaseMaterial3D.FEATURE_DETAIL, true)
 
-	# enabling base material features to provide visual feedback
 	var _enable_base_material_features := func(material: BaseMaterial3D) -> void:
 		for slot in BaseMaterial3D.TEXTURE_MAX:
 			if material.get_texture(slot):
@@ -865,10 +864,9 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 			# applying post colors to face vertices
 			var is_post_colors := false
 			if settings.post_build_faces_colors_enabled:
-				var method := settings.post_build_faces_colors_method
-				if post_build_script and post_build_script.has_method(method):
+				if post_build_script and post_build_script.has_method("build_faces_colors"):
 					var colors_size := colors.size()
-					post_build_script.call(method, face, colors)
+					post_build_script.call("build_faces_colors", face, colors)
 					if colors.size() != colors_size:
 						push_warning("Failed setting face colors, array is resized!")
 						colors.resize(colors_size)

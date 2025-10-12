@@ -5,12 +5,12 @@ var source_file: String
 var entities: Array[MapperEntity]
 var wads: Array[MapperWadResource]
 
-var materials: Dictionary
-var classnames: Dictionary
-var target_sources: Dictionary
-var _group_target_sources: Dictionary # hack: target sources limited to group
-var group_entities: Dictionary
-var groups: Dictionary
+var materials: Dictionary #[String, MapperMaterial]
+var classnames: Dictionary #[String, Array[MapperEntity]]
+var target_sources: Dictionary #[String, Array[MapperEntity]]
+var _group_target_sources: Dictionary # HACK: target sources limited to group
+var group_entities: Dictionary #[MapperEntity, Array[MapperEntity]]
+var groups: Dictionary # stores map groups by type and id
 
 var metadata: Dictionary
 var factory: MapperFactory

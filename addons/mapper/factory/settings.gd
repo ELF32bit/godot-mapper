@@ -1,7 +1,11 @@
 class_name MapperSettings
 extends Resource
 
+## Default game loader is not compatible with Quake game loader.
+## Animated and alternative textures require suffixes with the same word count.
 const DEFAULT_GAME_LOADER: GDScript = preload("loaders/default.gd")
+## Quake game loader uses cross platform material and texture names.
+## Materials and textures should not be prefixed with '*', '{'.
 const QUAKE_GAME_LOADER: GDScript = preload("loaders/quake.gd")
 
 const DEFAULT_GAME_PROPERTY_CONVERTER: GDScript = preload("properties/default.gd")
@@ -109,14 +113,21 @@ var options: Dictionary
 @export var max_distribution_density: float = 4.0
 ## Global distribution density multiplier for optimization.
 @export var distribution_density_scale: float = 1.0
+
 ## Global mass multiplier for rigid bodies.
 @export var mass_scale: float = 10.0
+## Approximate mass is calculated from brush AABB and is limited to a single material.
+## If false, will calculate brush mass from surface areas of multiple materials.
+@export var use_approximate_mass := true
 
 ## If false, will free up surface material override slots on mesh instances.
 @export var store_base_materials := true
-@export var base_materials_texture_filter := BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+## Base materials will use the specified texture filter.
+## Override materials will not automatically use that filter.
+@export var texture_filter := BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 ## If true, will reference simple override materials, instead of copying.
 @export var reference_override_materials := false
+## If true, all animated textures can be paused individually.
 @export var store_unique_animated_textures := false
 @export var animated_textures_frame_duration: float = 0.2
 @export var shader_texture_slots := SHADER_TEXTURE_SLOTS
@@ -131,19 +142,19 @@ var options: Dictionary
 @export var smooth_shading_property_enabled := true
 @export var smooth_shading_property: StringName = "_phong"
 @export var smooth_shading_split_angle_property: StringName = "_phong_angle"
-
 @export var cast_shadow_property_enabled := true
 @export var cast_shadow_property: StringName = "_shadow"
-
 @export var lightmap_scale_property_enabled := true
 @export var lightmap_scale_property: StringName = "_lmscale"
 
 @export var skip_material_enabled := true
 @export var skip_material_name: String = "skip"
 @export var skip_material_aliases: PackedStringArray = []
+## Quake SKIP material does not affect collision.
 @export var skip_material_affects_collision := true
 
 @export var skip_entities_enabled := true
+## Skip entities list supports pattern matching and a special '^' prefix.
 @export var skip_entities_classnames: PackedStringArray = []
 @export var skip_entities_without_classname := false
 
@@ -152,6 +163,7 @@ var options: Dictionary
 @export var world_entity_wads_property: StringName = "wad"
 @export var world_entity_wads_palette: MapperPaletteResource = null
 @export var world_entity_extra_brush_entities_enabled := true
+## Very powerful option for optimizing maps. Merge func_detail entities into world entity.
 @export var world_entity_extra_brush_entities_classnames: PackedStringArray = ["func_group"]
 
 @export var group_entity_enabled := true
@@ -264,9 +276,9 @@ var options: Dictionary
 @export var game_script_extensions: PackedStringArray = ["gd"]
 
 @export var post_build_script_enabled := true
-@export var post_build_script_name: StringName = "__post"
+## Exposes build faces colors method to the post build script.
 @export var post_build_faces_colors_enabled := true
-@export var post_build_faces_colors_method: StringName = "build_faces_colors"
+@export var post_build_script_name: StringName = "__post"
 
 @export var print_progress := false
 @export var print_progress_verbose := true

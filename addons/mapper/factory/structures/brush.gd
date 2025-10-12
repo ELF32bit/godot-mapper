@@ -2,8 +2,8 @@ class_name MapperBrush
 
 var faces: Array[MapperFace]
 
-var surfaces: Dictionary
-var materials: Dictionary
+var surfaces: Dictionary #[String, MapperFace]
+var materials: Dictionary #[String, MapperMaterial]
 var lightmap_scale: float = 1.0
 var is_degenerate := false
 

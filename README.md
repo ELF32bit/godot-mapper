@@ -118,7 +118,7 @@ For example, **albedo_texture** or **normal_texture** parameters inside a shader
 * ```physics_material``` will set StaticBody3D or RigidBody3D physics material.
 * ```mass_density``` will affect material contribution to RigidBody3D mass.
 
-> Multi-material mass density requires `__mass_approximate` option set to False.
+> Non-uniform brushes require `use_approximate_mass` setting set to False.
 
 Material metadata can be used to filter out special brushes from merged entities.<br>
 Special **SKIP** material does not break the uniformity of such brushes.<br>

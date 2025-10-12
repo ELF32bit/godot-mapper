@@ -547,8 +547,8 @@ static func create_brush(entity: MapperEntity, brush: MapperBrush, node_class: S
 	var is_static_body := ClassDB.is_parent_class(node_class, "StaticBody3D")
 	var has_collision := ClassDB.is_parent_class(node_class, "CollisionObject3D")
 	var is_lightmap_scene := bool(entity.factory.settings.options.get("__lightmap_scene", false))
-	var use_approximate_mass := bool(entity.factory.settings.options.get("__mass_approximate", true))
 	var properties := entity.factory.settings.override_material_metadata_properties
+	var use_approximate_mass := entity.factory.settings.use_approximate_mass
 	node.position = brush.center
 	var has_children := false
 
@@ -616,7 +616,7 @@ static func create_brush_entity(entity: MapperEntity, node_class: StringName = "
 
 	var node: Node3D = ClassDB.instantiate(node_class)
 	var is_rigid_body := ClassDB.is_parent_class(node_class, "RigidBody3D")
-	var use_approximate_mass := bool(entity.factory.settings.options.get("__mass_approximate", true))
+	var use_approximate_mass := entity.factory.settings.use_approximate_mass
 	apply_entity_transform(entity, node)
 	var has_children := false
 	var children_are_siblings := false
@@ -666,7 +666,7 @@ static func create_merged_brush_entity(entity: MapperEntity, node_class: StringN
 	var is_rigid_body := ClassDB.is_parent_class(node_class, "RigidBody3D")
 	var has_collision := ClassDB.is_parent_class(node_class, "CollisionObject3D")
 	var is_lightmap_scene := bool(entity.factory.settings.options.get("__lightmap_scene", false))
-	var use_approximate_mass := bool(entity.factory.settings.options.get("__mass_approximate", true))
+	var use_approximate_mass := entity.factory.settings.use_approximate_mass
 	apply_entity_transform(entity, node)
 	var has_children := false
 
@@ -736,8 +736,8 @@ static func create_csg_merged_brush_entity(entity: MapperEntity, brushes: Array[
 	var is_rigid_body := ClassDB.is_parent_class(node_class, "RigidBody3D")
 	var has_collision := ClassDB.is_parent_class(node_class, "CollisionObject3D")
 	var is_lightmap_scene := bool(entity.factory.settings.options.get("__lightmap_scene", false))
-	var use_approximate_mass := bool(entity.factory.settings.options.get("__mass_approximate", true))
 	var properties := entity.factory.settings.override_material_metadata_properties
+	var use_approximate_mass := entity.factory.settings.use_approximate_mass
 	apply_entity_transform(entity, node)
 	var has_children := false
 
