@@ -23,7 +23,7 @@ func validate_material_name(material: String) -> String:
 
 func load_resource(resource: String, type_hint: String = "") -> Resource:
 	for extension in settings.game_resource_extensions:
-		var file := resource + "." + extension
+		var file := resource + ("" if extension.is_empty() else "." + extension)
 		var path := settings.game_directory.path_join(file)
 		if ResourceLoader.exists(path, type_hint):
 			return load(path)
@@ -36,7 +36,7 @@ func load_resource(resource: String, type_hint: String = "") -> Resource:
 
 func load_shader(shader: String) -> Shader:
 	for extension in settings.game_shader_extensions:
-		var file := shader + "." + extension
+		var file := shader + ("" if extension.is_empty() else "." + extension)
 		var path := settings.game_directory.path_join(file)
 		if ResourceLoader.exists(path, "Shader"):
 			return load(path)
@@ -56,7 +56,7 @@ func load_material(material: String) -> Material:
 	var material_resource: Material = null
 	for matching_path in generate_matching_paths(material):
 		for extension in settings.game_material_extensions:
-			var file := matching_path + "." + extension
+			var file := matching_path + ("" if extension.is_empty() else "." + extension)
 			var path := settings.game_directory.path_join(file)
 			if ResourceLoader.exists(path, "Material"):
 				material_resource = load(path)
@@ -91,7 +91,7 @@ func load_base_material() -> BaseMaterial3D:
 
 func load_texture(texture: String, wads: Array[MapperWadResource] = []) -> Texture2D:
 	for extension in settings.game_texture_extensions:
-		var file := texture + "." + extension
+		var file := texture + ("" if extension.is_empty() else "." + extension)
 		var path := settings.game_directory.path_join(file)
 		if ResourceLoader.exists(path, "Texture2D"):
 			return load(path)
@@ -219,7 +219,7 @@ func load_animated_textures(texture: String, wads: Array[MapperWadResource] = []
 func load_script(script: String) -> GDScript:
 	for matching_path in generate_matching_paths(script):
 		for extension in settings.game_script_extensions:
-			var file := matching_path + "." + extension
+			var file := matching_path + ("" if extension.is_empty() else "." + extension)
 			var path := settings.game_directory.path_join(file)
 			if ResourceLoader.exists(path, "GDScript"):
 				return load(path)
@@ -232,7 +232,7 @@ func load_script(script: String) -> GDScript:
 
 func load_sound(sound: String) -> AudioStream:
 	for extension in settings.game_sound_extensions:
-		var file := sound + "." + extension
+		var file := sound + ("" if extension.is_empty() else "." + extension)
 		var path := settings.game_directory.path_join(file)
 		if ResourceLoader.exists(path, "AudioStream"):
 			return load(path)
@@ -366,7 +366,7 @@ func load_mdl_raw(mdl: String, palette: MapperPaletteResource = null) -> PackedS
 
 func load_scene(scene: String) -> PackedScene:
 	for extension in settings.game_scene_extensions:
-		var file := scene + "." + extension
+		var file := scene + ("" if extension.is_empty() else "." + extension)
 		var path := settings.game_directory.path_join(file)
 		if ResourceLoader.exists(path, "PackedScene"):
 			return load(path)

@@ -33,7 +33,7 @@ func load_texture(texture: String, wads: Array[MapperWadResource] = []) -> Textu
 		adjusted_texture = directory + filename.trim_prefix(filename[0])
 
 	for extension in settings.game_texture_extensions:
-		var file := adjusted_texture + "." + extension
+		var file := adjusted_texture + ("" if extension.is_empty() else "." + extension)
 		var path := settings.game_directory.path_join(file)
 		if ResourceLoader.exists(path, "Texture2D"):
 			return load(path)
