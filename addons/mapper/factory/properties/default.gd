@@ -8,6 +8,10 @@ func convert_string(line: String) -> Variant:
 	return line
 
 
+func convert_variant(line: String) -> Variant:
+	return str_to_var(line)
+
+
 func convert_origin(line: String) -> Variant:
 	var numbers := line.split_floats(" ", false)
 	if numbers.size() < 3:

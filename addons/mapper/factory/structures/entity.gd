@@ -82,6 +82,10 @@ func get_string_property(property: StringName, default: Variant = null) -> Varia
 	return get_property("convert_string", property, default)
 
 
+func get_variant_property(property: StringName, default: Variant = null) -> Variant:
+	return get_property("convert_variant", property, default)
+
+
 func get_classname_property(default: Variant = null) -> Variant:
 	var classname_property := factory.settings.classname_property
 	if classname_property in properties:
@@ -162,6 +166,10 @@ func get_mdl_property(property: StringName, default: Variant = null) -> Variant:
 
 func bind_string_property(property: StringName, node_property: StringName) -> void:
 	bind_property("convert_string", property, node_property)
+
+
+func bind_variant_property(property: StringName, node_property: StringName) -> void:
+	bind_property("convert_variant", property, node_property)
 
 
 func bind_origin_property(node_property: StringName) -> void:
