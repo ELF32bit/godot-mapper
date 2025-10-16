@@ -12,7 +12,7 @@ Organize map resources into game expansions by specifying alternative game direc
 * Progressive loading of complex maps as scenes in a deterministic way.
 * Automatic loading of PBR textures, animated textures and shader material textures.
 * Effortless brush entity construction and animation using plugin functions.
-* Safe entity property parsing and binding, entity linking and grouping.
+* Safe entity property parsing and binding, entity linking and [grouping](https://github.com/ELF32bit/godot-mapper/blob/main/mapping/generic/builders/func_group.gd).
 * **Ability to scatter grass on textures and [barycentric wireframes](https://github.com/ELF32bit/godot-mapper/blob/main/mapping/generic/shaders/wireframe.gdshader)!**
 * Texture WAD (WAD2, WAD3) and Palette support.
 * Basic MDL (IDPO version 6) support.
