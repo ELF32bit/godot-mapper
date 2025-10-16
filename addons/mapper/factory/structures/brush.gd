@@ -68,16 +68,6 @@ func get_uniform_physics_material() -> PhysicsMaterial:
 	return materials[surface_name].physics
 
 
-func get_matching_surfaces(surfaces: PackedStringArray) -> PackedStringArray:
-	var matching_brush_surfaces := PackedStringArray()
-	for brush_surface in self.surfaces:
-		for surface in surfaces:
-			if brush_surface.matchn(surface):
-				matching_brush_surfaces.append(brush_surface)
-				break
-	return matching_brush_surfaces
-
-
 func get_min_point_penetration(point: Vector3, epsilon: float) -> Variant:
 	var min_distance: float = INF
 	for face in faces:
@@ -124,6 +114,16 @@ func get_surface_area(from_mesh: bool = true) -> float:
 			continue
 		area += face.get_area()
 	return area
+
+
+func get_matching_surfaces(surfaces: PackedStringArray) -> PackedStringArray:
+	var matching_brush_surfaces := PackedStringArray()
+	for brush_surface in self.surfaces:
+		for surface in surfaces:
+			if brush_surface.matchn(surface):
+				matching_brush_surfaces.append(brush_surface)
+				break
+	return matching_brush_surfaces
 
 
 func get_surfaces_area(surfaces: PackedStringArray) -> float:

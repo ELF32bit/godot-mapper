@@ -271,6 +271,17 @@ func get_surface_area(from_mesh: bool = true) -> float:
 	return area
 
 
+func get_matching_surfaces(surfaces: PackedStringArray) -> PackedStringArray:
+	var matching_surfaces := PackedStringArray()
+	var matching_brush_surfaces: Dictionary = {}
+	for brush in brushes:
+		for matching_surface in brush.get_matching_surfaces(surfaces):
+			matching_brush_surfaces[matching_surface] = true
+	for matching_surface in matching_brush_surfaces:
+		matching_surfaces.append(matching_surface)
+	return matching_surfaces
+
+
 func get_surfaces_area(surfaces: PackedStringArray) -> float:
 	var area: float = 0.0
 	for brush in brushes:
