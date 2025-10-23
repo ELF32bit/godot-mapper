@@ -234,15 +234,13 @@ static func change_node_type(node: Node, classname: StringName) -> Node:
 	return new_node
 
 
-static func get_tree_transform(node: Node) -> Transform3D:
+static func get_global_transform(node: Node) -> Transform3D:
 	var transform := Transform3D.IDENTITY
 	var parent: Node = node
-
 	while parent:
 		if parent.is_class("Node3D"):
 			transform = parent.transform * transform
 		parent = parent.get_parent()
-
 	return transform
 
 
@@ -258,7 +256,7 @@ static func apply_entity_transform(entity: MapperEntity, node: Node3D, erase: bo
 
 static func add_global_child(child: Node, parent: Node, settings: MapperSettings) -> void:
 	if child is Node3D:
-		child.transform = get_tree_transform(parent).affine_inverse() * child.transform
+		child.transform = get_global_transform(parent).affine_inverse() * child.transform
 	parent.add_child(child, settings.readable_node_names)
 
 
