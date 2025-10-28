@@ -311,10 +311,10 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 		if face.uv_valve:
 			face.u_axis = settings.basis * face.u_axis
 			face.v_axis = settings.basis * face.v_axis
-			face.scale.x *= face.u_axis.length()
-			face.scale.y *= face.v_axis.length()
-			face.u_axis = face.u_axis.normalized()
-			face.v_axis = face.v_axis.normalized()
+			#face.scale.x *= face.u_axis.length()
+			#face.scale.y *= face.v_axis.length()
+			#face.u_axis = face.u_axis.normalized()
+			#face.v_axis = face.v_axis.normalized()
 
 		# handling division by zero
 		if is_zero_approx(face.scale.x):
