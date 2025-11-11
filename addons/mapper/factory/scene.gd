@@ -631,7 +631,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 				material.set_feature(BaseMaterial3D.FEATURE_BACKLIGHT, true)
 			BaseMaterial3D.TEXTURE_REFRACTION:
 				material.set_feature(BaseMaterial3D.FEATURE_REFRACTION, true)
-			BaseMaterial3D.TEXTURE_DETAIL_ALBEDO | BaseMaterial3D.TEXTURE_DETAIL_NORMAL:
+			BaseMaterial3D.TEXTURE_DETAIL_ALBEDO, BaseMaterial3D.TEXTURE_DETAIL_NORMAL:
 				material.set_feature(BaseMaterial3D.FEATURE_DETAIL, true)
 
 	var _enable_base_material_features := func(material: BaseMaterial3D) -> void:

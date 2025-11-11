@@ -140,6 +140,10 @@ func get_vector3i_property(property: StringName, default: Variant = null) -> Var
 	return get_property("convert_vector3i", property, default)
 
 
+func get_vector4i_property(property: StringName, default: Variant = null) -> Variant:
+	return get_property("convert_vector4i", property, default)
+
+
 func get_float_property(property: StringName, default: Variant = null) -> Variant:
 	return get_property("convert_float", property, default)
 
@@ -150,6 +154,10 @@ func get_vector2_property(property: StringName, default: Variant = null) -> Vari
 
 func get_vector3_property(property: StringName, default: Variant = null) -> Variant:
 	return get_property("convert_vector3", property, default)
+
+
+func get_vector4_property(property: StringName, default: Variant = null) -> Variant:
+	return get_property("convert_vector4", property, default)
 
 
 func get_sound_property(property: StringName, default: Variant = null) -> Variant:
@@ -212,6 +220,10 @@ func bind_vector3i_property(property: StringName, node_property: StringName) -> 
 	bind_property("convert_vector3i", property, node_property)
 
 
+func bind_vector4i_property(property: StringName, node_property: StringName) -> void:
+	bind_property("convert_vector4i", property, node_property)
+
+
 func bind_float_property(property: StringName, node_property: StringName) -> void:
 	bind_property("convert_float", property, node_property)
 
@@ -222,6 +234,10 @@ func bind_vector2_property(property: StringName, node_property: StringName) -> v
 
 func bind_vector3_property(property: StringName, node_property: StringName) -> void:
 	bind_property("convert_vector3", property, node_property)
+
+
+func bind_vector4_property(property: StringName, node_property: StringName) -> void:
+	bind_property("convert_vector4", property, node_property)
 
 
 func bind_sound_property(property: StringName, node_property: StringName) -> void:

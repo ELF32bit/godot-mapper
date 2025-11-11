@@ -9,7 +9,12 @@ func convert_string(line: String) -> Variant:
 
 
 func convert_variant(line: String) -> Variant:
-	return str_to_var(line)
+	var result := str_to_var(line)
+	if result != null:
+		return result
+	elif line.strip_edges() == "null":
+		return null
+	return line
 
 
 func convert_origin(line: String) -> Variant:
@@ -127,6 +132,13 @@ func convert_vector3i(line: String) -> Variant:
 	return Vector3i(int(numbers[0]), int(numbers[1]), int(numbers[2]))
 
 
+func convert_vector4i(line: String) -> Variant:
+	var numbers := line.split_floats(" ", false)
+	if numbers.size() < 4:
+		return null
+	return Vector4i(int(numbers[0]), int(numbers[1]), int(numbers[2]), int(numbers[3]))
+
+
 func convert_float(line: String) -> Variant:
 	var line_strip := line.strip_edges()
 	if line_strip.is_valid_float():
@@ -146,6 +158,13 @@ func convert_vector3(line: String) -> Variant:
 	if numbers.size() < 3:
 		return null
 	return Vector3(numbers[0], numbers[1], numbers[2])
+
+
+func convert_vector4(line: String) -> Variant:
+	var numbers := line.split_floats(" ", false)
+	if numbers.size() < 4:
+		return null
+	return Vector4(numbers[0], numbers[1], numbers[2], numbers[3])
 
 
 func convert_sound(line: String) -> Variant:

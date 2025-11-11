@@ -126,6 +126,7 @@ var options: Dictionary
 ## Override materials will not automatically use that filter.
 @export var texture_filter := BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 ## If true, will reference simple override materials, instead of copying.
+## Override materials can also use special `mapper_reference` (true) metadata.
 @export var reference_override_materials := false
 ## If true, all animated textures can be paused individually.
 @export var store_unique_animated_textures := false
