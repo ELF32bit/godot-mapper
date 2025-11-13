@@ -67,7 +67,10 @@ static func load_from_file(path: String) -> MapperMapResource:
 			else:
 				push_warning("Line %s: Brush face has wrong format, not importing." % [line_number])
 		elif is_inside_entity:
-			var line_split := line.split('"', false, 3)
+			var line_unescaped := line.replace('\\"', "/!@!/")
+			var line_split := line_unescaped.split('"', false, 3)
+			for index in range(line_split.size()):
+				line_split[index] = line_split[index].replace("/!@!/", '"')
 			var property := StringName(line_split[0])
 
 			if line_split.size() >= 3:
