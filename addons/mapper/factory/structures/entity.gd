@@ -60,20 +60,20 @@ func bind_property(method: StringName, property: StringName, node_property: Stri
 		node_properties[node_property] = value
 
 
-func bind_node_path_property(property: StringName, target_source_property: StringName, node_property: StringName, classname: String = "*") -> void:
-	var parameters: Array[Variant] = [property, target_source_property, node_property, classname, true]
+func bind_node_path_property(destination_property: StringName, source_property: StringName, node_property: StringName, classname: String = "*") -> void:
+	var parameters: Array[Variant] = [destination_property, source_property, node_property, classname, true]
 	if not parameters in node_paths:
 		node_paths.append(parameters)
 
 
-func bind_node_path_array_property(property: StringName, target_source_property: StringName, node_property: StringName, classname: String = "*") -> void:
-	var parameters: Array[Variant] = [property, target_source_property, node_property, classname, false]
+func bind_node_path_array_property(destination_property: StringName, source_property: StringName, node_property: StringName, classname: String = "*") -> void:
+	var parameters: Array[Variant] = [destination_property, source_property, node_property, classname, false]
 	if not parameters in node_paths:
 		node_paths.append(parameters)
 
 
-func bind_signal_property(property: StringName, target_source_property: StringName, signal_name: StringName, method: StringName, classname: String = "*", flags: int = 0) -> void:
-	var parameters: Array[Variant] = [property, target_source_property, signal_name, method, classname, flags]
+func bind_signal_property(destination_property: StringName, source_property: StringName, signal_name: StringName, method: StringName, classname: String = "*", flags: int = 0) -> void:
+	var parameters: Array[Variant] = [destination_property, source_property, signal_name, method, classname, flags]
 	if not parameters in signals:
 		signals.append(parameters)
 
