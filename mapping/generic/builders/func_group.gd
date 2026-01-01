@@ -1,9 +1,10 @@
 @warning_ignore("unused_parameter")
 static func build(map: MapperMap, entity: MapperEntity) -> Node:
+	# func_group is either _tb_group or _tb_layer
 	if not map.is_group_entity(entity, "_tb_group"):
 		return null
 
-	# finding group entities
+	# finding group entities one level deep (can be other groups)
 	map.bind_group_entities(entity, "_tb_group")
 	var group_center := Vector3.ZERO
 	var count: int = 0

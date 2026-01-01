@@ -9,11 +9,12 @@ Organize map resources into game expansions by specifying alternative game direc
 #### [Additional tools for creating maps are available here](https://github.com/ELF32bit/mapping-tools)
 
 ## Features
-* Progressive loading of complex maps as scenes in a deterministic way.
+* Import and progressive loading of complex maps as scenes in a deterministic way.
 * Automatic loading of PBR textures, animated textures and shader material textures.
+* Scattering of grass or enemies on textures based on floor angle and inside brushes.
 * Effortless brush entity construction and animation using plugin functions.
 * Safe entity property parsing and binding, entity linking and [grouping](https://github.com/ELF32bit/godot-mapper/blob/main/mapping/generic/builders/func_group.gd).
-* **Ability to scatter grass on textures and [barycentric wireframes](https://github.com/ELF32bit/godot-mapper/blob/main/mapping/generic/shaders/wireframe.gdshader)!**
+* Artist controllable [barycentric wireframes](https://github.com/ELF32bit/godot-mapper/blob/main/mapping/generic/shaders/wireframe.gdshader) via face parameters.
 * Texture WAD (WAD2, WAD3) and Palette support.
 * Basic MDL (IDPO version 6) support.
 
@@ -88,7 +89,7 @@ if entity_target:
 Post build script named **__post.gd** can be executed after all entity nodes are constructed.<br>
 
 ### 3. Define map override materials with additional metadata.
-Materials support the same naming pattern with underscore as build scripts.<br>
+Materials support the same naming pattern with underscore as build scripts, like **_.tres**.<br>
 Moreover, material named **WOOD_.tres** will also apply to **WOOD1**, **WOOD2**, **WOOD123**, etc.<br>
 Shader materials that use standard texture parameters will be assigned provided textures.<br>
 For example, **albedo_texture** or **normal_texture** parameters inside a shader.<br>
@@ -152,8 +153,9 @@ for brush in entity.brushes:
 > CSG merged brush entities use **brush.metadata** overwrites to re-enable disabled nodes.
 
 ### 4. Animated textures and material alternative textures.
-Generic textures are using complex naming pattern.<br>
+Generic textures are using a complex naming pattern.<br>
 Unlike in the examples below, a consistent naming is required.<br>
+Animated and alternative textures require suffixes with the same word count.<br>
 
 #### Animated texture with 3 frames, possibly followed by PBR suffix.
 * texture-0.png
@@ -199,7 +201,7 @@ entity.bind_node_path_array_property("target", "targetname", "_targets", "path_c
 entity.bind_node_path_property("target", "targetname", "_target", "path_corner")
 ```
 Other entity properties can be manually inserted into node properties dictionary.<br>
-Changing automatically assigned properties will adjust the pivot of an entity.<br>
+Changing automatically assigned properties (position, rotation) will adjust the pivot of an entity.<br>
 ```GDScript
 # func_turnable.gd
 var pivot_offset := Vector3.DOWN * entity.aabb.size.y / 2.0
