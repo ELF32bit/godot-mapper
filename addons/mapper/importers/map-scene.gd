@@ -54,7 +54,9 @@ func _get_import_options(path: String, preset_index: int) -> Array[Dictionary]:
 				},
 				{
 					"name": "options",
-					"default_value": {},
+					"default_value": {
+						"print_progress": false,
+					},
 				},
 			]
 		_:

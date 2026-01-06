@@ -9,6 +9,7 @@ float barycentric_wireframe(vec4 vertex_color, float fragment_distance, float mi
 	vec3 wireframe_coordinates = vertex_color.rgb;
 	int wireframe_mode = int((1.0 - vertex_color.a) * 8.0);
 	vec3 wireframe_scale = fragment_distance / fwidth(wireframe_coordinates);
+	//wireframe_scale = vec3(1000.0); for a smoother relative scale
 
 	float wireframe_mask = max_width;
 	if (!bool(1 & wireframe_mode)) {

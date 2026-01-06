@@ -14,7 +14,7 @@ Organize map resources into game expansions by specifying alternative game direc
 * Scattering of grass or enemies on textures based on floor angle and inside brushes.
 * Effortless brush entity construction and animation using plugin functions.
 * Safe entity property parsing and binding, entity linking and [grouping](https://github.com/ELF32bit/godot-mapper/blob/main/mapping/generic/builders/func_group.gd).
-* Artist controllable [barycentric wireframes](https://github.com/ELF32bit/godot-mapper/blob/main/mapping/generic/shaders/wireframe.gdshader) via face parameters.
+* Artist controllable [barycentric wireframes](https://github.com/ELF32bit/godot-mapper/blob/main/mapping/generic/shaders/wireframe.gdshader) via [face parameters](https://github.com/ELF32bit/godot-mapper/blob/main/addons/mapper/templates/__post.gd).
 * Texture WAD (WAD2, WAD3) and Palette support.
 * Basic MDL (IDPO version 6) support.
 

@@ -47,11 +47,12 @@ func _get_import_options(path: String, preset_index: int) -> Array[Dictionary]:
 					"hint_string": "*.lmp",
 				},
 				{
-					"name": "options",
-					"default_value": {
-						"mdls_autoplay": "",
-						"mdls_skin": 0,
-					},
+					"name": "autoplay",
+					"default_value": "",
+				},
+				{
+					"name": "skin",
+					"default_value": 0,
 				},
 			]
 		_:
@@ -85,7 +86,9 @@ func _import(source_file: String, save_path: String, options: Dictionary, platfo
 		return ERR_PARSE_ERROR
 
 	var mdl_options: Dictionary = {}
-	mdl_options.merge(options.get("options", {}), true)
+	mdl_options["mdls_autoplay"] = options.get("autoplay", "")
+	mdl_options["mdls_skin"] = options.get("skin", 0)
+
 	var settings := MapperSettings.new(mdl_options)
 	var factory := MapperFactory.new(settings)
 	var scene := factory.build_mdl(mdl)
