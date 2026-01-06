@@ -812,16 +812,30 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 				_generate_barycentric_coordinates.call(face, colors)
 
 			# applying post colors to face vertices
+			var should_triangulate := false
 			if post_build_faces_colors:
 				var colors_size := colors.size()
 				post_build_script.call("build_faces_colors", face, colors)
-				if colors.size() != colors_size:
+				if colors_size > 3 and colors.size() == (colors_size - 2) * 3:
+					should_triangulate = true
+				elif colors.size() != colors_size:
 					push_warning("Failed setting face colors, array is resized!")
 					colors.resize(colors_size)
 					colors.fill(Color.WHITE)
 
 			# adding triangle fan to the current surface tool
-			surface_tools[material_name].add_triangle_fan(vertices, uvs, colors, [], normals, [])
+			if should_triangulate:
+				for index in range(1, vertices.size() - 1):
+					surface_tools[material_name].add_triangle_fan(
+						[vertices[0], vertices[index], vertices[index + 1]],
+						[uvs[0], uvs[index], uvs[index + 1]],
+						[colors[index * 3 - 3], colors[index * 3 - 2], colors[index * 3 - 1]],
+						[],
+						[normals[0], normals[index], normals[index + 1]],
+						[])
+			else:
+				surface_tools[material_name].add_triangle_fan(
+					vertices, uvs, colors, [], normals, [])
 
 		# indexing brush surface tools and also generating tangents
 		for material in surface_tools:
