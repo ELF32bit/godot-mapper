@@ -113,7 +113,7 @@ func get_mangle_property(default: Variant = null, rotation_mode: String = "PYR")
 func get_unit_property(property: StringName, default: Variant = null, convert_default: bool = true) -> Variant:
 	if convert_default:
 		var default_string: String = ""
-		if typeof(default) in [TYPE_STRING, TYPE_STRING_NAME, TYPE_INT, TYPE_FLOAT]:
+		if typeof(default) in [TYPE_FLOAT, TYPE_INT, TYPE_STRING, TYPE_STRING_NAME]:
 			default_string = str(default)
 		var converted_default: Variant = factory.game_property_converter.call("convert_unit", default_string)
 		return get_property("convert_unit", property, converted_default)

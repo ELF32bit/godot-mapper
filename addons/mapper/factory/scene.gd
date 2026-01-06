@@ -72,6 +72,12 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 		var path := settings.game_builders_directory.path_join(settings.post_build_script_name)
 		post_build_script = game_loader.load_script(path)
 
+	# determining if post build script should build faces colors
+	var post_build_faces_colors := false
+	if settings.post_build_faces_colors_enabled:
+		if post_build_script and post_build_script.has_method("build_faces_colors"):
+			post_build_faces_colors = true
+
 	# creating scene root
 	var packed_scene := PackedScene.new()
 	var scene_root := Node3D.new()
@@ -724,81 +730,32 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 						override_material.set_meta(metadata_property, slot_name_textures)
 
 	# coloring face vertices with barycentric coordinates (requires central vertex for n-gons)
-	var _generate_barycentric_coordinates := func(colors: PackedColorArray) -> void:
+	var _generate_barycentric_coordinates := func(face: MapperFace, colors: PackedColorArray) -> void:
 		colors[0] = Color.RED
 		for index in range(1, colors.size()):
 			if index % 2 == 1:
 				colors[index] = Color.GREEN
 			else:
 				colors[index] = Color.BLUE
-
-	# coloring face vertices with advanced barycentric coordinates
-	var _generate_advanced_barycentric_coordinates := func(surface_tool: SurfaceTool,
-		vertices: PackedVector3Array, face_vertices: PackedVector3Array,
-		uvs: PackedVector2Array, colors: PackedColorArray,
-		normals: PackedVector3Array, face_normal: Vector3,
-	) -> void:
-		# slicing face into triangles
-		for index in range(1, vertices.size() - 1):
-			var triangle_vertices: PackedVector3Array = []
-			triangle_vertices.resize(3)
-			triangle_vertices[0] = vertices[0]
-			triangle_vertices[1] = vertices[index]
-			triangle_vertices[2] = vertices[index + 1]
-
-			var triangle_uvs: PackedVector2Array = []
-			triangle_uvs.resize(3)
-			triangle_uvs[0] = uvs[0]
-			triangle_uvs[1] = uvs[index]
-			triangle_uvs[2] = uvs[index + 1]
-
-			var triangle_colors: PackedColorArray = []
-			triangle_colors.resize(3)
-			triangle_colors[0] = colors[0]
-			triangle_colors[1] = colors[index]
-			triangle_colors[2] = colors[index + 1]
-
-			var triangle_normals: PackedVector3Array = []
-			triangle_normals.resize(3)
-			triangle_normals[0] = normals[0]
-			triangle_normals[1] = normals[index]
-			triangle_normals[2] = normals[index + 1]
-
-			# triangle type (triangle, quad, n-gon)
-			var triangle_type: int = 0
-			if face_vertices.size() == 4:
-				triangle_type = (2 | triangle_type)
-			elif face_vertices.size() > 4:
-				triangle_type = (2 | 4 | triangle_type)
-			# encoding wireframe mask based on triangle edges
-			var n0 := not face_normal.is_equal_approx(triangle_normals[0])
-			var n1 := not face_normal.is_equal_approx(triangle_normals[1])
-			var n2 := not face_normal.is_equal_approx(triangle_normals[2])
-			if n1 and n2:
-				triangle_type = (1 | triangle_type)
-			if n0 and n2:
-				if triangle_colors[1] == Color.GREEN:
-					triangle_type = (2 | triangle_type)
-				elif triangle_colors[1] == Color.BLUE:
-					triangle_type = (4 | triangle_type)
-			if n0 and n1:
-				if triangle_colors[2] == Color.GREEN:
-					triangle_type = (2 | triangle_type)
-				elif triangle_colors[2] == Color.BLUE:
-					triangle_type = (4 | triangle_type)
-			# storing wireframe mode in the colors alpha channel
-			for color_index in range(triangle_colors.size()):
-				triangle_colors[color_index].a = float(8 - triangle_type) / 8.0
-			surface_tool.add_triangle_fan(
-				triangle_vertices, triangle_uvs, triangle_colors, [], triangle_normals, [])
+		# disabling inner edges based on face type (triangle, quad, n-gon)
+		var face_type: int = 0
+		if face.vertices.size() == 4:
+			face_type = (2 | face_type)
+		elif face.vertices.size() > 4:
+			face_type = (2 | 4 | face_type)
+		# disabling wireframes for smooth shaded faces
+		if face.is_smooth_shaded:
+			face_type = (1 | 2 | 4 | face_type)
+		# storing wireframe mode in the colors alpha channel
+		for index in range(colors.size()):
+			colors[index].a = float(8 - face_type) / 8.0
 
 #8. Generating brush geometry
 	var _inverse_basis := settings.basis.inverse()
 	var generate_brush_geometry := func(thread_index: int) -> void:
-		var use_advanced_barycentric_coordinates := settings.use_advanced_barycentric_coordinates
 		var brush := brush_structures[thread_index]
 		var surface_tools: Dictionary = {}
-		var skip_surface_tool: SurfaceTool
+		var skip_surface_tool: SurfaceTool = null
 		var points := PackedVector3Array()
 		var triangles := PackedVector3Array()
 		var is_concave_mesh := false
@@ -852,37 +809,19 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 
 			# storing barycentric coordinates as face vertex colors
 			if settings.store_barycentric_coordinates:
-				_generate_barycentric_coordinates.call(colors)
-			else:
-				use_advanced_barycentric_coordinates = false
-
-			var computed_colors := colors
-			if settings.store_barycentric_coordinates:
-				if settings.post_build_faces_colors_enabled:
-					computed_colors = colors.duplicate()
+				_generate_barycentric_coordinates.call(face, colors)
 
 			# applying post colors to face vertices
-			var is_post_colors := false
-			if settings.post_build_faces_colors_enabled:
-				if post_build_script and post_build_script.has_method("build_faces_colors"):
-					var colors_size := colors.size()
-					post_build_script.call("build_faces_colors", face, colors)
-					if colors.size() != colors_size:
-						push_warning("Failed setting face colors, array is resized!")
-						colors.resize(colors_size)
-						colors.fill(Color.WHITE)
-					is_post_colors = true
-					if settings.store_barycentric_coordinates:
-						if colors == computed_colors:
-							is_post_colors = false
+			if post_build_faces_colors:
+				var colors_size := colors.size()
+				post_build_script.call("build_faces_colors", face, colors)
+				if colors.size() != colors_size:
+					push_warning("Failed setting face colors, array is resized!")
+					colors.resize(colors_size)
+					colors.fill(Color.WHITE)
 
 			# adding triangle fan to the current surface tool
-			if not is_post_colors and use_advanced_barycentric_coordinates:
-				_generate_advanced_barycentric_coordinates.call(surface_tools[material_name],
-					vertices, face_vertices, uvs, colors, normals, face_normal)
-			else:
-				surface_tools[material_name].add_triangle_fan(
-					vertices, uvs, colors, [], normals, [])
+			surface_tools[material_name].add_triangle_fan(vertices, uvs, colors, [], normals, [])
 
 		# indexing brush surface tools and also generating tangents
 		for material in surface_tools:
@@ -1111,7 +1050,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 			var class_builder: GDScript = null
 			var path := settings.game_builders_directory.path_join(classname)
 			class_builder = game_loader.load_script(path)
-			if not class_builder:
+			if not (class_builder and class_builder.has_method("build")):
 				continue
 
 			var class_root := Node3D.new()
@@ -1119,8 +1058,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 			scene_root.add_child(class_root, settings.readable_node_names)
 
 			for entity in map_structure.classnames[classname]:
-				if class_builder.has_method("build"):
-					entity.node = class_builder.call("build", map_structure, entity)
+				entity.node = class_builder.call("build", map_structure, entity)
 
 		# setting bound entity properties and groups after creating all nodes
 		for entity in map_structure.entities:

@@ -99,8 +99,6 @@ var options: Dictionary
 @export var readable_node_names := true
 ## If false, will not store barycentric coordinates as vertex colors.
 @export var store_barycentric_coordinates := true
-## If false, will store basic barycentric coordinates without alpha modes.
-@export var use_advanced_barycentric_coordinates := true
 ## If false, will not generate merged brush entities.
 @export var merge_entity_brushes := true
 ## If false, entity shadow meshes will not be generated.
