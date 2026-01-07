@@ -45,8 +45,8 @@ func is_uniform(surface: String = "*") -> bool:
 	return mesh.surface_get_name(0).matchn(surface)
 
 
-func get_uniform_property(property: StringName, default: Variant = null, _metadata_overwrites: bool = false) -> Variant:
-	if _metadata_overwrites and metadata.has(property):
+func get_uniform_property(property: StringName, default: Variant = null) -> Variant:
+	if metadata.has(property):
 		return metadata[property]
 	if not is_uniform():
 		return default

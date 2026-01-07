@@ -746,7 +746,7 @@ static func create_csg_merged_brush_entity(entity: MapperEntity, brushes: Array[
 		for brush in brushes:
 			if brush.is_degenerate:
 				continue
-			if brush.get_uniform_property(properties.mesh_disabled, false, true):
+			if brush.get_uniform_property(properties.mesh_disabled, false):
 				continue
 			var csg := CSGMesh3D.new()
 			csg.mesh = brush.mesh
@@ -765,9 +765,9 @@ static func create_csg_merged_brush_entity(entity: MapperEntity, brushes: Array[
 		for brush in brushes:
 			if brush.is_degenerate:
 				continue
-			if brush.get_uniform_property(properties.mesh_disabled, false, true):
+			if brush.get_uniform_property(properties.mesh_disabled, false):
 				continue
-			if not brush.get_uniform_property(properties.cast_shadow, true, true):
+			if not brush.get_uniform_property(properties.cast_shadow, true):
 				has_shadow_mesh = true
 				continue
 			var csg := CSGMesh3D.new()
@@ -786,7 +786,7 @@ static func create_csg_merged_brush_entity(entity: MapperEntity, brushes: Array[
 		for brush in brushes:
 			if brush.is_degenerate:
 				continue
-			if brush.get_uniform_property(properties.collision_disabled, false, true):
+			if brush.get_uniform_property(properties.collision_disabled, false):
 				continue
 			var csg := CSGMesh3D.new()
 			csg.mesh = brush.mesh
@@ -805,7 +805,7 @@ static func create_csg_merged_brush_entity(entity: MapperEntity, brushes: Array[
 		for brush in brushes:
 			if brush.is_degenerate:
 				continue
-			if brush.get_uniform_property(properties.occluder_disabled, false, true):
+			if brush.get_uniform_property(properties.occluder_disabled, false):
 				continue
 			var csg := CSGMesh3D.new()
 			csg.mesh = brush.mesh
@@ -911,7 +911,9 @@ static func create_csg_merged_brush_entity(entity: MapperEntity, brushes: Array[
 
 	if has_children:
 		if is_rigid_body:
-			var mass := entity.get_mass(use_approximate_mass)
+			var mass: float = 0.0
+			for brush in brushes:
+				mass += brush.get_mass(use_approximate_mass)
 			if mass > 0.0: node.mass = mass
 		entity.node_properties.erase("position")
 		entity.node_properties.erase("rotation")
