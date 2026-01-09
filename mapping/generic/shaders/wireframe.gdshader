@@ -6,24 +6,32 @@ uniform float wireframe_width_min = 10.0;
 uniform float wireframe_width_max = 20.0;
 
 float barycentric_wireframe(vec4 vertex_color, float fragment_distance, float min_width, float max_width) {
-	vec3 wireframe_coordinates = vertex_color.rgb;
-	int wireframe_mode = int((1.0 - vertex_color.a) * 8.0);
-	vec3 wireframe_scale = fragment_distance / fwidth(wireframe_coordinates);
-	//wireframe_scale = vec3(1000.0); for a smoother relative scale
+	vec3 coordinates = vertex_color.rgb;
+	int mode = int((1.0 - vertex_color.a) * 16.0);
+	vec3 icoordinates = vec3(1.0) - vertex_color.rgb;
+	vec3 scale = fragment_distance / fwidth(coordinates);
+	//scale = vec3(1000.0); // for a smoother relative scale
 
-	float wireframe_mask = max_width;
-	if (!bool(1 & wireframe_mode)) {
-		wireframe_mask = min(wireframe_mask, wireframe_coordinates.r * wireframe_scale.r);
-	}
-	if (!bool(2 & wireframe_mode)) {
-		wireframe_mask = min(wireframe_mask, wireframe_coordinates.g * wireframe_scale.g);
-	}
-	if (!bool(4 & wireframe_mode)) {
-		wireframe_mask = min(wireframe_mask, wireframe_coordinates.b * wireframe_scale.b);
+	bool r_flag = bool(mode & 1);
+	bool g_flag = bool(mode & 2);
+	bool b_flag = bool(mode & 4);
+	bool n_flag = bool(mode & 8);
+
+	float mask = max_width;
+	if (!r_flag) { mask = min(mask, coordinates.r * scale.r); }
+	if (!g_flag) { mask = min(mask, coordinates.g * scale.g); }
+	if (!b_flag) { mask = min(mask, coordinates.b * scale.b); }
+
+	float imask = max_width;
+	if (!(r_flag && g_flag && b_flag)) {
+		if (!n_flag) { imask = min(imask, icoordinates.r * scale.r); }
+		imask = min(imask, icoordinates.g * scale.g);
+		imask = min(imask, icoordinates.b * scale.b);
 	}
 
-	wireframe_mask = smoothstep(min_width, max_width, wireframe_mask);
-	return wireframe_mask;
+	mask = smoothstep(min_width, max_width, mask);
+	imask = smoothstep(min_width, max_width, imask);
+	return min(mask, imask);
 }
 
 varying float fragment_distance;

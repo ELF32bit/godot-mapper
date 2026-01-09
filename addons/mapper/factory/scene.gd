@@ -742,13 +742,13 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 		if face.vertices.size() == 4:
 			face_type = (2 | face_type)
 		elif face.vertices.size() > 4:
-			face_type = (2 | 4 | face_type)
+			face_type = (2 | 4 | 8 | face_type)
 		# disabling wireframes for smooth shaded faces
 		if face.is_smooth_shaded:
 			face_type = (1 | 2 | 4 | face_type)
 		# storing wireframe mode in the colors alpha channel
 		for index in range(colors.size()):
-			colors[index].a = float(8 - face_type) / 8.0
+			colors[index].a = float(16.0 - face_type) / 16.0
 
 #8. Generating brush geometry
 	var _inverse_basis := settings.basis.inverse()
