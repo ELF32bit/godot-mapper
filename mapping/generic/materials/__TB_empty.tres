@@ -7,3 +7,5 @@ render_priority = 0
 shader = ExtResource("1_01dyi")
 shader_parameter/wireframe_width_min = 10.0
 shader_parameter/wireframe_width_max = 20.0
+shader_parameter/wireframe_scale = 200.0
+shader_parameter/wireframe_pow = 2.71

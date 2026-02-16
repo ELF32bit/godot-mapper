@@ -11,7 +11,7 @@ Organize map resources into game expansions by specifying alternative game direc
 ## Features
 * Import and progressive loading of complex maps as scenes in a deterministic way.
 * Automatic loading of PBR textures, animated textures and shader material textures.
-* Scattering of grass or enemies on textures based on floor angle and inside brushes.
+* Scattering, based on floor angle, of grass or enemies on textures and inside brushes.
 * Effortless brush entity construction and animation using plugin functions.
 * Safe entity property parsing and binding, entity linking and [grouping](https://github.com/ELF32bit/godot-mapper/blob/main/mapping/generic/builders/func_group.gd).
 * Artist controllable [barycentric wireframes](https://github.com/ELF32bit/godot-mapper/blob/main/mapping/generic/shaders/wireframe.gdshader) via [face parameters](https://github.com/ELF32bit/godot-mapper/blob/main/addons/mapper/templates/__post.gd).
@@ -30,6 +30,8 @@ Organize map resources into game expansions by specifying alternative game direc
 * game/mapdata for automatically generated lightmaps and navigation data.
 * game/wads for texture WADs defined in map files.
 * game/mdls for animated models.
+
+> Add game configuration to the plugin **`importers/map-scene.gd`** file.
 
 ### 2. Construct map entities with build scripts.
 Scripts inside builders directory are used to construct map entities.<br>
@@ -308,9 +310,7 @@ for index in range(100):
 Maps can also load themselves recursively, allowing a form of fractal generation.<br>
 Special `__loading_depth` option is available for sub-maps in **map.settings**.<br>
 
-## Examples
-Check out provided examples to get a hang on API.<br>
-Adjust plugin configuration inside **importers/map-scene.gd** file.<br>
+## Troubleshooting
 Disable **editor/import/use_multiple_threads** for older versions of Godot.<br>
 Restart Godot if the plugin types fail to parse during the first launch.<br>
 Disable `lightmap_unwrap` setting if the freezes are consistent.<br>
