@@ -467,6 +467,7 @@ static func create_multimesh_mesh_instance(entity: MapperEntity, parent: Node, m
 								array.fill(Color.WHITE)
 							var id_remap := random_number_generator.randf()
 							for index in range(array.size()):
+								# storing random number in the vertex colors alpha channel
 								array[index].a = clampf(id_remap, 0.0, 1.0)
 							destination_arrays[array_index].append_array(array)
 					else:

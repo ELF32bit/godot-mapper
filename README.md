@@ -136,18 +136,17 @@ metadata/occluder_disabled = true
 for brush in entity.brushes:
 	if not brush.get_uniform_property("liquid", 0) > 0:
 		continue
+
 	# liquid area is created at a global position
 	var liquid_area := MapperUtilities.create_brush(entity, brush, "Area3D")
-	if not liquid_area:
-		continue
+	if not liquid_area: continue
+
 	# manually re-enabling disabled brush nodes
 	for child in liquid_area.get_children():
-		if child is MeshInstance3D:
-			child.visible = true
-		elif child is CollisionShape3D:
-			child.disabled = false
-		elif child is OccluderInstance3D:
-			child.visible = true
+		if child is MeshInstance3D: child.visible = true
+		elif child is CollisionShape3D: child.disabled = false
+		elif child is OccluderInstance3D: child.visible = true
+
 	# parenting one global node to another with right local coordinates
 	MapperUtilities.add_global_child(liquid_area, entity_node, map.settings)
 ```
@@ -217,7 +216,8 @@ entity.bind_mangle_property("rotation", "YpR")
 ```
 
 ### 6. Assign navigation regions and bind node groups.
-Various entities might affect navigation regions differently.<br>
+Various entities from different sub-maps might affect navigation regions differently.<br>
+**MapperUtilities** functions will generate navigation regions with unique IDs.<br>
 Use entity node groups to manage entity navigation groups.<br>
 ```GDScript
 # worldspawn.gd
@@ -237,35 +237,35 @@ Distributions are stored as transform arrays with basis and origin.<br>
 Spread function filters out nearby points, rotation function takes snap angles.<br>
 ```GDScript
 # worldspawn.gd
-var grass_multimesh := preload("../resources/multimesh.tres")
-var grass_transform_array := entity.generate_surface_distribution(
+var multimesh := preload("../resources/multimesh.tres")
+var transform_array := entity.generate_surface_distribution(
 	["GRASS*", "__TB_empty"], 1.0, 0.0, 60.0, false, false, 0)
 
-MapperUtilities.spread_transform_array(grass_transform_array, 0.25)
-MapperUtilities.scale_transform_array(grass_transform_array,
-	Vector3(1.0, 1.0, 1.0), Vector3(1.5, 2.0, 1.5))
-MapperUtilities.rotate_transform_array(grass_transform_array,
+MapperUtilities.spread_transform_array(transform_array, 0.25)
+MapperUtilities.scale_transform_array(transform_array,
+	Vector3(1.0, 1.0, 1.0), Vector3(1.5, 2.0, 1.5)) # from and to range
+MapperUtilities.rotate_transform_array(transform_array,
 	Vector3(-1.0, 0.0, -1.0)) # rotates around up vector without snapping
 ```
-An example of using point entities to erase grass, painting is also possible!<br>
+An example of using point entities to erase multimeshes, painting is also possible!<br>
 ```GDScript
 for map_entity in map.classnames.get("info_eraser", []):
 	var position = map_entity.get_origin_property(null)
-	if position == null:
-		continue
+	if position == null: continue
+
 	var local_position := Vector3(position) - entity.center
 	var radius = map_entity.get_unit_property("radius", 300.0)
 	var hardness = map_entity.get_float_property("hardness", 1.0)
 	var painted_transform_array := MapperUtilities.erase_transform_array(
-		grass_transform_array, local_position, radius, hardness)
+		transform_array, local_position, radius, hardness)
 
-var grass_multimesh_instance := MapperUtilities.create_multimesh_instance(
-	entity, entity_node, grass_multimesh, grass_transform_array)
+var multimesh_instance := MapperUtilities.create_multimesh_instance(
+	entity, entity_node, multimesh, transform_array)
 ```
 Distributions can be configured to generate world space data for placing other nodes.<br>
 ```GDScript
 var transform_array := entity.generate_volume_distribution(
-	1.0, 0.5, INF, Basis.IDENTITY, true, 0)
+	1.0, 0.5, INF, Basis.IDENTITY, true, 0) # basis for default rotation
 var positions := MapperUtilities.get_transform_array_positions(
 	transform_array, Vector3(0.0, 1.0, 0.0)) # up offset
 ```
@@ -283,9 +283,8 @@ Map options, stored in **map.settings**, can be temporarily overwritten for spec
 ```GDScript
 # misc_explobox.gd will construct sub-map or retrieve it from cache
 var explobox := map.loader.load_map_raw("maps/items/b_explob", true)
-if explobox:
-	var explobox_instance := explobox.instantiate()
-	return explobox_instance
+var explobox_instance := explobox.instantiate()
+return explobox_instance
 ```
 ```GDScript
 # check for this option in worldspawn.gd to disable unnecessary nodes
@@ -296,16 +295,15 @@ map.settings.options.erase("_map_is_item")
 Instances of cached sub-maps will have unusable overlapping navigation regions.<br>
 Caching can be disabled for loading sub-maps with unique navigation regions.<br>
 ```GDScript
-# __post.gd
+# __post.gd (for a procedurally composed map)
 for index in range(100):
-	# island prefab will be constructed 100 times with unique navigation regions
-	var island_prefab := map.loader.load_map_raw("maps/islands/variant1", false)
-	if not island_prefab:
-		continue
-	# spawning 100 islands with random positions
-	var island_prefab_instance := island_prefab.instantiate()
-	map.node.add_child(island_prefab_instance, map.settings.readable_node_names)
-	island_prefab_instance.position += Vector3(randf(), 0.0, randf()) * 1000.0
+	# map prefab will be constructed 100 times with unique navigation regions
+	var prefab := map.loader.load_map_raw("maps/islands/variant1", false)
+
+	# spawning 100 maps with random positions
+	var prefab_instance := prefab.instantiate()
+	map.node.add_child(prefab_instance, map.settings.readable_node_names)
+	prefab_instance.position += Vector3(randf(), 0.0, randf()) * 1000.0
 ```
 Maps can also load themselves recursively, allowing a form of fractal generation.<br>
 Special `__loading_depth` option is available for sub-maps in **map.settings**.<br>

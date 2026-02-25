@@ -114,7 +114,7 @@ var options: Dictionary
 
 ## Global mass multiplier for rigid bodies.
 @export var mass_scale: float = 10.0
-## Approximate mass is calculated from brush AABB and is limited to a single material.
+## Approximate mass is calculated from brushes AABB and is limited to a single material.
 ## If false, will calculate brush mass from surface areas of multiple materials.
 @export var use_approximate_mass := true
 
@@ -297,7 +297,7 @@ var options: Dictionary
 
 func _init(options: Dictionary = {}) -> void:
 	for option in options.keys():
-		if option is String or option is StringName:
+		if typeof(option) in [TYPE_STRING, TYPE_STRING_NAME]:
 			self.set(option, options[option])
 	self.options = options.duplicate()
 

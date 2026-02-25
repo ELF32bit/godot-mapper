@@ -14,8 +14,8 @@ var aabb: AABB
 var node: Node # only valid after all build scripts executed
 var node_properties: Dictionary # stores converted properties
 var node_groups: PackedStringArray # stores future node groups
-var node_paths: Array[Array] # gets filled automatically after binding
-var signals: Array[Array] # gets filled automatically after binding
+var node_paths: Dictionary # gets filled automatically after binding
+var signals: Dictionary # gets filled automatically after binding
 var parent: MapperEntity:
 	set(value):
 		var hierarchy := { self: true }
@@ -61,21 +61,15 @@ func bind_property(method: StringName, property: StringName, node_property: Stri
 
 
 func bind_node_path_property(destination_property: StringName, source_property: StringName, node_property: StringName, classname: String = "*") -> void:
-	var parameters: Array[Variant] = [destination_property, source_property, node_property, classname, true]
-	if not parameters in node_paths:
-		node_paths.append(parameters)
+	node_paths[[destination_property, source_property, node_property, classname, true]] = true
 
 
 func bind_node_path_array_property(destination_property: StringName, source_property: StringName, node_property: StringName, classname: String = "*") -> void:
-	var parameters: Array[Variant] = [destination_property, source_property, node_property, classname, false]
-	if not parameters in node_paths:
-		node_paths.append(parameters)
+	node_paths[[destination_property, source_property, node_property, classname, false]] = true
 
 
 func bind_signal_property(destination_property: StringName, source_property: StringName, signal_name: StringName, method: StringName, classname: String = "*", flags: int = 0) -> void:
-	var parameters: Array[Variant] = [destination_property, source_property, signal_name, method, classname, flags]
-	if not parameters in signals:
-		signals.append(parameters)
+	signals[[destination_property, source_property, signal_name, method, classname, flags]] = true
 
 
 func get_string_property(property: StringName, default: Variant = null) -> Variant:
@@ -305,17 +299,17 @@ func get_surfaces_area(surfaces: PackedStringArray) -> float:
 	return area
 
 
-func get_volume(from_aabb: bool = true) -> float:
+func get_volume(from_aabbs: bool = true) -> float:
 	var volume: float = 0.0
 	for brush in brushes:
-		volume += brush.get_volume(from_aabb)
+		volume += brush.get_volume(from_aabbs)
 	return volume
 
 
-func get_mass(from_aabb: bool = true) -> float:
+func get_mass(from_aabbs: bool = true) -> float:
 	var mass: float = 0.0
 	for brush in brushes:
-		mass += brush.get_mass(from_aabb)
+		mass += brush.get_mass(from_aabbs)
 	return mass
 
 

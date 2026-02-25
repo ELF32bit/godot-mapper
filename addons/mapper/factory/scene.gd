@@ -404,10 +404,10 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 		for face in brush.faces:
 			var wound_vertices: Array[Vector4] = []
 			wound_vertices.resize(face.vertices.size())
+			var u := (face.vertices[1] - face.vertices[0]).normalized()
+			var v := u.cross(face.plane.normal).normalized()
 			for index in range(face.vertices.size()):
 				var d := face.vertices[index] - face.center
-				var u := (face.vertices[1] - face.vertices[0]).normalized()
-				var v := u.cross(face.plane.normal).normalized()
 				var uv := Vector2(-d.dot(u), d.dot(v))
 				wound_vertices[index] = Vector4(d.x, d.y, d.z, uv.angle())
 			wound_vertices.sort_custom(sort_function)
@@ -601,7 +601,11 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 					wad_path = wad_path.path_join(path_strip.trim_prefix("/"))
 				else:
 					continue
-				var wad := game_loader.load_wad_raw(wad_path, settings.world_entity_wads_palette)
+				var wad: MapperWadResource = null
+				if settings.world_entity_wads_palette != null:
+					wad = game_loader.load_wad_raw(wad_path, settings.world_entity_wads_palette)
+				else:
+					wad = game_loader.load_wad(wad_path)
 				if wad:
 					map_structure.wads.append(wad)
 
@@ -1083,7 +1087,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 			for node_property in entity.node_properties:
 				if node_property == "name":
 					var name: Variant = entity.node_properties[node_property]
-					if name is String or name is StringName:
+					if typeof(name) in [TYPE_STRING, TYPE_STRING_NAME]:
 						if name.validate_node_name().strip_edges().is_empty():
 							continue
 				entity.node.set(node_property, entity.node_properties[node_property])
@@ -1111,7 +1115,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 
 	var _generate_entity_node_paths := func(entity: MapperEntity) -> void:
 		for entity_node in entity.node_paths:
-			if not entity_node.size() == 5:
+			if not (entity_node is Array and entity_node.size() == 5):
 				continue
 			var destination_property: StringName = entity_node[0]
 			var source_property: StringName = entity_node[1]
@@ -1160,7 +1164,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 
 	var _generate_entity_signals := func(entity: MapperEntity) -> void:
 		for signal_parameters in entity.signals:
-			if not signal_parameters.size() == 6:
+			if not (signal_parameters is Array and signal_parameters.size() == 6):
 				continue
 			var destination_property: StringName = signal_parameters[0]
 			var source_property: StringName = signal_parameters[1]
