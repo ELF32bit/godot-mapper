@@ -263,11 +263,12 @@ func load_wad_raw(wad: String, palette: MapperPaletteResource = null) -> MapperW
 	if wad_cache.has([path, palette]):
 		return wad_cache[[path, palette]]
 
-	var wad_resource := MapperWadResource.load_from_file(path, palette, settings.use_threads)
+	var emission_suffix: String = settings.texture_suffixes.get(BaseMaterial3D.TEXTURE_EMISSION, "_emission")
+	var wad_resource := MapperWadResource.load_from_file(path, palette, settings.use_threads, emission_suffix)
 	if not wad_resource:
 		for alternative_game_directory in settings.alternative_game_directories:
 			var alternative_path := alternative_game_directory.path_join(wad)
-			wad_resource = MapperWadResource.load_from_file(alternative_path, palette, settings.use_threads)
+			wad_resource = MapperWadResource.load_from_file(alternative_path, palette, settings.use_threads, emission_suffix)
 			if wad_resource:
 				break
 	if not wad_resource:

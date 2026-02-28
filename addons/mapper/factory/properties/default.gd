@@ -176,4 +176,6 @@ func convert_map(line: String) -> Variant:
 
 
 func convert_mdl(line: String) -> Variant:
+	if settings.mdls_palette == null:
+		return game_loader.load_mdl(settings.game_mdls_directory.path_join(line))
 	return game_loader.load_mdl_raw(settings.game_mdls_directory.path_join(line), settings.mdls_palette)

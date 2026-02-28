@@ -45,6 +45,10 @@ func _get_import_options(path: String, preset_index: int) -> Array[Dictionary]:
 			"hint_string": "*.lmp",
 		},
 		{
+			"name": "emission_suffix",
+			"default_value": "_emission",
+		},
+		{
 			"name": "use_threads",
 			"default_value": true,
 		},
@@ -73,7 +77,9 @@ func _import(source_file: String, save_path: String, options: Dictionary, platfo
 	if ResourceLoader.exists(palette_path):
 		palette = load(palette_path) as MapperPaletteResource
 
-	var wad := MapperWadResource.load_from_file(source_file, palette, options.get("use_threads", false))
+	var use_threads: bool = options.get("use_threads", true)
+	var emission_suffix: String = options.get("emission_suffix", "_emission")
+	var wad := MapperWadResource.load_from_file(source_file, palette, use_threads, emission_suffix)
 	if not wad:
 		return ERR_PARSE_ERROR
 

@@ -8,7 +8,7 @@ func _init(textures: Dictionary = {}) -> void:
 	self.textures = textures
 
 
-static func load_from_file(path: String, palette: MapperPaletteResource = null, use_threads: bool = false) -> MapperWadResource:
+static func load_from_file(path: String, palette: MapperPaletteResource = null, use_threads: bool = false, emission_suffix: String = "_emission") -> MapperWadResource:
 	var file := FileAccess.open(path, FileAccess.READ)
 	if not file:
 		return null
@@ -128,7 +128,6 @@ static func load_from_file(path: String, palette: MapperPaletteResource = null, 
 		if has_fullbright_colors:
 			var image2 := Image.create_from_data(width, height, false, Image.FORMAT_RGB8, fullbright_colors_rgb)
 			image2_texture = ImageTexture.create_from_image(image2)
-		var emission_suffix: String = MapperSettings.TEXTURE_SUFFIXES.get(BaseMaterial3D.TEXTURE_EMISSION, "_emission")
 		var texture_name := name.to_lower()
 
 		mutex.lock()

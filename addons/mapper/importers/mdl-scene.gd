@@ -41,6 +41,10 @@ func _get_import_options(path: String, preset_index: int) -> Array[Dictionary]:
 		PRESET_DEFAULT:
 			return [
 				{
+					"name": "skin",
+					"default_value": 0,
+				},
+				{
 					"name": "palette",
 					"default_value": "",
 					"property_hint": PROPERTY_HINT_FILE,
@@ -51,8 +55,8 @@ func _get_import_options(path: String, preset_index: int) -> Array[Dictionary]:
 					"default_value": "",
 				},
 				{
-					"name": "skin",
-					"default_value": 0,
+					"name": "options",
+					"default_value": {}
 				},
 			]
 		_:
@@ -88,6 +92,7 @@ func _import(source_file: String, save_path: String, options: Dictionary, platfo
 	var mdl_options: Dictionary = {}
 	mdl_options["mdls_autoplay"] = options.get("autoplay", "")
 	mdl_options["mdls_skin"] = options.get("skin", 0)
+	mdl_options.merge(options.get("options", {}), true)
 
 	var settings := MapperSettings.new(mdl_options)
 	var factory := MapperFactory.new(settings)

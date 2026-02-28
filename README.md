@@ -276,7 +276,7 @@ Game loader can retrieve resources without extensions from multiple game directo
 # resources require full game directory path
 var noise1 := map.loader.load_sound("sounds/ambience/swamp1")
 var noise2 := map.loader.load_sound("sounds/ambience/swamp2")
-var supershotgun := map.loader.load_mdl_raw("mdls/items/g_shot")
+var supershotgun := map.loader.load_mdl("mdls/items/g_shot")
 ```
 Sub-maps are constructed using settings from the main map and stored inside a cache.<br>
 Map options, stored in **map.settings**, can be temporarily overwritten for special sub-maps.<br>
