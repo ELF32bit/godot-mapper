@@ -1,7 +1,7 @@
 class_name MapperMapResource
 extends Resource
 
-const MAX_FACES_PER_BRUSH: int = 128
+const MAX_FACES_PER_BRUSH: int = 192
 
 @export var name: String
 @export var source_file: String
@@ -36,8 +36,7 @@ static func load_from_file(path: String) -> MapperMapResource:
 		if line.begins_with("{"):
 			if is_inside_entity:
 				if is_inside_brush:
-					# cant be inside entity while inside brush
-					return null
+					return null # cant be inside entity while inside brush
 				else:
 					faces = []
 					is_inside_brush = true
@@ -52,12 +51,10 @@ static func load_from_file(path: String) -> MapperMapResource:
 					push_warning("Line %s: Brush has no faces, not importing." % [line_number])
 				else:
 					entities[-1].brushes.append(MapperBrushResource.new(faces))
-
 				is_inside_brush = false
 			else:
 				if not is_inside_entity:
-					# cant be inside brush and not be inside entity
-					return null
+					return null # cant be inside brush and not be inside entity
 				else:
 					is_inside_entity = false
 		elif is_inside_brush:
@@ -68,14 +65,12 @@ static func load_from_file(path: String) -> MapperMapResource:
 				push_warning("Line %s: Brush face has wrong format, not importing." % [line_number])
 		elif is_inside_entity:
 			var line_unescaped := line.replace('\\"', "/!@!/")
-			var line_split := line_unescaped.split('"', false, 3)
+			var line_split := line_unescaped.split('"', true, 4)
+			if line_split.size() != 5:
+				push_warning("Line %s: Entity property failed to parse." % [line_number])
+				continue
 			for index in range(line_split.size()):
 				line_split[index] = line_split[index].replace("/!@!/", '"')
-			var property := StringName(line_split[0])
-
-			if line_split.size() >= 3:
-				entities[-1].properties[property] = line_split[2]
-			elif line_split.size() == 2:
-				entities[-1].properties[property] = line_split[1]
+			entities[-1].properties[StringName(line_split[1])] = line_split[3]
 
 	return MapperMapResource.new(path.get_file().get_basename(), path, entities)
