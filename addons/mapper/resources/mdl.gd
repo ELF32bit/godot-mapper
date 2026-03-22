@@ -115,7 +115,7 @@ static func load_from_file(path: String, palette: MapperPaletteResource = null) 
 
 	var extract_texture := func() -> Texture2D:
 		var indexed_colors := file.get_buffer(texture_size)
-		var colors_rgb: PackedByteArray
+		var colors_rgb: PackedByteArray = []
 		colors_rgb.resize(indexed_colors.size() * 3)
 		for index in range(indexed_colors.size()):
 			var color := file_palette.colors[indexed_colors[index]]
@@ -149,7 +149,7 @@ static func load_from_file(path: String, palette: MapperPaletteResource = null) 
 				texture.set_frame_duration(index, texture_frames_duration[index])
 			textures.append(texture)
 		else:
-			var texture := extract_texture.call()
+			var texture: Texture2D = extract_texture.call()
 			textures.append(texture)
 	mdl.textures = textures
 
@@ -180,10 +180,10 @@ static func load_from_file(path: String, palette: MapperPaletteResource = null) 
 		if not group_frame_amount < MAX_FRAMES:
 			return null
 
-		var bounding_box_min: PackedInt32Array
+		var bounding_box_min: PackedInt32Array = []
 		for index2 in range(4):
 			bounding_box_min.append(file.get_8())
-		var bounding_box_max: PackedInt32Array
+		var bounding_box_max: PackedInt32Array = []
 		for index2 in range(4):
 			bounding_box_max.append(file.get_8())
 
@@ -204,10 +204,10 @@ static func load_from_file(path: String, palette: MapperPaletteResource = null) 
 		for index2 in range(group_frame_amount):
 			var frame_data: Dictionary = {}
 			if frame_type:
-				var frame_bounding_box_min: PackedInt32Array
+				var frame_bounding_box_min: PackedInt32Array = []
 				for index3 in range(4):
 					bounding_box_min.append(file.get_8())
-				var frame_bounding_box_max: PackedInt32Array
+				var frame_bounding_box_max: PackedInt32Array = []
 				for index3 in range(4):
 					bounding_box_max.append(file.get_8())
 				frame_data["bounding_box_min"] = frame_bounding_box_min

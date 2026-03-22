@@ -3,6 +3,20 @@ extends EditorImportPlugin
 
 enum { PRESET_DEFAULT }
 
+const DEFAULT_GAMES: Dictionary = {
+	"Generic": {
+		"game_directory": "res://mapping/generic",
+		"alternative_game_directories": ["res://mapping/quake"],
+		"game_loader": MapperSettings.DEFAULT_GAME_LOADER,
+	},
+	"Quake": {
+		"game_directory": "res://mapping/quake",
+		"game_loader": MapperSettings.QUAKE_GAME_LOADER,
+		"skip_material_affects_collision": false,
+		"prefer_static_lighting": true,
+	}
+}
+
 
 func _get_importer_name() -> String:
 	return "mapper.map.scene"
@@ -37,6 +51,7 @@ func _get_preset_name(preset_index: int) -> String:
 
 
 func _get_import_options(path: String, preset_index: int) -> Array[Dictionary]:
+	var games := _load_configuration_file()
 	match preset_index:
 		PRESET_DEFAULT:
 			return [
@@ -44,7 +59,7 @@ func _get_import_options(path: String, preset_index: int) -> Array[Dictionary]:
 					"name": "game",
 					"default_value": 0,
 					"property_hint": PROPERTY_HINT_ENUM,
-					"hint_string": "Generic,Quake,Custom",
+					"hint_string": ",".join(games.keys()),
 				},
 				{
 					"name": "wads",
@@ -85,18 +100,8 @@ func _import(source_file: String, save_path: String, options: Dictionary, platfo
 		return ERR_PARSE_ERROR
 
 	var map_options: Dictionary = {}
-	match options.get("game", 0):
-		0: # Generic
-			map_options["game_directory"] = "res://mapping/generic"
-			map_options["alternative_game_directories"] = ["res://mapping/quake"]
-			map_options["game_loader"] = MapperSettings.DEFAULT_GAME_LOADER
-		1: # Quake
-			map_options["game_directory"] = "res://mapping/quake"
-			map_options["game_loader"] = MapperSettings.QUAKE_GAME_LOADER
-			map_options["skip_material_affects_collision"] = false
-			map_options["prefer_static_lighting"] = true
-		_: # Custom
-			pass
+	var games := _load_configuration_file().duplicate(true)
+	map_options = games.get(games.keys()[options.get("game", 0)], {})
 	map_options.merge(options.get("options", {}), true)
 
 	# loading wads from options
@@ -117,3 +122,21 @@ func _import(source_file: String, save_path: String, options: Dictionary, platfo
 	if options.get("options", {}).get("bundle_resources", false):
 		save_flags = save_flags | ResourceSaver.FLAG_BUNDLE_RESOURCES
 	return ResourceSaver.save(scene, "%s.%s" % [save_path, _get_save_extension()], save_flags)
+
+
+static func _load_configuration_file() -> Dictionary:
+	if not ResourceLoader.exists("res://addons/mapper.gd", "GDScript"):
+		return DEFAULT_GAMES
+	var configuration_file: Variant = load("res://addons/mapper.gd")
+	if not configuration_file is GDScript:
+		return DEFAULT_GAMES
+	var configuration: Dictionary = configuration_file.get_script_constant_map()
+	if not configuration.get("MAPPER_GAMES", null) is Dictionary:
+		return DEFAULT_GAMES
+	var games: Dictionary = configuration.get("MAPPER_GAMES", {})
+	for game_name in games:
+		if not typeof(game_name) in [TYPE_STRING, TYPE_STRING_NAME]:
+			return DEFAULT_GAMES
+		if not games[game_name] is Dictionary:
+			return DEFAULT_GAMES
+	return games

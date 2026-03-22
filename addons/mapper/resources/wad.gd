@@ -24,9 +24,9 @@ static func load_from_file(path: String, palette: MapperPaletteResource = null, 
 	var directory_offset := file.get_32()
 
 	# reading WAD entry list
-	var texture1_positions: PackedInt32Array
-	var texture2_positions: PackedInt32Array
-	var texture2_disk_sizes: PackedInt32Array
+	var texture1_positions: PackedInt32Array = []
+	var texture2_positions: PackedInt32Array = []
+	var texture2_disk_sizes: PackedInt32Array = []
 	var palette_position: Variant = null
 
 	file.seek(directory_offset)
@@ -76,7 +76,7 @@ static func load_from_file(path: String, palette: MapperPaletteResource = null, 
 			push_error("Texture '%s' has invalid size: %sx%s." % [name, width, height])
 			return
 
-		var mip_positions: PackedInt32Array
+		var mip_positions: PackedInt32Array = []
 		mip_positions.resize(4)
 
 		mip_positions[0] = thread_file.get_32()
@@ -86,10 +86,10 @@ static func load_from_file(path: String, palette: MapperPaletteResource = null, 
 
 		var indexed_colors := thread_file.get_buffer(width * height)
 
-		var colors_rgb: PackedByteArray
+		var colors_rgb: PackedByteArray = []
 		colors_rgb.resize(indexed_colors.size() * 3)
-		var colors_rgba: PackedByteArray
-		var fullbright_colors_rgb: PackedByteArray
+		var colors_rgba: PackedByteArray = []
+		var fullbright_colors_rgb: PackedByteArray = []
 		if magic == "WAD2":
 			colors_rgba.resize(indexed_colors.size() * 4)
 			fullbright_colors_rgb.resize(indexed_colors.size() * 3)

@@ -26,7 +26,7 @@ static func create_from_byte_array(from: PackedByteArray) -> MapperPaletteResour
 		push_error("Invalid array size, must be exactly 768 bytes.")
 		return null
 
-	var colors: PackedColorArray
+	var colors: PackedColorArray = []
 	colors.resize(256)
 
 	for index in range(colors.size()):

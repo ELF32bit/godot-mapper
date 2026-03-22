@@ -19,8 +19,8 @@ static func load_from_file(path: String) -> MapperMapResource:
 	if not file:
 		return null
 
-	var faces: Array[MapperFaceResource]
-	var entities: Array[MapperEntityResource]
+	var faces: Array[MapperFaceResource] = []
+	var entities: Array[MapperEntityResource] = []
 	var is_inside_entity := false
 	var is_inside_brush := false
 	var line_number: int = 0

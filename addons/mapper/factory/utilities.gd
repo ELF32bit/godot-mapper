@@ -221,7 +221,7 @@ static func change_node_type(node: Node, classname: StringName) -> Node:
 	if not ClassDB.can_instantiate(classname):
 		return null
 
-	var new_node := ClassDB.instantiate(classname)
+	var new_node: Node3D = ClassDB.instantiate(classname)
 	for property in node.get_property_list():
 		if property.usage & PROPERTY_USAGE_DEFAULT != 0:
 			new_node.set(property.name, node.get(property.name))
@@ -519,7 +519,7 @@ static func create_multimesh_mesh_instance(entity: MapperEntity, parent: Node, m
 
 		return array_mesh
 
-	var array_mesh := create_array_mesh_from_multimesh.call(multimesh_mesh, transforms)
+	var array_mesh = create_array_mesh_from_multimesh.call(multimesh_mesh, transforms)
 	if multimesh_mesh.shadow_mesh and entity.factory.settings.shadow_meshes:
 		array_mesh.shadow_mesh = create_array_mesh_from_multimesh.call(multimesh_mesh.shadow_mesh, transforms)
 
@@ -541,7 +541,7 @@ static func create_brush(entity: MapperEntity, brush: MapperBrush, node_class: S
 	if not ClassDB.is_parent_class(node_class, "Node3D"):
 		return null
 
-	var node := ClassDB.instantiate(node_class)
+	var node: Node3D = ClassDB.instantiate(node_class)
 	var is_rigid_body := ClassDB.is_parent_class(node_class, "RigidBody3D")
 	var is_static_body := ClassDB.is_parent_class(node_class, "StaticBody3D")
 	var has_collision := ClassDB.is_parent_class(node_class, "CollisionObject3D")
@@ -845,6 +845,7 @@ static func create_csg_merged_brush_entity(entity: MapperEntity, brushes: Array[
 					var shadow_surface_name: String = surfaces.get(shadow_surface_material, "")
 					if surface_name == shadow_surface_name and not surface_name.is_empty():
 						surface_tools[surface_index] = SurfaceTool.new()
+						surface_tools[surface_index].begin(Mesh.PRIMITIVE_TRIANGLES)
 						surface_tools[surface_index].append_from(csg_shadow_mesh, shadow_surface_index, Transform3D.IDENTITY)
 						break
 				if surface_tools[surface_index] == null:
@@ -868,6 +869,7 @@ static func create_csg_merged_brush_entity(entity: MapperEntity, brushes: Array[
 
 	if csg_occluder_mesh:
 		var surface_tool := SurfaceTool.new()
+		surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
 		for surface_index in range(csg_occluder_mesh.get_surface_count()):
 			surface_tool.append_from(csg_occluder_mesh, surface_index, Transform3D.IDENTITY)
 		surface_tool.index()

@@ -13,7 +13,7 @@ func _init(settings: MapperSettings) -> void:
 	self.settings = settings
 
 	# creating game loader instance
-	var game_loader_instance := settings.game_loader.new()
+	var game_loader_instance = settings.game_loader.new()
 	if game_loader_instance is MapperLoader:
 		game_loader = game_loader_instance
 		game_loader.settings = settings
@@ -22,7 +22,7 @@ func _init(settings: MapperSettings) -> void:
 		self.settings = null
 
 	# creating game property converter instance
-	var game_property_converter_instance := settings.game_property_converter.new()
+	var game_property_converter_instance = settings.game_property_converter.new()
 	if game_property_converter_instance is MapperPropertyConverter:
 		game_property_converter = game_property_converter_instance
 		game_property_converter.game_loader = game_loader_instance
@@ -230,7 +230,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 				continue
 
 			# skipping certain entities from settings
-			var entity_classname := entity_structure.get_classname_property(null)
+			var entity_classname = entity_structure.get_classname_property(null)
 			var is_skipped_entity := false
 			if entity_classname != null:
 				is_skipped_entity = settings.is_skip_entity_classname(entity_classname)
@@ -385,13 +385,20 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 				face_vertices[index].y = snappedf(face_vertices[index].y, grid_snap_step)
 				face_vertices[index].z = snappedf(face_vertices[index].z, grid_snap_step)
 
-	var _generate_brush_centers := func(brush: MapperBrush) -> void:
+	var _generate_brush_bounds := func(brush: MapperBrush) -> void:
+		brush.aabb = AABB()
+		var has_vertex := false
 		brush.center = Vector3.ZERO
 		if not brush.faces.size():
 			return
 		for face in brush.faces:
 			face.center = Vector3.ZERO
 			for vertex in face.vertices:
+				if has_vertex:
+					brush.aabb = brush.aabb.expand(vertex)
+				else:
+					brush.aabb = AABB(vertex, Vector3.ZERO)
+					has_vertex = true
 				face.center += vertex
 			face.center /= face.vertices.size()
 			brush.center += face.center
@@ -426,6 +433,8 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 			face.center *= scale
 			face.vertices = transform * face.vertices
 			face.uv_shift *= scale
+		brush.aabb.position *= scale
+		brush.aabb.size *= scale
 		brush.center *= scale
 
 #4. Generating brushes
@@ -462,19 +471,9 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 			brush.surfaces[face.material_name].append(face)
 			brush.materials[face.material_name] = face.material
 
-		_generate_brush_centers.call(brush)
+		_generate_brush_bounds.call(brush)
 		_sort_brush_vertices.call(brush, _sort_clockwise)
 		_scale_brush_coordinates.call(brush)
-
-	# obtaining entity faces without skip material
-	var _get_entity_faces := func(entity: MapperEntity) -> Array[MapperFace]:
-		var entity_faces: Array[MapperFace] = []
-		for brush in entity.brushes:
-			for face in brush.faces:
-				if face.skip:
-					continue
-				entity_faces.append(face)
-		return entity_faces
 
 	# obtaining unique (non-coplanar) entity faces for smooth entity normals
 	var _get_unique_entity_faces := func(entity_faces: Array[MapperFace], epsilon: float) -> Array[bool]:
@@ -493,15 +492,12 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 				if not unique_entity_faces[index2]:
 					continue
 				var face2 := entity_faces[index2]
-				var face2_vertices_size := face2.vertices.size()
 				# quickly checking non-coplanar faces centers and vertices size
-				if face1_vertices_size != face2_vertices_size:
+				if face1_vertices_size != face2.vertices.size():
 					continue
-				var face_center2 := face2.center
-				if not MapperUtilities.is_equal_approximately(face_center1, face_center2, epsilon):
+				if not MapperUtilities.is_equal_approximately(face_center1, face2.center, epsilon):
 					continue
-				var plane_center2 := face2.plane.get_center()
-				if not MapperUtilities.is_equal_approximately(plane_center1, plane_center2, epsilon):
+				if not MapperUtilities.is_equal_approximately(plane_center1, face2.plane.get_center(), epsilon):
 					continue
 				# slowly checking coplanar faces vertices
 				var is_different_face := false
@@ -530,9 +526,15 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 		var split_angle: float = entity.get_float_property(split_angle_property, 89.0)
 		split_angle = deg_to_rad(clampf(split_angle, 0.0, 180.0))
 
+		# obtaining entity faces without skip material
+		var entity_faces: Array[MapperFace] = []
+		for brush in entity.brushes:
+			for face in brush.faces:
+				if not face.skip:
+					entity_faces.append(face)
+
 		# collecting entity faces, discarding faces in the same plane with the same centers
-		var entity_faces: Array[MapperFace] = _get_entity_faces.call(entity)
-		var unique_entity_faces := _get_unique_entity_faces.call(entity_faces, epsilon)
+		var unique_entity_faces = _get_unique_entity_faces.call(entity_faces, epsilon)
 
 		# collecting unique vertices and face normals
 		var vertices := PackedVector3Array()
@@ -874,22 +876,11 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 				if brush.concave_shape and is_concave_mesh:
 					brush.shape = brush.concave_shape
 
-		# setting brush aabb from array mesh
-		if brush.mesh:
-			brush.aabb = brush.mesh.get_aabb()
-			if brush.aabb.has_surface() and skip_aabb.has_surface():
-				brush.aabb = brush.aabb.merge(skip_aabb)
-			elif skip_aabb.has_surface():
-				brush.aabb = skip_aabb
-		elif skip_aabb.has_surface():
-			brush.aabb = skip_aabb
-		brush.aabb.position = brush.center - brush.aabb.size / 2.0
-		brush.aabb.end = brush.center + brush.aabb.size / 2.0
-
 	var _generate_occluder := func(mesh: ArrayMesh) -> ArrayOccluder3D:
 		if not mesh:
 			return null
 		var surface_tool := SurfaceTool.new()
+		surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
 		for surface_index in range(mesh.get_surface_count()):
 			surface_tool.append_from(mesh, surface_index, Transform3D.IDENTITY)
 		var arrays := surface_tool.commit_to_arrays()
@@ -943,7 +934,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 				continue
 			if brush.get_uniform_property(properties.mesh_disabled, false):
 				continue
-			var cast_shadow := brush.get_uniform_property(properties.cast_shadow, true)
+			var cast_shadow = brush.get_uniform_property(properties.cast_shadow, true)
 			has_shadow_mesh = bool(true if not cast_shadow else has_shadow_mesh)
 
 			var offset := Transform3D.IDENTITY.translated(brush.center - entity.center)

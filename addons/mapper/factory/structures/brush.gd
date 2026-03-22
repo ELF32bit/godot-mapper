@@ -95,10 +95,10 @@ func get_max_point_penetration(point: Vector3, epsilon: float) -> Variant:
 
 
 func get_relative_point_penetration(point: Vector3, epsilon: float) -> Variant:
-	var min_distance := get_min_point_penetration(point, epsilon)
+	var min_distance = get_min_point_penetration(point, epsilon)
 	if min_distance == null:
 		return null
-	var max_distance := get_max_point_penetration(point, epsilon)
+	var max_distance = get_max_point_penetration(point, epsilon)
 	if max_distance == null:
 		return null
 	return min_distance / max_distance
@@ -255,15 +255,15 @@ func generate_surface_distribution(surfaces: PackedStringArray, density: float, 
 		# calculating triangle vectors and area
 		var a := triangles[index * 3 + 1] - triangles[index * 3]
 		var b := triangles[index * 3 + 2] - triangles[index * 3]
-		var area := get_triangle_area.call(a, b)
+		var area: float = get_triangle_area.call(a, b)
 
 		# calculating random point inside parallelogram
 		var p := r2 * a + r3 * b
 
 		# calculating areas from triangles starting in point
-		var area1 := get_triangle_area.call(-p, a - p)
-		var area2 := get_triangle_area.call(-p, b - p)
-		var area3 := get_triangle_area.call(a - p, b - p)
+		var area1: float = get_triangle_area.call(-p, a - p)
+		var area2: float = get_triangle_area.call(-p, b - p)
+		var area3: float = get_triangle_area.call(a - p, b - p)
 
 		# sum of areas should match triangle area if the point is inside
 		if not is_equal_approx(area1 + area2 + area3, area):
@@ -343,7 +343,7 @@ func generate_volume_distribution(density: float, min_penetration: float = 0.0, 
 
 		var brush_has_point := false
 		if has_penetration_range:
-			var min_point_penetration := get_min_point_penetration(point, epsilon)
+			var min_point_penetration = get_min_point_penetration(point, epsilon)
 			if min_point_penetration != null:
 				if min_point_penetration >= min_penetration:
 					if min_point_penetration <= max_penetration:

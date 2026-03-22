@@ -32,17 +32,16 @@ func _init(point1: Vector3 = Vector3.ZERO, point2: Vector3 = Vector3.ZERO, point
 
 static func create_from_string(string: String) -> MapperFaceResource:
 	var values := string.split(" ", false, 31 + MAX_PARAMETERS)
-
 	if values.size() < 20:
 		return null
 
-	var u_axis: Vector3
-	var v_axis: Vector3
-	var uv_shift: Vector2
-	var uv_valve: bool
-	var rotation: float
-	var scale: Vector2
-	var parameters := PackedStringArray()
+	var u_axis := Vector3.ZERO
+	var v_axis := Vector3.ZERO
+	var uv_shift := Vector2.ZERO
+	var uv_valve := false
+	var rotation: float = 0.0
+	var scale := Vector2.ZERO
+	var parameters: PackedStringArray = []
 
 	for index1 in [1, 6, 11]:
 		for index2 in range(index1, index1 + 3):

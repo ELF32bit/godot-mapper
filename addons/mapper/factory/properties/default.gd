@@ -9,7 +9,7 @@ func convert_string(line: String) -> Variant:
 
 
 func convert_variant(line: String) -> Variant:
-	var result := str_to_var(line)
+	var result: Variant = str_to_var(line)
 	if result != null:
 		return result
 	elif line.strip_edges() == "null":

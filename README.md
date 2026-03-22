@@ -9,9 +9,9 @@ Organize map resources into game expansions by specifying alternative game direc
 #### [Additional tools for creating maps are available here](https://github.com/ELF32bit/mapping-tools)
 
 ## Features
-* Import and progressive loading of complex maps as scenes in a deterministic way.
-* Automatic loading of PBR textures, animated textures and shader material textures.
-* Scattering, based on floor angle, of grass or enemies on textures and inside brushes.
+* Automatic reimport and progressive loading of [complex maps](https://github.com/ELF32bit/godot-mapper-characters) in a deterministic way.
+* Powerful loading system for materials, animated textures and shader material textures.
+* Scattering, based on floor angle, of multi-meshes on textures and inside brushes.
 * Effortless brush entity construction and animation using plugin functions.
 * Safe entity property parsing and binding, entity linking and [grouping](https://github.com/ELF32bit/godot-mapper/blob/main/mapping/generic/builders/func_group.gd).
 * Artist controllable [barycentric wireframes](https://github.com/ELF32bit/godot-mapper/blob/main/mapping/generic/shaders/wireframe.gdshader) via [face parameters](https://github.com/ELF32bit/godot-mapper/blob/main/addons/mapper/templates/__post.gd).
@@ -31,7 +31,7 @@ Organize map resources into game expansions by specifying alternative game direc
 * game/wads for texture WADs defined in map files.
 * game/mdls for animated models.
 
-> Add game configuration to the plugin **`importers/map-scene.gd`** file.
+> Add game configuration to the **`addons/mapper.gd`** games file.
 
 ### 2. Construct map entities with build scripts.
 Scripts inside builders directory are used to construct map entities.<br>
