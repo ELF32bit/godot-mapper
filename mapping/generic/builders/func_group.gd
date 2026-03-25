@@ -6,25 +6,40 @@ static func build(map: MapperMap, entity: MapperEntity) -> Node:
 
 	# finding group entities one level deep (can be other groups)
 	map.bind_group_entities(entity, "_tb_group")
-	var group_center := Vector3.ZERO
-	var count: int = 0
 
 	# parenting group entities to the group node
 	for group_entity in map.group_entities.get(entity, []):
 		group_entity.parent = entity
 
-	# calculating group center
+	# calculating group AABB from brushes
+	var aabb := AABB()
+	var aabb_is_empty := true
 	for group_entity in map.group_entities.get(entity, []):
-		if group_entity.brushes.size():
-			group_center += group_entity.center
-			count += 1
+		if not group_entity.aabb.has_surface(): continue
+		if aabb_is_empty:
+			aabb = group_entity.aabb
+			aabb_is_empty = false
+		else: aabb = aabb.merge(group_entity.aabb)
 	for brush in entity.brushes:
-		group_center += brush.center
-		count += 1
+		if not brush.aabb.has_surface(): continue
+		if aabb_is_empty:
+			aabb = brush.aabb
+			aabb_is_empty = false
+		else: aabb = aabb.merge(brush.aabb)
 
-	if count:
-		group_center /= count
-	entity.node_properties["position"] = group_center
+	# calculating group AABB from point entities if there are no brushes
+	if aabb_is_empty:
+		for group_entity in map.group_entities.get(entity, []):
+			if not group_entity.brushes.size() == 0: continue
+			var origin = group_entity.get_origin_property(null)
+			if origin == null: continue
+			if aabb_is_empty:
+				aabb = AABB(origin, Vector3.ZERO)
+				aabb_is_empty = false
+			else: aabb = aabb.expand(origin)
+
+	# binding group properties
+	entity.node_properties["position"] = aabb.get_center()
 	entity.bind_string_property(map.settings.group_entity_name_property, "name")
 
 	return Node3D.new()
