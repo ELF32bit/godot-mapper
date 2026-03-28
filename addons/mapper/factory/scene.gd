@@ -305,6 +305,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 						smooth_entity_structures.append(entity_structure)
 
 #2. Generating faces
+	var _texture_suffixes := settings.texture_suffixes.values()
 	var generate_faces := func(thread_index: int) -> void:
 		var face := face_structures[thread_index]
 
@@ -329,7 +330,8 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 			face.scale.y = 1.0
 
 		# removing texture suffixes from material names
-		for suffix in settings.texture_suffixes.values():
+		for suffix_index in range(_texture_suffixes.size() - 1, -1, -1):
+			var suffix: String = _texture_suffixes[suffix_index]
 			if face.material_name.ends_with(suffix):
 				face.material_name = face.material_name.trim_suffix(suffix)
 				break

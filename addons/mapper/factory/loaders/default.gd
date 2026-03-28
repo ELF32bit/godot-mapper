@@ -110,13 +110,13 @@ func load_animated_texture(texture: String, wads: Array[MapperWadResource] = [])
 	var reg_ex := RegEx.new()
 
 	# trying to get animation frame from texture name
-	reg_ex.compile("-[0-9]+(_[A-Za-z]*$|$)")
+	reg_ex.compile("-[0-9]+(_[A-Za-z_]*$|$)")
 	var frame_pattern := reg_ex.search(texture)
 	if frame_pattern:
 		var suffix := frame_pattern.get_string()
 		reg_ex.compile("-[0-9]+")
 		var texture_frame := reg_ex.search(suffix).get_string().trim_prefix("-")
-		reg_ex.compile("_[A-Za-z]*$|$")
+		reg_ex.compile("_[A-Za-z_]*$|$")
 		var other_suffix := reg_ex.search(suffix).get_string()
 		var texture_name := texture.trim_suffix(suffix)
 
@@ -178,7 +178,7 @@ func load_animated_textures(texture: String, wads: Array[MapperWadResource] = []
 	var textures: Array[Texture2D] = []
 
 	var reg_ex := RegEx.new()
-	reg_ex.compile("\\+[0-9]+(-[0-9]+)?(_[A-Za-z]*$|$)")
+	reg_ex.compile("\\+[0-9]+(-[0-9]+)?(_[A-Za-z_]*$|$)")
 	var number_pattern := reg_ex.search(texture)
 	if number_pattern:
 		var suffix := number_pattern.get_string()
@@ -190,7 +190,7 @@ func load_animated_textures(texture: String, wads: Array[MapperWadResource] = []
 		var frame_pattern := reg_ex.search(suffix)
 		if frame_pattern != null:
 			texture_frame = "-" + "0".pad_zeros(frame_pattern.get_string().length() - 1)
-		reg_ex.compile("_[A-Za-z]*$|$")
+		reg_ex.compile("_[A-Za-z_]*$|$")
 		var other_suffix := texture_frame + reg_ex.search(suffix).get_string()
 		var texture_name := texture.trim_suffix(suffix)
 

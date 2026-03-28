@@ -39,26 +39,26 @@ const SHADER_TEXTURE_SLOTS := {
 	BaseMaterial3D.TEXTURE_ORM: "orm_texture",
 }
 
-## PBR texture suffixes recognized by the plugin. Currently one word only.
+## PBR texture suffixes recognized by the plugin.
 const TEXTURE_SUFFIXES := {
 	BaseMaterial3D.TEXTURE_ALBEDO: "_albedo",
 	BaseMaterial3D.TEXTURE_METALLIC: "_metallic",
 	BaseMaterial3D.TEXTURE_ROUGHNESS: "_roughness",
 	BaseMaterial3D.TEXTURE_EMISSION: "_emission",
 	BaseMaterial3D.TEXTURE_NORMAL: "_normal",
-	#BaseMaterial3D.TEXTURE_BENT_NORMAL: "_bnormal",
+	#BaseMaterial3D.TEXTURE_BENT_NORMAL: "_bent_normal",
 	BaseMaterial3D.TEXTURE_RIM: "_rim",
 	BaseMaterial3D.TEXTURE_CLEARCOAT: "_clearcoat",
 	BaseMaterial3D.TEXTURE_FLOWMAP: "_anisotropy",
 	BaseMaterial3D.TEXTURE_AMBIENT_OCCLUSION: "_ao",
 	BaseMaterial3D.TEXTURE_HEIGHTMAP: "_heightmap",
-	BaseMaterial3D.TEXTURE_SUBSURFACE_SCATTERING: "_subsurface",
-	BaseMaterial3D.TEXTURE_SUBSURFACE_TRANSMITTANCE: "_transmittance",
+	BaseMaterial3D.TEXTURE_SUBSURFACE_SCATTERING: "_subsurf_scatter",
+	BaseMaterial3D.TEXTURE_SUBSURFACE_TRANSMITTANCE: "_subsurf_scatter_transmittance",
 	BaseMaterial3D.TEXTURE_BACKLIGHT: "_backlight",
 	BaseMaterial3D.TEXTURE_REFRACTION: "_refraction",
-	BaseMaterial3D.TEXTURE_DETAIL_MASK: "_dmask",
-	BaseMaterial3D.TEXTURE_DETAIL_ALBEDO: "_dalbedo",
-	BaseMaterial3D.TEXTURE_DETAIL_NORMAL: "_dnormal",
+	BaseMaterial3D.TEXTURE_DETAIL_MASK: "_detail_mask",
+	BaseMaterial3D.TEXTURE_DETAIL_ALBEDO: "_detail_albedo",
+	BaseMaterial3D.TEXTURE_DETAIL_NORMAL: "_detail_normal",
 	BaseMaterial3D.TEXTURE_ORM: "_orm",
 }
 
