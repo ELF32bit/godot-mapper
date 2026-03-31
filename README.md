@@ -9,7 +9,7 @@ Organize map resources into game expansions by specifying alternative game direc
 #### [Additional tools for creating maps are available here](https://github.com/ELF32bit/mapping-tools)
 
 ## Features
-* Automatic reimport and progressive loading of [complex maps](https://github.com/ELF32bit/godot-mapper-characters) in a deterministic way.
+* Automatic reimport and progressive loading of [custom maps](https://github.com/ELF32bit/godot-mapper-characters) in a deterministic way.
 * Powerful loading system for materials, animated textures and shader material textures.
 * Scattering, based on floor angle, of multi-meshes on textures and inside brushes.
 * Effortless brush entity construction and animation using plugin functions.
