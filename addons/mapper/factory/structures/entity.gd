@@ -8,7 +8,7 @@ var concave_shape: ConcavePolygonShape3D
 var convex_shape: ConvexPolygonShape3D
 var shape: Shape3D
 var occluder: ArrayOccluder3D
-var center: Vector3 # aabb center and not origin
+var center: Vector3
 var aabb: AABB
 
 var node: Node # only valid after all build scripts executed
