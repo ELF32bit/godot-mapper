@@ -1,8 +1,8 @@
 class_name MapperFace
 
-var point1: Vector3
-var point2: Vector3
-var point3: Vector3
+var point1: PackedFloat64Array
+var point2: PackedFloat64Array
+var point3: PackedFloat64Array
 var material_name: String
 var u_axis: Vector3
 var v_axis: Vector3

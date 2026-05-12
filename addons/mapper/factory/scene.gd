@@ -274,9 +274,9 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 					if not is_skipped_entity or is_world_entity_extra_brush_entity:
 						face_structures.append(face_structure)
 
-					face_structure.point1 = face.point1
-					face_structure.point2 = face.point2
-					face_structure.point3 = face.point3
+					face_structure.point1 = face.point1.duplicate()
+					face_structure.point2 = face.point2.duplicate()
+					face_structure.point3 = face.point3.duplicate()
 					face_structure.material_name = face.material
 					face_structure.u_axis = face.u_axis
 					face_structure.v_axis = face.v_axis
@@ -306,10 +306,26 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 	var _texture_suffixes := settings.texture_suffixes.values()
 	var generate_faces := func(thread_index: int) -> void:
 		var face := face_structures[thread_index]
-		face.point1 = settings.basis * face.point1
-		face.point2 = settings.basis * face.point2
-		face.point3 = settings.basis * face.point3
-		face.plane = Plane(face.point1, face.point2, face.point3)
+		var p1 := face.point1.duplicate()
+		var p2 := face.point2.duplicate()
+		var p3 := face.point3.duplicate()
+		var b := settings.basis
+
+		# transforming points coordinates with double precision
+		face.point1[0] = b[0][0] * p1[0] + b[1][0] * p1[1] + b[2][0] * p1[2]
+		face.point1[1] = b[0][1] * p1[0] + b[1][1] * p1[1] + b[2][1] * p1[2]
+		face.point1[2] = b[0][2] * p1[0] + b[1][2] * p1[1] + b[2][2] * p1[2]
+		face.point2[0] = b[0][0] * p2[0] + b[1][0] * p2[1] + b[2][0] * p2[2]
+		face.point2[1] = b[0][1] * p2[0] + b[1][1] * p2[1] + b[2][1] * p2[2]
+		face.point2[2] = b[0][2] * p2[0] + b[1][2] * p2[1] + b[2][2] * p2[2]
+		face.point3[0] = b[0][0] * p3[0] + b[1][0] * p3[1] + b[2][0] * p3[2]
+		face.point3[1] = b[0][1] * p3[0] + b[1][1] * p3[1] + b[2][1] * p3[2]
+		face.point3[2] = b[0][2] * p3[0] + b[1][2] * p3[1] + b[2][2] * p3[2]
+
+		face.plane = Plane(
+			Vector3(face.point1[0], face.point1[1], face.point1[2]),
+			Vector3(face.point2[0], face.point2[1], face.point2[2]),
+			Vector3(face.point3[0], face.point3[1], face.point3[2]))
 
 		# normalizing uv axis vectors and adjusting scale
 		if face.uv_valve:
@@ -351,7 +367,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 				map_structure.materials[face.material_name] = MapperMaterial.new()
 			face.material = map_structure.materials[face.material_name]
 
-	# intersecting brush planes in the most precise way possible
+	# intersecting brush planes in the most precise way possible (without double precision)
 	var _generate_brush_faces_precise := func(brush: MapperBrush, epsilon: float) -> void:
 		for face1 in brush.faces:
 			for face2 in brush.faces:
@@ -421,9 +437,10 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 		var scale := (1.0 / settings.unit_size)
 		var transform := Transform3D.IDENTITY.scaled(Vector3.ONE * scale)
 		for face in brush.faces:
-			face.point1 *= scale
-			face.point2 *= scale
-			face.point3 *= scale
+			for index in range(3):
+				face.point1[index] *= scale
+				face.point2[index] *= scale
+				face.point3[index] *= scale
 			face.plane.d *= scale
 			face.center *= scale
 			face.vertices = transform * face.vertices
