@@ -862,6 +862,8 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 				# material surface names are required for override materials
 				var surface_index := brush.mesh.get_surface_count() - 1
 				brush.mesh.surface_set_name(surface_index, material)
+		if settings.brush_shadow_meshes and brush.mesh:
+			MapperUtilities.generate_shadow_mesh(brush.mesh)
 
 		# creating brush collision shapes
 		if not brush.is_degenerate and points.size() > 0:
@@ -880,8 +882,6 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 					brush.shape = brush.concave_shape
 
 	var _generate_occluder := func(mesh: ArrayMesh) -> ArrayOccluder3D:
-		if not mesh:
-			return null
 		var surface_tool := SurfaceTool.new()
 		surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
 		for surface_index in range(mesh.get_surface_count()):
@@ -894,22 +894,19 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 		else:
 			return null
 
-	var _generate_lightmap_uv := func(mesh: ArrayMesh, transform: Transform3D, lightmap_scale: float = 1.0) -> void:
-		if not mesh:
-			return
-		MapperUtilities.lightmap_unwrap(mesh,
-			transform, settings.lightmap_texel_size / lightmap_scale)
-
 #9. Generating brush occluders
 	var generate_brush_occluders := func(thread_index: int) -> void:
 		var brush := brush_structures[thread_index]
-		brush.occluder = _generate_occluder.call(brush.mesh)
+		if brush.mesh:
+			brush.occluder = _generate_occluder.call(brush.mesh)
 
 #10. Generating brush lightmap uvs
 	var generate_brush_lightmap_uvs := func(thread_index: int) -> void:
 		var brush := brush_structures[thread_index]
 		var transform := Transform3D.IDENTITY.translated(brush.center)
-		_generate_lightmap_uv.call(brush.mesh, transform, brush.lightmap_scale)
+		if brush.mesh:
+			MapperUtilities.lightmap_unwrap(brush.mesh,
+				transform, settings.lightmap_texel_size / brush.lightmap_scale)
 
 #11. Generating entity bounds
 	var generate_entity_bounds := func(thread_index: int) -> void:
@@ -933,18 +930,30 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 		var properties := settings.override_material_metadata_properties
 		var entity := entity_structures[thread_index]
 		var surface_tools: Dictionary = {}
-		var shadow_mesh_surface_tools: Dictionary = {}
-		var shadow_mesh_empty_surfaces: Dictionary = {}
-		var has_shadow_mesh := false
+
+		var has_cast_shadow_mesh := false
+		var cast_shadow_surface_tool := SurfaceTool.new()
+		cast_shadow_surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+		if settings.cast_shadow_meshes:
+			var has_cast_shadow_brushes := false
+			for brush in entity.brushes:
+				if not brush.mesh:
+					continue
+				if brush.get_uniform_property(properties.mesh_disabled, false):
+					continue
+				if brush.get_uniform_property(properties.cast_shadow, true):
+					has_cast_shadow_brushes = true
+				elif has_cast_shadow_brushes:
+					has_cast_shadow_mesh = true
+					break
+			if not has_cast_shadow_brushes and entity.brushes.size() > 0:
+				entity.metadata["_cast_shadow"] = false
 
 		for brush in entity.brushes:
 			if not brush.mesh:
 				continue
 			if brush.get_uniform_property(properties.mesh_disabled, false):
 				continue
-			var cast_shadow = brush.get_uniform_property(properties.cast_shadow, true)
-			has_shadow_mesh = bool(true if not cast_shadow else has_shadow_mesh)
-
 			var offset := Transform3D.IDENTITY.translated(brush.center - entity.center)
 			for surface_index in range(brush.mesh.get_surface_count()):
 				var surface_name := brush.mesh.surface_get_name(surface_index)
@@ -954,27 +963,13 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 					surface_tools[surface_name].begin(Mesh.PRIMITIVE_TRIANGLES)
 					surface_tools[surface_name].set_material(surface_material)
 				surface_tools[surface_name].append_from(brush.mesh, surface_index, offset)
-
-				if settings.shadow_meshes:
-					if not surface_name in shadow_mesh_surface_tools:
-						shadow_mesh_surface_tools[surface_name] = SurfaceTool.new()
-						shadow_mesh_surface_tools[surface_name].begin(Mesh.PRIMITIVE_TRIANGLES)
-						shadow_mesh_empty_surfaces[surface_name] = true
-					if cast_shadow:
-						shadow_mesh_surface_tools[surface_name].append_from(brush.mesh,
-							surface_index, offset)
-						shadow_mesh_empty_surfaces[surface_name] = false
+				if has_cast_shadow_mesh:
+					if brush.get_uniform_property(properties.cast_shadow, true):
+						cast_shadow_surface_tool.append_from(brush.mesh, surface_index, offset)
 		for material in surface_tools:
 			surface_tools[material].index()
-
-		if settings.shadow_meshes and has_shadow_mesh:
-			var triangle := PackedVector3Array()
-			triangle.resize(3) # hacking shadow mesh by inserting empty triangle
-			triangle.fill(Vector3.ZERO) # making sure that array is zeroed
-			for material in shadow_mesh_surface_tools:
-				if shadow_mesh_empty_surfaces[material]:
-					shadow_mesh_surface_tools[material].add_triangle_fan(triangle)
-				shadow_mesh_surface_tools[material].index()
+		if has_cast_shadow_mesh:
+			cast_shadow_surface_tool.index()
 
 		if surface_tools.size():
 			entity.mesh = ArrayMesh.new()
@@ -983,14 +978,27 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 				# material surface names are required for override materials
 				var surface_index := entity.mesh.get_surface_count() - 1
 				entity.mesh.surface_set_name(surface_index, material)
+		if settings.entity_shadow_meshes and entity.mesh:
+			MapperUtilities.generate_shadow_mesh(entity.mesh)
 
-			if settings.shadow_meshes and has_shadow_mesh:
-				var flags := Mesh.ARRAY_FORMAT_VERTEX | Mesh.ARRAY_FORMAT_INDEX
-				for material in shadow_mesh_surface_tools:
-					entity.mesh.shadow_mesh = shadow_mesh_surface_tools[material].commit(
-						entity.mesh.shadow_mesh, flags)
-					var surface_index := entity.mesh.shadow_mesh.get_surface_count() - 1
-					entity.mesh.shadow_mesh.surface_set_name(surface_index, material)
+		if has_cast_shadow_mesh:
+			var is_valid_mesh := false
+			var arrays := cast_shadow_surface_tool.commit_to_arrays()
+			var required_arrays := [Mesh.ARRAY_VERTEX, Mesh.ARRAY_INDEX]
+			if settings.lightmap_unwrap:
+				required_arrays.insert(1, Mesh.ARRAY_NORMAL)
+			for index in range(Mesh.ARRAY_MAX):
+				if index in required_arrays:
+					if arrays[index] != null:
+						if arrays[index].size() != 0:
+							is_valid_mesh = true
+						else:
+							arrays[index] = null
+				elif arrays[index] != null:
+					arrays[index] = null
+			if is_valid_mesh:
+				entity.cast_shadow_mesh = ArrayMesh.new()
+				entity.cast_shadow_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 
 #13. Generating entity shapes
 	var generate_entity_shapes := func(thread_index: int) -> void:
@@ -1053,7 +1061,12 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 		var entity := entity_structures[thread_index]
 		var transform := Transform3D.IDENTITY.translated(entity.center)
 		var lightmap_scale: float = entity.get_lightmap_scale_property(1.0)
-		_generate_lightmap_uv.call(entity.mesh, transform, lightmap_scale)
+		if entity.mesh:
+			MapperUtilities.lightmap_unwrap(entity.mesh,
+				transform, settings.lightmap_texel_size / lightmap_scale)
+		if entity.cast_shadow_mesh:
+			MapperUtilities.lightmap_unwrap(entity.cast_shadow_mesh,
+				transform, settings.lightmap_texel_size / lightmap_scale)
 
 #16. Generating entity nodes
 	var generate_entity_nodes := func() -> void:
@@ -1071,7 +1084,6 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 			var class_root := Node3D.new()
 			class_root.name = classname
 			scene_root.add_child(class_root, settings.readable_node_names)
-
 			for entity in map_structure.classnames[classname]:
 				entity.node = class_builder.call("build", map_structure, entity)
 
@@ -1088,7 +1100,6 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 						if name.validate_node_name().strip_edges().is_empty():
 							continue
 				entity.node.set(node_property, entity.node_properties[node_property])
-
 			for group_name in entity.node_groups:
 				entity.node.add_to_group(group_name, true)
 
@@ -1347,6 +1358,9 @@ func build_mdl(mdl: MapperMdlResource) -> PackedScene:
 		mesh_instance.mesh = surface_tool.commit()
 		parent.add_child(mesh_instance, true)
 		mesh_instance.owner = scene_root
+
+		if settings.entity_shadow_meshes and mesh_instance.mesh:
+			MapperUtilities.generate_shadow_mesh(mesh_instance.mesh)
 
 		var frame_name: String = frame.get("name", "")
 		if not frame_name.is_empty():

@@ -4,6 +4,7 @@ var properties: Dictionary
 var brushes: Array[MapperBrush]
 
 var mesh: ArrayMesh
+var cast_shadow_mesh: ArrayMesh
 var concave_shape: ConcavePolygonShape3D
 var convex_shape: ConvexPolygonShape3D
 var shape: Shape3D

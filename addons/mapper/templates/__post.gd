@@ -6,7 +6,7 @@ static func build(map: MapperMap) -> void:
 static func build_faces_colors(face: MapperFace, colors: PackedColorArray) -> void:
 	# face can be a triangle, quad and n-gon with a central starting vertex
 	# additionally, n-gons have one more duplicate vertex at the end of the loop
-	if not face.parameters.size() > 2:
+	if not face.parameters.size() >= 3:
 		return
 	var source_colors := colors.duplicate()
 	var face_value := face.parameters[2]
@@ -32,6 +32,3 @@ static func build_faces_colors(face: MapperFace, colors: PackedColorArray) -> vo
 		colors[index * 3 + 0].a = flags
 		colors[index * 3 + 1].a = flags
 		colors[index * 3 + 2].a = flags
-
-	# other face parameters, like UV flow vectors, can be applied here too
-	pass

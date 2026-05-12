@@ -101,9 +101,12 @@ var options: Dictionary
 @export var store_barycentric_coordinates := true
 ## If false, will not generate merged brush entities.
 @export var merge_entity_brushes := true
-## If false, entity shadow meshes will not be generated.
-## Currently does not work with Forward+ rendering, recommended to disable.
-@export var shadow_meshes := true # BUG: does not work with Forward+ rendering
+## If false, will not generate brush shadow meshes.
+@export var brush_shadow_meshes := true
+## If false, will not generate entity shadow meshes.
+@export var entity_shadow_meshes := true
+## If false, will not generate cast shadow meshes for entities.
+@export var cast_shadow_meshes := true
 ## If false, occluder instances will not be generated.
 @export var occlusion_culling := true
 
