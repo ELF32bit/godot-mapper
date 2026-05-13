@@ -863,7 +863,8 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 				var surface_index := brush.mesh.get_surface_count() - 1
 				brush.mesh.surface_set_name(surface_index, material)
 		if settings.brush_shadow_meshes and brush.mesh:
-			MapperUtilities.generate_shadow_mesh(brush.mesh)
+			if not settings.use_threads:
+				MapperUtilities.generate_shadow_mesh(brush.mesh)
 
 		# creating brush collision shapes
 		if not brush.is_degenerate and points.size() > 0:

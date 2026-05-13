@@ -102,6 +102,7 @@ var options: Dictionary
 ## If false, will not generate merged brush entities.
 @export var merge_entity_brushes := true
 ## If false, will not generate brush shadow meshes.
+## Generating shadow meshes for brushes is not thread safe.
 @export var brush_shadow_meshes := true
 ## If false, will not generate entity shadow meshes.
 @export var entity_shadow_meshes := true

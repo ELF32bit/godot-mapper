@@ -387,7 +387,7 @@ static func create_multimesh_instance(entity: MapperEntity, parent: Node, multim
 	return multimesh_instance
 
 
-static func create_multimesh_mesh_instance(entity: MapperEntity, parent: Node, multimesh: MultiMesh, transform_array: PackedVector3Array, store_instance_id: bool = true, seed: int = 0) -> MeshInstance3D:
+static func create_merged_multimesh_instance(entity: MapperEntity, parent: Node, multimesh: MultiMesh, transform_array: PackedVector3Array, store_instance_id: bool = true, seed: int = 0) -> MeshInstance3D:
 	if transform_array.size() % 4 != 0:
 		return null
 
