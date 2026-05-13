@@ -773,7 +773,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 	var generate_brush_geometry := func(thread_index: int) -> void:
 		var brush := brush_structures[thread_index]
 		var triangles: PackedVector3Array = []
-		var points: PackedVector3Array = []
+		var unique_points: Dictionary = {}
 		var surface_tools: Dictionary = {}
 		var is_concave_mesh := false
 
@@ -781,9 +781,10 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 		for face in brush.faces:
 			var face_vertices := face.vertices
 			var face_normal := face.plane.normal
-			var vertices := face.get_vertices(brush.center, true)
-			points.append_array(face.get_vertices(brush.center, false))
 			var normals := face.get_normals(true)
+			var vertices := face.get_vertices(brush.center, true)
+			for vertex in face.get_vertices(brush.center, false):
+				unique_points[vertex] = true
 
 			if face.skip:
 				is_concave_mesh = true
@@ -867,9 +868,9 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 				MapperUtilities.generate_shadow_mesh(brush.mesh)
 
 		# creating brush collision shapes
-		if not brush.is_degenerate and points.size() > 0:
+		if not brush.is_degenerate and unique_points.size() > 0:
 			brush.convex_shape = ConvexPolygonShape3D.new()
-			brush.convex_shape.set_points(points)
+			brush.convex_shape.set_points(unique_points.keys())
 			brush.shape = brush.convex_shape
 		if triangles.size() > 0:
 			brush.concave_shape = ConcavePolygonShape3D.new()
@@ -882,7 +883,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 				if brush.concave_shape and is_concave_mesh:
 					brush.shape = brush.concave_shape
 
-	var _generate_occluder := func(mesh: ArrayMesh) -> ArrayOccluder3D:
+	var _generate_brush_occluder := func(mesh: ArrayMesh) -> ArrayOccluder3D:
 		var surface_tool := SurfaceTool.new()
 		surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
 		for surface_index in range(mesh.get_surface_count()):
@@ -892,14 +893,13 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 			var occluder := ArrayOccluder3D.new()
 			occluder.set_arrays(arrays[Mesh.ARRAY_VERTEX], arrays[Mesh.ARRAY_INDEX])
 			return occluder
-		else:
-			return null
+		return null
 
 #9. Generating brush occluders
 	var generate_brush_occluders := func(thread_index: int) -> void:
 		var brush := brush_structures[thread_index]
 		if brush.mesh:
-			brush.occluder = _generate_occluder.call(brush.mesh)
+			brush.occluder = _generate_brush_occluder.call(brush.mesh)
 
 #10. Generating brush lightmap uvs
 	var generate_brush_lightmap_uvs := func(thread_index: int) -> void:
@@ -967,10 +967,6 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 				if has_cast_shadow_mesh:
 					if brush.get_uniform_property(properties.cast_shadow, true):
 						cast_shadow_surface_tool.append_from(brush.mesh, surface_index, offset)
-		for material in surface_tools:
-			surface_tools[material].index()
-		if has_cast_shadow_mesh:
-			cast_shadow_surface_tool.index()
 
 		if surface_tools.size():
 			entity.mesh = ArrayMesh.new()
@@ -999,7 +995,8 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 					arrays[index] = null
 			if is_valid_mesh:
 				entity.cast_shadow_mesh = ArrayMesh.new()
-				entity.cast_shadow_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+				entity.cast_shadow_mesh.add_surface_from_arrays(
+					Mesh.PRIMITIVE_TRIANGLES, arrays)
 
 #13. Generating entity shapes
 	var generate_entity_shapes := func(thread_index: int) -> void:
@@ -1352,16 +1349,16 @@ func build_mdl(mdl: MapperMdlResource) -> PackedScene:
 
 			surface_tool.add_triangle_fan(
 				triangle_vertices, triangle_uvs, [], [], triangle_normals, [])
-		surface_tool.generate_tangents()
 		surface_tool.index()
+		surface_tool.generate_tangents()
+		surface_tool.optimize_indices_for_cache()
 
 		var mesh_instance := MeshInstance3D.new()
 		mesh_instance.mesh = surface_tool.commit()
-		parent.add_child(mesh_instance, true)
-		mesh_instance.owner = scene_root
-
 		if settings.entity_shadow_meshes and mesh_instance.mesh:
 			MapperUtilities.generate_shadow_mesh(mesh_instance.mesh)
+		parent.add_child(mesh_instance, true)
+		mesh_instance.owner = scene_root
 
 		var frame_name: String = frame.get("name", "")
 		if not frame_name.is_empty():

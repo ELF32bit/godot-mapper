@@ -792,7 +792,7 @@ static func create_csg_merged_brush_entity(entity: MapperEntity, brushes: Array[
 				csg_mesh = csg_mesh_combiner.call("bake_static_mesh")
 		csg_mesh_combiner.free()
 
-	var has_shadow := true
+	var cast_shadow := true
 	var has_cast_shadow_mesh := false
 	var csg_cast_shadow_mesh: ArrayMesh = null
 	if mesh_instance and entity.factory.settings.cast_shadow_meshes:
@@ -810,11 +810,12 @@ static func create_csg_merged_brush_entity(entity: MapperEntity, brushes: Array[
 			csg.mesh = brush.mesh
 			csg.position = brush.center
 			add_global_child(csg, csg_cast_shadow_mesh_combiner, entity.factory.settings)
-		if csg_cast_shadow_mesh_combiner.get_child_count() > 0:
-			if csg_cast_shadow_mesh_combiner.has_method("bake_static_mesh"):
-				csg_cast_shadow_mesh = csg_cast_shadow_mesh_combiner.call("bake_static_mesh")
-		else:
-			has_shadow = false
+		if has_cast_shadow_mesh:
+			if csg_cast_shadow_mesh_combiner.get_child_count() > 0:
+				if csg_cast_shadow_mesh_combiner.has_method("bake_static_mesh"):
+					csg_cast_shadow_mesh = csg_cast_shadow_mesh_combiner.call("bake_static_mesh")
+			else:
+				cast_shadow = false
 		csg_cast_shadow_mesh_combiner.free()
 
 	var csg_shape: ConcavePolygonShape3D = null
@@ -854,6 +855,33 @@ static func create_csg_merged_brush_entity(entity: MapperEntity, brushes: Array[
 				csg_occluder_mesh = csg_occluder_combiner.call("bake_static_mesh")
 		csg_occluder_combiner.free()
 
+	# cleaning up csg cast shadow mesh
+	if csg_cast_shadow_mesh:
+		var is_valid_mesh := false
+		var surface_tool := SurfaceTool.new()
+		surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+		for surface_index in range(csg_cast_shadow_mesh.get_surface_count()):
+			surface_tool.append_from(csg_cast_shadow_mesh, surface_index, Transform3D.IDENTITY)
+		surface_tool.index()
+		surface_tool.optimize_indices_for_cache()
+		var arrays := surface_tool.commit_to_arrays()
+		var required_arrays := [Mesh.ARRAY_VERTEX, Mesh.ARRAY_INDEX]
+		if entity.factory.settings.lightmap_unwrap:
+			required_arrays.insert(1, Mesh.ARRAY_NORMAL)
+		for index in range(Mesh.ARRAY_MAX):
+			if index in required_arrays:
+				if arrays[index] != null:
+					if arrays[index].size() != 0:
+						is_valid_mesh = true
+					else:
+						arrays[index] = null
+			elif arrays[index] != null:
+				arrays[index] = null
+		if is_valid_mesh:
+			csg_cast_shadow_mesh = ArrayMesh.new()
+			csg_cast_shadow_mesh.add_surface_from_arrays(
+				Mesh.PRIMITIVE_TRIANGLES, arrays)
+
 	if entity.factory.settings.lightmap_unwrap:
 		var transform := Transform3D.IDENTITY.translated(entity.center)
 		var lightmap_scale: float = entity.get_lightmap_scale_property(1.0)
@@ -863,18 +891,30 @@ static func create_csg_merged_brush_entity(entity: MapperEntity, brushes: Array[
 		if csg_cast_shadow_mesh:
 			lightmap_unwrap(csg_cast_shadow_mesh, transform, texel_size)
 
+	# cleaning up csg mesh
 	if csg_mesh:
 		var surfaces: Dictionary = {}
 		for brush in brushes:
 			for material_name in brush.materials:
 				surfaces[brush.materials[material_name].base] = material_name
 				surfaces[brush.materials[material_name].override] = material_name
+		var new_csg_mesh := ArrayMesh.new()
 		for surface_index in range(csg_mesh.get_surface_count()):
+			var surface_tool := SurfaceTool.new()
+			surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+			surface_tool.append_from(csg_mesh, surface_index, Transform3D.IDENTITY)
 			var surface_material := csg_mesh.surface_get_material(surface_index)
 			var surface_name: String = surfaces.get(surface_material, "")
-			csg_mesh.surface_set_name(surface_index, surface_name)
+			surface_tool.set_material(surface_material)
+			surface_tool.index()
+			surface_tool.generate_tangents()
+			surface_tool.optimize_indices_for_cache()
+			new_csg_mesh = surface_tool.commit(new_csg_mesh)
+			var new_surface_index := new_csg_mesh.get_surface_count() - 1
+			new_csg_mesh.surface_set_name(new_surface_index, surface_name)
 		if entity.factory.settings.entity_shadow_meshes:
-			generate_shadow_mesh(csg_mesh)
+			generate_shadow_mesh(new_csg_mesh)
+		csg_mesh = new_csg_mesh
 
 	if csg_occluder_mesh:
 		var surface_tool := SurfaceTool.new()
@@ -915,7 +955,7 @@ static func create_csg_merged_brush_entity(entity: MapperEntity, brushes: Array[
 				instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 				shadow_instance.mesh = csg_cast_shadow_mesh
 			if instance.cast_shadow != 0:
-				instance.cast_shadow = int(has_shadow)
+				instance.cast_shadow = int(cast_shadow)
 
 	if csg_shape:
 		var instance := CollisionShape3D.new()
@@ -958,13 +998,21 @@ static func create_decal_entity(entity: MapperEntity) -> Decal:
 	node.extents = (node.basis.inverse() * entity.aabb.size).abs() / 2.0
 
 	var material_name := entity.brushes[0].mesh.surface_get_name(0)
-	var material: BaseMaterial3D = entity.brushes[0].materials[material_name].base
-	node.texture_albedo = material.get_texture(BaseMaterial3D.TEXTURE_ALBEDO)
-	node.texture_normal = material.get_texture(BaseMaterial3D.TEXTURE_NORMAL)
-	node.texture_orm = material.get_texture(BaseMaterial3D.TEXTURE_ORM)
-	node.texture_emission = material.get_texture(BaseMaterial3D.TEXTURE_EMISSION)
-	node.emission_energy = material.emission_intensity # BUG: different property names
-	node.modulate = material.albedo_color
+	var base_material: BaseMaterial3D = entity.brushes[0].materials[material_name].base
+	node.texture_albedo = base_material.get_texture(BaseMaterial3D.TEXTURE_ALBEDO)
+	node.texture_normal = base_material.get_texture(BaseMaterial3D.TEXTURE_NORMAL)
+	node.texture_orm = base_material.get_texture(BaseMaterial3D.TEXTURE_ORM)
+	node.texture_emission = base_material.get_texture(BaseMaterial3D.TEXTURE_EMISSION)
+
+	var override_material: Material = entity.brushes[0].materials[material_name].override
+	if override_material is BaseMaterial3D:
+		node.emission_energy = override_material.emission_energy_multiplier
+		node.modulate = override_material.albedo_color
+	elif override_material is ShaderMaterial:
+		for parameter in ["emission_energy", "modulate"]:
+			var value = override_material.get_shader_parameter(parameter)
+			if value != null:
+				node.set(parameter, value)
 
 	return node
 
