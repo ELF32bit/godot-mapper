@@ -42,7 +42,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 		build_time += time
 		self.progress = progress / 21.0 # number of build steps
 		if settings.print_progress:
-			if not settings.print_progress_verbose and time <= 100:
+			if not settings.print_progress_verbose and time <= 250:
 				return
 			print("(%.2f) %s: %.3fs" % [self.progress, comment, time / 1000.0])
 

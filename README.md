@@ -9,7 +9,7 @@ Organize map resources into game expansions by specifying alternative game direc
 #### [Additional tools for creating maps are available here](https://github.com/ELF32bit/mapping-tools)
 
 ## Features
-* Automatic reimport and progressive loading of [custom maps](https://github.com/ELF32bit/godot-mapper-characters) in a deterministic way.
+* Automatic reimport and progressive loading of [custom](https://github.com/ELF32bit/godot-mapper-characters) [maps](https://github.com/ELF32bit/godot-mapper-mazes) in a deterministic way.
 * Powerful loading system for materials, animated textures and shader material textures.
 * Scattering, based on floor angle, of multi-meshes on textures and inside brushes.
 * Effortless brush entity construction and animation using plugin functions.
@@ -97,31 +97,31 @@ Shader materials that use standard texture parameters will be assigned provided 
 For example, **albedo_texture** or **normal_texture** parameters inside a shader.<br>
 
 #### Material metadata can affect how nodes of uniform brushes are generated.
-* ```mesh_disabled``` set to True will hide MeshInstance3D.
+* **`mesh_disabled`** set to True will hide MeshInstance3D.
 
 > Meshes of uniform brushes will not be merged into entity mesh.
 
-* ```cast_shadow``` set to False will disable shadow casting on MeshInstance3D.
+* **`cast_shadow`** set to False will disable shadow casting on MeshInstance3D.
 
 > Meshes of uniform brushes will be excluded from entity shadow mesh.
 
-* ```gi_mode``` will set MeshInstance3D gi_mode to the specified mode.
-* ```ignore_occlusion``` set to True will disable MeshInstance3D culling.
-* ```collision_disabled``` set to True will disable CollisionShape3D.
+* **`gi_mode`** will set MeshInstance3D gi_mode to the specified mode.
+* **`ignore_occlusion`** set to True will disable MeshInstance3D culling.
+* **`collision_disabled`** set to True will disable CollisionShape3D.
 
 > Shapes of uniform brushes will not be merged into entity collision shape.
 
-* ```collision_layer``` will set CollisionObject3D layer to the specified layer.
-* ```collision_mask``` will set CollisionObject3D mask to the specified mask.
-* ```occluder_disabled``` set to True will hide OccluderInstance3D.
+* **`collision_layer`** will set CollisionObject3D layer to the specified layer.
+* **`collision_mask`** will set CollisionObject3D mask to the specified mask.
+* **`occluder_disabled`** set to True will hide OccluderInstance3D.
 
 > Occluders of uniform brushes will not be merged into entity occluder.
 
-* ```occluder_mask``` will set OccluderInstance3D mask to the specified mask.
-* ```physics_material``` will set StaticBody3D or RigidBody3D physics material.
-* ```mass_density``` will affect material contribution to RigidBody3D mass.
+* **`occluder_mask`** will set OccluderInstance3D mask to the specified mask.
+* **`physics_material`** will set StaticBody3D or RigidBody3D physics material.
+* **`mass_density`** will affect material contribution to RigidBody3D mass.
 
-> Non-uniform brushes require `use_approximate_mass` setting set to False.
+> Non-uniform brushes require **`use_approximate_mass`** setting set to False.
 
 Material metadata can be used to filter out special brushes from merged entities.<br>
 Special **SKIP** material does not break the uniformity of such brushes.<br>
@@ -151,7 +151,7 @@ for brush in entity.brushes:
 	MapperUtilities.add_global_child(liquid_area, entity_node, map.settings)
 ```
 
-> CSG merged brush entities use **brush.metadata** overwrites to re-enable disabled nodes.
+> CSG merged entity brushes use **brush.metadata** overwrites to re-enable disabled nodes.
 
 ### 4. Animated textures and material alternative textures.
 Generic textures are using a complex naming pattern.<br>
@@ -311,9 +311,9 @@ Special `__loading_depth` option is available for sub-maps in **map.settings**.<
 ## Troubleshooting
 Disable **editor/import/use_multiple_threads** for older versions of Godot.<br>
 Restart Godot if the plugin types fail to parse during the first launch.<br>
-Disable `lightmap_unwrap` setting if the freezes are consistent.<br>
+Disable **`lightmap_unwrap`** setting if the freezes are consistent.<br>
 
-### Compiling Godot with a safe `lightmap_unwrap`.
+### Compiling Godot with a safe **`lightmap_unwrap`**.
 **XAtlas** library is used internally to unwrap meshes with multiple threads.<br>
 Download engine source code and change **thirdparty/xatlas/xatlas.cpp**.<br>
 ```C++
@@ -324,7 +324,8 @@ Download engine source code and change **thirdparty/xatlas/xatlas.cpp**.<br>
 ### Baking lightmaps in large scenes.
 Godot editor can't open scenes with too many nodes, which is necessary for baking.<br>
 Maps can be constructed with a special `__lightmap_scene` option that reduces nodes.<br>
-Furthermore, `skip_entities_classnames` list setting can remove unnecessary point entities.<br>
+Setting **`world_entity_extra_brush_entities_classnames`** list will optimize detail entities.<br>
+Furthermore, **`skip_entities_classnames`** list setting can remove unnecessary point entities.<br>
 After baking the lightmap, a full map must be constructed with `__lightmap_external` option.<br>
 
 > For large map coordinates, it's also recommended to compile Godot with **`precision=double`**.

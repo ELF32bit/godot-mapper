@@ -139,7 +139,7 @@ func load_animated_texture(texture: String, wads: Array[MapperWadResource] = [])
 			elif frames in animated_texture_cache:
 				return animated_texture_cache[frames]
 
-			var reference_texture := load_resource(texture_name, "AnimatedTexture")
+			var reference_texture := load_resource(texture_name + other_suffix, "AnimatedTexture")
 			if animated_texture != null or not settings.reference_override_materials:
 				if animated_texture == null:
 					animated_texture_cache[frames] = AnimatedTexture.new()
