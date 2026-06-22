@@ -863,8 +863,8 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 				# material surface names are required for override materials
 				var surface_index := brush.mesh.get_surface_count() - 1
 				brush.mesh.surface_set_name(surface_index, material)
-		if settings.brush_shadow_meshes and brush.mesh:
-			if not settings.use_threads:
+		if settings.shadow_meshes and settings.brush_shadow_meshes:
+			if brush.mesh and not settings.use_threads:
 				MapperUtilities.generate_shadow_mesh(brush.mesh)
 
 		# creating brush collision shapes
@@ -975,7 +975,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 				# material surface names are required for override materials
 				var surface_index := entity.mesh.get_surface_count() - 1
 				entity.mesh.surface_set_name(surface_index, material)
-		if settings.entity_shadow_meshes and entity.mesh:
+		if settings.shadow_meshes and entity.mesh:
 			MapperUtilities.generate_shadow_mesh(entity.mesh)
 
 		if has_cast_shadow_mesh:
@@ -1257,7 +1257,7 @@ func build_map(map: MapperMapResource, wads: Array[MapperWadResource] = []) -> P
 	if settings.occlusion_culling and settings.merge_entity_brushes:
 		factory.call(parallel_task.bind(generate_entity_occluders, entity_structures.size(), 0), 13, "Generating entity occluders")
 
-	if settings.lightmap_unwrap:
+	if settings.lightmap_unwrap and settings.brush_lightmap_unwrap:
 		factory.call(parallel_task.bind(generate_brush_lightmap_uvs, brush_structures.size(), 0), 14, "Unwrapping brushes for lightmaps")
 	if settings.lightmap_unwrap and settings.merge_entity_brushes:
 		factory.call(parallel_task.bind(generate_entity_lightmap_uvs, entity_structures.size(), 0), 15, "Unwrapping entities for lightmaps")
@@ -1355,7 +1355,7 @@ func build_mdl(mdl: MapperMdlResource) -> PackedScene:
 
 		var mesh_instance := MeshInstance3D.new()
 		mesh_instance.mesh = surface_tool.commit()
-		if settings.entity_shadow_meshes and mesh_instance.mesh:
+		if settings.shadow_meshes and mesh_instance.mesh:
 			MapperUtilities.generate_shadow_mesh(mesh_instance.mesh)
 		parent.add_child(mesh_instance, true)
 		mesh_instance.owner = scene_root

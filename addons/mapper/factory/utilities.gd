@@ -546,7 +546,7 @@ static func create_merged_multimesh_instance(entity: MapperEntity, parent: Node,
 		var lightmap_scale: float = entity.get_lightmap_scale_property(1.0)
 		var texel_size := entity.factory.settings.lightmap_texel_size / lightmap_scale
 		lightmap_unwrap(array_mesh, transform, texel_size)
-	if entity.factory.settings.entity_shadow_meshes and array_mesh.get_blend_shape_count() == 0:
+	if entity.factory.settings.shadow_meshes and array_mesh.get_blend_shape_count() == 0:
 		if multimesh_mesh.shadow_mesh:
 			generate_shadow_mesh(array_mesh)
 
@@ -912,7 +912,7 @@ static func create_csg_merged_brush_entity(entity: MapperEntity, brushes: Array[
 			new_csg_mesh = surface_tool.commit(new_csg_mesh)
 			var new_surface_index := new_csg_mesh.get_surface_count() - 1
 			new_csg_mesh.surface_set_name(new_surface_index, surface_name)
-		if entity.factory.settings.entity_shadow_meshes:
+		if entity.factory.settings.shadow_meshes:
 			generate_shadow_mesh(new_csg_mesh)
 		csg_mesh = new_csg_mesh
 
